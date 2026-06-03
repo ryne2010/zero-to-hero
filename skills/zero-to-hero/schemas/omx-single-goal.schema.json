@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "required": [
+    "version",
+    "goals"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "status",
+          "stories"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "stories": {
+            "type": "array"
+          }
+        }
+      }
+    }
+  }
+}

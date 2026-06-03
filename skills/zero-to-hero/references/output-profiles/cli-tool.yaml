@@ -1,0 +1,12 @@
+profile: cli_tool
+capabilities:
+- cli_tool
+generate:
+- docs/product
+- docs/cli
+- docs/product-execution
+- docs/production-readiness
+minimum_proof:
+- command matrix
+- golden command outputs
+- error path tests

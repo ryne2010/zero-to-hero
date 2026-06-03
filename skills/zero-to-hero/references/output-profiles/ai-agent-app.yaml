@@ -1,0 +1,15 @@
+profile: ai_agent_app
+capabilities:
+- agent_runtime
+- ai
+generate:
+- docs/agents
+- docs/ai
+- docs/product-execution
+- docs/production-readiness
+- .agents/skills
+minimum_proof:
+- tool permission matrix
+- eval suite
+- prompt injection defenses
+- runtime traces

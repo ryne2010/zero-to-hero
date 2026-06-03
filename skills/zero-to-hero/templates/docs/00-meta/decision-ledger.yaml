@@ -1,0 +1,7 @@
+decisions: []
+statuses:
+  - explicit
+  - inferred
+  - unresolved
+  - rejected
+  - out_of_scope

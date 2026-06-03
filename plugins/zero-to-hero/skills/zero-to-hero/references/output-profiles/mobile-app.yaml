@@ -1,0 +1,13 @@
+profile: mobile_app
+capabilities:
+- mobile_app
+- api_backend_optional
+generate:
+- docs/product
+- docs/mobile
+- docs/product-execution
+- docs/production-readiness
+minimum_proof:
+- mobile flows
+- offline/error states
+- accessibility/touch target proof

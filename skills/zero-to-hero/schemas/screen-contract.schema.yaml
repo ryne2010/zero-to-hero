@@ -1,0 +1,22 @@
+type: object
+required: [screen_id, route, viewport, layout, interactions, data, acceptance]
+properties:
+  screen_id: {type: string}
+  route: {type: string}
+  viewport:
+    type: object
+    required: [width, height]
+  theme: {type: string}
+  source:
+    type: object
+    properties:
+      kind: {type: string}
+      file: {type: string}
+  layout:
+    type: object
+    properties:
+      regions: {type: array}
+  interactions: {type: array}
+  data: {type: object}
+  motion: {type: array}
+  acceptance: {type: array}

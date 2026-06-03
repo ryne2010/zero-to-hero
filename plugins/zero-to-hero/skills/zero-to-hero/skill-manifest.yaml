@@ -1,0 +1,51 @@
+name: zero-to-hero
+version: 0.1.0
+license: MIT
+repository: https://github.com/ryne2010/zero-to-hero
+kind: codex_skill_pack
+purpose: >-
+  Convert product ideas, prototypes, or messy repositories into clean,
+  canonical, implementation-ready repositories for Codex/OMX.
+entrypoint: SKILL.md
+product_code_implementation: false
+canonical_sequence:
+  - prompts/00-deep-interview.md
+  - prompts/01-research-and-capability-detection.md
+  - prompts/02-canonical-docs-pack.md
+  - prompts/03-design-visual-pack.md
+  - prompts/04-hardware-mechanical-pcb-pack.md
+  - prompts/05-frontend-parity-system.md
+  - prompts/06-product-usability-contract.md
+  - prompts/07-local-product-done-harness.md
+  - prompts/08-omx-handoff.md
+  - prompts/09-canonical-cleanup.md
+  - prompts/10-implementation-readiness-review.md
+
+optional_prompts:
+  - prompts/98-target-repo-preflight.md
+  - prompts/99-one-shot-small-product.md
+checks:
+  aggregate: scripts/zero_to_hero_check.py
+  target_repo_preflight: scripts/target_repo_audit.py
+  phase_gates: scripts/phase_gate_check.py
+
+quality_scripts:
+  instruction_trust_scan: scripts/instruction_trust_scan.py
+  prompt_sequence_check: scripts/prompt_sequence_check.py
+  target_repo_audit: scripts/target_repo_audit.py
+  repo_safety_check: scripts/repo_safety_check.py
+
+template_application_profiles: references/template-application-profiles.md
+
+guided_start: scripts/zero_to_hero_start.py
+operating_recipes: references/operating-recipes.md
+proof_first_implementation: references/proof-first-implementation.md
+
+prompt_bundle: scripts/render_prompt_bundle.py
+distribution_builder: scripts/build_skill_zip.py
+
+external_context_inventory: scripts/external_context_inventory.py
+external_context_sources: references/external-context-sources.md
+phase_prompt_contract: references/phase-prompt-contract.md
+
+repo_safety_preflight: references/repo-safety-preflight.md

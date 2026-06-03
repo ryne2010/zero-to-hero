@@ -1,0 +1,17 @@
+profile: robotics_product
+capabilities:
+- robotics
+- firmware
+- mechanical_cad_optional
+- pcb_electronics_optional
+generate:
+- docs/robotics
+- docs/mechanical
+- docs/firmware
+- docs/hardware
+- docs/product-execution
+minimum_proof:
+- simulation plan
+- safety constraints
+- bring-up plan
+- telemetry contracts

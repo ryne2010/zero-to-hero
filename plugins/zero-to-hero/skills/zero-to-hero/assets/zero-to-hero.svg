@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="zero-to-hero icon">
+  <rect width="128" height="128" rx="28" fill="#F7F1E8"/>
+  <path d="M30 89c18-28 41-42 68-49-9 19-24 39-45 54-8 5-16 8-23 8 0-4 0-8 0-13z" fill="#2F6B4F"/>
+  <path d="M37 88c14-17 31-29 53-38" stroke="#F2C46D" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <circle cx="43" cy="40" r="11" fill="#1F3B2D"/>
+  <path d="M72 33l8 14 16 3-12 11 2 16-14-8-15 7 3-16-12-12 16-2z" fill="#C7833D"/>
+</svg>

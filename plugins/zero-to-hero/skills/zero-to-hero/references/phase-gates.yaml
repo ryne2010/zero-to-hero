@@ -1,0 +1,61 @@
+gates:
+  interview:
+    required:
+      - product_summary
+      - primary_users
+      - success_criteria
+      - unresolved_decisions_recorded
+  research_and_capability_detection:
+    required:
+      - capability_report
+      - source_research_summary_when_needed
+      - stack_assumptions_with_confidence
+  canonical_docs_pack:
+    required:
+      - source_of_truth_map
+      - feature_index
+      - user_stories
+      - architecture_overview
+      - decision_ledger
+  design_and_visual_pack:
+    required_when:
+      - web_frontend
+      - mobile_app
+      - desktop_app
+    required:
+      - approved_design_direction
+      - visual_target_inventory
+      - visual_deconstruction_plan
+  hardware_pack:
+    required_when:
+      - mechanical_cad
+      - pcb_electronics
+      - firmware
+      - robotics
+    required:
+      - requirements
+      - safety_reality_check
+      - validation_plan
+  harness_pack:
+    required:
+      - frontend_or_ui_harness_when_applicable
+      - product_usability_contract_when_applicable
+      - local_product_done_gate
+      - runtime_evidence_policy
+  omx_handoff_pack:
+    required:
+      - native_omx_structure
+      - single_aggregate_goal
+      - ordered_stories
+      - final_review_gate
+  canonical_cleanup:
+    required:
+      - no_iteration_residue
+      - no_broken_refs
+      - yaml_json_parse_pass
+      - generated_manifest_current
+  implementation_readiness_review:
+    required:
+      - all_required_phase_gates_pass
+      - no_blocking_unresolved_decisions
+      - handoff_entry_points_exist

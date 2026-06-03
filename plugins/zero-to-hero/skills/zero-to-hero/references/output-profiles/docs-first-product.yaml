@@ -1,0 +1,12 @@
+profile: docs_first_product
+capabilities:
+- docs_only
+generate:
+- docs
+- docs/product-execution
+- .omx/ultragoal
+minimum_proof:
+- source-of-truth map
+- feature index
+- implementation handoff
+- cleanup report

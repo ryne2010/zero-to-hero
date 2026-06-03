@@ -1,0 +1,16 @@
+profile: pcb_electronics
+capabilities:
+- pcb_electronics
+- firmware_optional
+generate:
+- docs/pcb
+- docs/firmware
+- docs/hardware
+- docs/product-execution
+- docs/production-readiness
+minimum_proof:
+- block diagram
+- power tree
+- I/O map
+- ERC/DRC path
+- fabrication handoff checklist

@@ -1,0 +1,36 @@
+interview:
+  required:
+    - .omx/context/zero-to-hero-interview.md
+    - .codex/reports/zero-to-hero/interview-summary.md
+research_and_capability_detection:
+  required:
+    - .codex/reports/zero-to-hero/capability-report.yaml
+    - .codex/reports/zero-to-hero/research-queue.md
+canonical_docs_pack:
+  required:
+    - docs/00-meta/source-of-truth-map.yaml
+    - docs/00-meta/feature-index.yaml
+    - docs/00-meta/decision-ledger.yaml
+design_and_visual_pack:
+  required_when:
+    - web_frontend
+    - mobile_app
+    - server_rendered_ui
+  required:
+    - docs/ui/DIRECTION.md
+    - docs/ui/frontend-parity-system/README.md
+harness_pack:
+  required:
+    - docs/product-execution/README.md
+    - docs/product-execution/local-product-done-gate.md
+omx_handoff_pack:
+  required:
+    - .omx/ultragoal/brief.md
+    - .omx/ultragoal/goals.json
+    - .omx/ultragoal/ledger.jsonl
+canonical_cleanup:
+  required:
+    - .codex/reports/zero-to-hero/cleanup-report.md
+implementation_readiness_review:
+  required:
+    - .codex/reports/zero-to-hero/final-readiness.md

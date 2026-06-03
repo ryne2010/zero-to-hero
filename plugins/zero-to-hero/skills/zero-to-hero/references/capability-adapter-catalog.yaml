@@ -1,0 +1,99 @@
+capabilities:
+  web_frontend:
+    evidence:
+      - package.json contains react, vue, svelte, angular, next, vite, remix, tanstack, astro, solid, nuxt, sveltekit
+      - app, pages, routes, src/routes, components directories
+    harness_layers:
+      - frontend_parity_system
+      - product_usability_contract
+      - no_scaffold_gate
+      - screenshot_evidence
+      - accessibility_contract
+  server_rendered_ui:
+    evidence:
+      - rails views, django templates, blade templates, phoenix templates, go templates
+    harness_layers:
+      - frontend_parity_system
+      - product_usability_contract
+      - route_capsules
+      - form_lifecycle_contracts
+  mobile_app:
+    evidence:
+      - react-native, expo, flutter, swiftui, android, ios directories
+    harness_layers:
+      - mobile_visual_contracts
+      - role_walkthroughs
+      - device_state_matrix
+      - screenshot_evidence
+  api_backend:
+    evidence:
+      - openapi, routes, controllers, fastapi, express, nest, django, rails, go http, grpc, graphql
+    harness_layers:
+      - api_contracts
+      - authz_tests
+      - idempotency_contracts
+      - runtime_evidence
+  database:
+    evidence:
+      - migrations, schema.prisma, drizzle, sqlalchemy, django models, rails migrations, sql files
+    harness_layers:
+      - schema_source_of_truth
+      - migration_checks
+      - seed_scenarios
+      - before_after_state_evidence
+  agent_ai:
+    evidence:
+      - prompts, agents, tools, evals, model gateway, langchain, llamaindex, openai, anthropic
+    harness_layers:
+      - prompt_registry
+      - model_registry
+      - grounded_output_gateway
+      - evals
+      - instruction_trust
+  mechanical_cad:
+    evidence:
+      - step, stl, 3mf, glb, cad, freecad, onshape, solidworks, fusion, openscad, build123d, ocp
+    harness_layers:
+      - mechanical_requirements
+      - cad_validation
+      - bom_and_tolerances
+      - text_to_cad_workflow
+  pcb_electronics:
+    evidence:
+      - kicad_pro, kicad_sch, kicad_pcb, altium, gerber, bom, footprints, symbols
+    harness_layers:
+      - pcb_requirements
+      - schematic_review
+      - layout_constraints
+      - drc_erc
+      - fabrication_outputs
+  firmware_iot_robotics:
+    evidence:
+      - platformio, arduino, zephyr, freertos, ros, urdf, sdf, microcontroller firmware
+    harness_layers:
+      - firmware_requirements
+      - hardware_interface_contract
+      - simulation_and_bringup
+      - test_jig_plan
+  infra:
+    evidence:
+      - terraform, pulumi, cloudformation, kubernetes, docker-compose, helm
+    harness_layers:
+      - local_runtime
+      - production_delta
+      - secrets_policy
+      - observability
+  cli_tool:
+    evidence:
+      - bin, cli, commander, click, typer, clap, cobra
+    harness_layers:
+      - command_contracts
+      - fixture_tests
+      - help_output_contract
+  docs_only:
+    evidence:
+      - docs dominant, no buildable app surfaces
+    harness_layers:
+      - source_of_truth_contract
+      - implementation_roadmap
+      - clean_canonical_policy

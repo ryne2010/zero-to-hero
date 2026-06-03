@@ -1,0 +1,17 @@
+type: object
+required: [decisions]
+properties:
+  decisions:
+    type: array
+    items:
+      type: object
+      required: [id, status, source]
+      properties:
+        id: {type: string}
+        status:
+          type: string
+          enum: [explicit, inferred, unresolved, rejected, out_of_scope]
+        value: {}
+        source: {type: string}
+        requires_review: {type: boolean}
+        notes: {type: string}

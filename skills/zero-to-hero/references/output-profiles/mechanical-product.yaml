@@ -1,0 +1,14 @@
+profile: mechanical_product
+capabilities:
+- mechanical_cad
+generate:
+- docs/mechanical
+- docs/product
+- docs/product-execution
+- docs/production-readiness
+minimum_proof:
+- requirements
+- dimensions
+- tolerances
+- CAD generation path
+- manufacturing review checklist

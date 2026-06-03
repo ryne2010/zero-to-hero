@@ -1,0 +1,13 @@
+profile: desktop_app
+applies_when: [desktop_app]
+generate:
+  - docs/product/
+  - docs/architecture/
+  - docs/ui/
+  - docs/product-execution/
+  - docs/production-readiness/
+proof:
+  - app shell launches locally
+  - primary workflow completes without live services
+  - desktop packaging path documented
+  - update/security policy documented

@@ -1,0 +1,13 @@
+profile: data_ml_app
+applies_when: [data_ml, ai_agent_app]
+generate:
+  - docs/product/
+  - docs/architecture/
+  - docs/contracts/
+  - docs/product-execution/
+  - docs/production-readiness/
+proof:
+  - data lineage documented
+  - eval harness documented
+  - model/provider policy documented
+  - reproducible local run documented

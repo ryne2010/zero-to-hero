@@ -1,0 +1,24 @@
+canonical:
+  product: docs/product/
+  stories: docs/stories/
+  workflows: docs/workflows/
+  architecture: docs/architecture/
+  contracts: docs/contracts/
+  ui: docs/ui/
+  product_execution: docs/product-execution/
+  production_readiness: docs/production-readiness/
+  mechanical: docs/mechanical/
+  pcb: docs/pcb/
+  firmware: docs/firmware/
+  agent_handoff: docs/agents/
+
+non_authoritative:
+  - .omx/plans/
+  - .artifacts/
+
+entry_points:
+  - AGENTS.md
+  - CODEX.md
+  - FINAL_HANDOFF.md
+  - docs/00-meta/canonical-handoff.md
+  - docs/00-meta/source-of-truth-map.yaml

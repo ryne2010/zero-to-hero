@@ -1,0 +1,16 @@
+profile: api_service
+capabilities:
+- api_backend
+- database_optional
+generate:
+- docs/product
+- docs/architecture
+- docs/contracts
+- docs/product-execution/runtime-evidence
+- docs/production-readiness
+skip_unless:
+- docs/ui/frontend-parity-system
+minimum_proof:
+- contract tests
+- authz/error/idempotency specs
+- local integration harness

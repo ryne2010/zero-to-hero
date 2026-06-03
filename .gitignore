@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+.DS_Store
+.codex/reports/
+.artifacts/
+*.zip
+dist/
+build/
+.pytest_cache/
+.ruff_cache/

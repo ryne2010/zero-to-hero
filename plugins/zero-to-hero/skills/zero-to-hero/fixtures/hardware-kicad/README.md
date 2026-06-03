@@ -1,0 +1,1 @@
+# KiCad hardware fixture

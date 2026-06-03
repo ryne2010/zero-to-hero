@@ -1,0 +1,171 @@
+phases:
+  interview:
+    purpose: Clarify product intent, users, constraints, risks, capabilities, and unresolved decisions.
+    entry_requires: []
+    may_write:
+      - .omx/context/zero-to-hero-interview.md
+      - .codex/reports/zero-to-hero/interview-summary.md
+      - .codex/reports/zero-to-hero/unresolved-decisions.md
+    must_not_write:
+      - app source files
+      - production configs
+      - live provider credentials
+    exit_requires:
+      - product_summary
+      - target_users
+      - primary_jobs
+      - non_goals
+      - unresolved_decision_ledger
+    stop_if:
+      - user refuses clarification required for safe scope
+
+  research_and_capability_detection:
+    purpose: Verify time-sensitive facts and detect capability profile.
+    entry_requires:
+      - interview_summary_or_equivalent
+    may_write:
+      - .codex/reports/zero-to-hero/capability-report.yaml
+      - .codex/reports/zero-to-hero/research-queue.md
+      - .codex/reports/zero-to-hero/source-notes.md
+    must_not_write:
+      - app source files
+    exit_requires:
+      - capability_profile
+      - output_profile_selection
+      - research_risks_logged
+
+  canonical_docs_pack:
+    purpose: Generate canonical product, architecture, stories, workflows, security, data, runbooks, and source-of-truth docs.
+    entry_requires:
+      - approved_interview
+      - capability_profile
+    may_write:
+      - docs/
+      - AGENTS.md
+      - CODEX.md
+      - FINAL_HANDOFF.md
+      - .codex/reports/zero-to-hero/generated-files.manifest.yaml
+    must_not_write:
+      - app source files
+    exit_requires:
+      - docs/00-meta/source-of-truth-map.yaml
+      - docs/00-meta/feature-index.yaml
+      - canonical_decision_ledger
+      - broken_reference_check_passed
+
+  design_and_visual_pack:
+    purpose: Create and approve UI/art/design visual targets, then convert them into contracts.
+    entry_requires:
+      - canonical_docs_pack
+    may_write:
+      - docs/ui/
+      - docs/design/
+      - docs/screens/
+      - .codex/reports/zero-to-hero/visual-approval-ledger.md
+    must_not_write:
+      - app source files
+    exit_requires:
+      - approved_design_direction
+      - visual_deconstruction_contracts
+      - frontend_parity_scope_or_not_applicable
+    stop_if:
+      - visual_direction_unapproved
+
+  hardware_pack_if_applicable:
+    purpose: Generate mechanical, CAD, PCB, firmware, IoT, or robotics source-of-truth packs when capability detection requires them.
+    entry_requires:
+      - capability_profile
+    may_write:
+      - docs/mechanical/
+      - docs/pcb/
+      - docs/firmware/
+      - docs/robotics/
+      - docs/hardware/
+    must_not_write:
+      - manufacturing output files as approved-for-fabrication
+    exit_requires:
+      - hardware_risk_boundaries
+      - review_checklists
+      - validation_path
+
+  harness_pack:
+    purpose: Add verification harness layers that turn specs into implementable and testable product behavior.
+    entry_requires:
+      - canonical_docs_pack
+    may_write:
+      - docs/product-execution/
+      - docs/production-readiness/
+      - scripts/*check*
+      - .gitignore
+      - package.json scripts when appropriate
+    must_not_write:
+      - app feature implementation
+    exit_requires:
+      - local_product_done_gate
+      - runtime_evidence_harness
+      - traceability_harness
+      - local_simulator_harness_when_applicable
+
+  repo_scoped_skills_pack:
+    purpose: Add only useful repo-scoped implementation skills.
+    entry_requires:
+      - harness_pack
+    may_write:
+      - .agents/skills/
+    must_not_write:
+      - .omx/AGENTS.md
+      - app source files
+    exit_requires:
+      - repo_skill_count_reasonable
+      - each_skill_has_clear_description
+      - no_duplicate_skill_scope
+
+  omx_handoff_pack:
+    purpose: Create native OMX artifacts for one aggregate implementation goal with ordered stories.
+    entry_requires:
+      - canonical_docs_pack
+      - harness_pack
+    may_write:
+      - .omx/ultragoal/brief.md
+      - .omx/ultragoal/goals.json
+      - .omx/ultragoal/ledger.jsonl
+      - .omx/context/
+      - .omx/plans/.gitkeep
+    must_not_write:
+      - .omx/AGENTS.md
+      - multiple competing goal ledgers
+    exit_requires:
+      - one_aggregate_goal
+      - ordered_stories
+      - checkpoint_policy
+
+  canonical_cleanup:
+    purpose: Remove iteration residue and reconcile duplicates while preserving all substantive decisions.
+    entry_requires:
+      - generated_docs_and_handoff
+    may_write:
+      - docs/
+      - .codex/reports/zero-to-hero/cleanup-report.md
+    must_not_write:
+      - app source files unless renaming generated docs references requires it and user approves
+    exit_requires:
+      - no_iteration_residue
+      - no_broken_refs
+      - no_invalid_yaml
+      - no_duplicate_source_of_truth
+      - substance_preservation_report
+
+  implementation_readiness_review:
+    purpose: Final check that the repository is ready for Codex/OMX implementation.
+    entry_requires:
+      - canonical_cleanup
+    may_write:
+      - .codex/reports/zero-to-hero/final-readiness.md
+      - FINAL_HANDOFF.md
+    must_not_write:
+      - app source files
+    exit_requires:
+      - handoff_files_listed
+      - run_sequence_listed
+      - local_done_gate_defined
+      - unresolved_decisions_logged

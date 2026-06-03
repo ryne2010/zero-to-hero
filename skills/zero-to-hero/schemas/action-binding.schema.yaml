@@ -1,0 +1,15 @@
+action_id: string
+route: string
+component: string
+control_label: string
+preconditions: list
+enabled_when: list
+disabled_reason: string
+behavior:
+  kind: navigation|modal|mutation|local-simulator|draft|external-effect-gated
+mutation: string
+domain_events: list
+success_state: string
+error_state: string
+tests: list
+evidence: list

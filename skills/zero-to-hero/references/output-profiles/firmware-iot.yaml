@@ -1,0 +1,12 @@
+profile: firmware_iot
+applies_when: [firmware]
+generate:
+  - docs/product/
+  - docs/firmware/
+  - docs/hardware/
+  - docs/product-execution/
+proof:
+  - target hardware documented
+  - simulator or bench-test plan documented
+  - flashing and rollback path documented
+  - safety gates documented

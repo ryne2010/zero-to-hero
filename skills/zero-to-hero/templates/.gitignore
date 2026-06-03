@@ -1,0 +1,16 @@
+# zero-to-hero runtime evidence artifacts
+.artifacts/screenshots/*
+.artifacts/traces/*
+.artifacts/workflow-evidence/*
+.artifacts/reports/*
+!.artifacts/screenshots/.gitkeep
+!.artifacts/traces/.gitkeep
+!.artifacts/workflow-evidence/.gitkeep
+!.artifacts/reports/.gitkeep
+
+# Local env and generated caches
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc

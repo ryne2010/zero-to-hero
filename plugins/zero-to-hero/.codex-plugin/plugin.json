@@ -1,0 +1,36 @@
+{
+  "name": "zero-to-hero",
+  "version": "0.1.0",
+  "description": "Convert product ideas, prototypes, or messy repos into clean, canonical, implementation-ready repositories for Codex/OMX.",
+  "author": {
+    "name": "Ryne Schroder"
+  },
+  "repository": "https://github.com/ryne2010/zero-to-hero",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "skills",
+    "plugin",
+    "zero-to-hero",
+    "omx",
+    "product-spec",
+    "agent-harness",
+    "docs-to-production"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "zero-to-hero",
+    "shortDescription": "Turn ideas or messy repos into implementation-ready product repos.",
+    "longDescription": "Runs deep interview, research, canonical source-of-truth docs, UI/design/hardware packs, frontend parity, product usability, local-product harnesses, repo-scoped skills, OMX handoff, and lossless cleanup. It does not implement product runtime code.",
+    "developerName": "Ryne Schroder",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/ryne2010/zero-to-hero",
+    "defaultPrompt": [
+      "Use zero-to-hero to turn this idea or repo into a clean, canonical, implementation-ready Codex/OMX handoff repo. Start with the deep interview. Do not implement product runtime code."
+    ]
+  }
+}

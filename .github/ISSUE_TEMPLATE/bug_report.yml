@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a defect in the zero-to-hero skill/plugin.
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Include commands, target repo shape, and relevant logs.
+      placeholder: |
+        1. Run ...
+        2. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, Codex/OMX context, and target repo type.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks run
+      options:
+        - label: I ran `make validate` when applicable.
+        - label: I confirmed no generated/runtime artifacts are included.
+        - label: I removed secrets or private target-repo data from this report.

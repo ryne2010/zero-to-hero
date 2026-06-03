@@ -1,0 +1,12 @@
+profile: infra_repo
+applies_when: [infra]
+generate:
+  - docs/product/
+  - docs/architecture/
+  - docs/production-readiness/
+  - docs/product-execution/runtime-evidence/
+proof:
+  - plan/validate command documented
+  - secret handling documented
+  - rollback path documented
+  - environment matrix documented

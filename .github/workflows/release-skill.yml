@@ -1,0 +1,42 @@
+name: Release Skill
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v0.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-zero-to-hero
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Stamp release metadata
+        run: python scripts/release_skill_workflow.py stamp-release --tag "${{ github.event.inputs.tag }}"
+      - name: Release check
+        run: make release-check
+      - name: Build archive
+        run: python scripts/build_plugin_archive.py --output "dist/zero-to-hero-${{ github.event.inputs.tag }}.zip"
+      - name: Archive smoke
+        run: python tests/smoke/run_plugin_archive_smoke.py --archive "dist/zero-to-hero-${{ github.event.inputs.tag }}.zip"
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.event.inputs.tag }}" \
+            "dist/zero-to-hero-${{ github.event.inputs.tag }}.zip" \
+            "dist/zero-to-hero-${{ github.event.inputs.tag }}.zip.sha256" \
+            "dist/zero-to-hero-${{ github.event.inputs.tag }}.zip.manifest.json" \
+            --title "zero-to-hero ${{ github.event.inputs.tag }}" \
+            --notes "zero-to-hero Codex skill/plugin release. Includes deterministic archive, SHA256 checksum, and archive manifest."

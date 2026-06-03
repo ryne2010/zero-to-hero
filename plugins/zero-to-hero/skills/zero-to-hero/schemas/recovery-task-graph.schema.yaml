@@ -1,0 +1,18 @@
+type: object
+required: [tasks]
+properties:
+  tasks:
+    type: array
+    items:
+      type: object
+      required: [id, title, source_docs, acceptance, evidence]
+      properties:
+        id: {type: string}
+        title: {type: string}
+        source_docs: {type: array, items: {type: string}}
+        files_to_edit: {type: array, items: {type: string}}
+        files_not_to_edit: {type: array, items: {type: string}}
+        acceptance: {type: array, items: {type: string}}
+        checks: {type: array, items: {type: string}}
+        evidence: {type: array, items: {type: string}}
+        stop_conditions: {type: array, items: {type: string}}

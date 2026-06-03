@@ -1,0 +1,1 @@
+{"workspaces":["apps/*","packages/*"],"scripts":{"test":"echo fixture has no executable test suite"}}

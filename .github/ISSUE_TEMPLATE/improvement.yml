@@ -1,0 +1,40 @@
+name: Improvement
+description: Suggest a focused improvement to the skill/plugin.
+title: "Improvement: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow, harness, or maintenance issue does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed improvement
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Prompts / phases
+        - Harness references
+        - Scripts / validation
+        - Plugin metadata / release
+        - Documentation
+        - Hardware / mechanical / PCB support
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: guardrails
+    attributes:
+      label: Guardrails
+      options:
+        - label: This does not require the skill to implement target product runtime code.
+        - label: This does not add unnecessary workflow complexity.
+        - label: This preserves explicit user approval for scope changes.

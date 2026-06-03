@@ -1,0 +1,13 @@
+nodes:
+  type: array
+  item_fields: [id, kind, title]
+edges:
+  type: array
+  item_fields: [from, relation, to]
+required_relations:
+  - visual.governs.route
+  - route.implements.story
+  - route.uses.component
+  - component.reads.entity
+  - action.invokes.service
+  - workflow.tested_by.test

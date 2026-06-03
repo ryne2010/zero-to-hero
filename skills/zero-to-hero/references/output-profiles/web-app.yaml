@@ -1,0 +1,24 @@
+profile: web_app
+capabilities:
+- web_frontend
+- api_backend_optional
+- database_optional
+generate:
+- docs/product
+- docs/architecture
+- docs/ui
+- docs/ui/frontend-parity-system
+- docs/product-execution
+- docs/production-readiness
+- .agents/skills/frontend-parity
+- .agents/skills/product-usability
+- .omx/ultragoal
+skip_unless:
+- docs/mechanical
+- docs/pcb
+- docs/firmware
+minimum_proof:
+- route/screens/contracts
+- action-binding
+- no-scaffold/no-dead-controls
+- local-product-done-gate

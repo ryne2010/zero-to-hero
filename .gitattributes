@@ -1,0 +1,15 @@
+# Normalize text files for reproducible diffs across platforms.
+* text=auto eol=lf
+
+# Binary assets and release artifacts.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text eol=lf
+*.zip binary
+*.sha256 text eol=lf
+
+# Keep common generated archives from line-ending normalization.
+*.tar binary
+*.gz binary

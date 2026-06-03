@@ -1,0 +1,20 @@
+{
+  "name": "zero-to-hero-marketplace",
+  "interface": {
+    "displayName": "zero-to-hero"
+  },
+  "plugins": [
+    {
+      "name": "zero-to-hero",
+      "source": {
+        "source": "local",
+        "path": "./plugins/zero-to-hero"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

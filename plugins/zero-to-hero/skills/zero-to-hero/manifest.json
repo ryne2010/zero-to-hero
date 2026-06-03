@@ -1,0 +1,56 @@
+{
+  "name": "zero-to-hero",
+  "kind": "codex-skill-pack",
+  "entrypoint": "SKILL.md",
+  "implements_product_runtime_code": false,
+  "health_check": "scripts/zero_to_hero_check.py",
+  "canonical_prompt_sequence": [
+    "prompts/00-deep-interview.md",
+    "prompts/01-research-and-capability-detection.md",
+    "prompts/02-canonical-docs-pack.md",
+    "prompts/03-design-visual-pack.md",
+    "prompts/04-hardware-mechanical-pcb-pack.md",
+    "prompts/05-frontend-parity-system.md",
+    "prompts/06-product-usability-contract.md",
+    "prompts/07-local-product-done-harness.md",
+    "prompts/08-omx-handoff.md",
+    "prompts/09-canonical-cleanup.md",
+    "prompts/10-implementation-readiness-review.md"
+  ],
+  "optional_prompts": [
+    "prompts/98-target-repo-preflight.md",
+    "prompts/99-one-shot-small-product.md"
+  ],
+  "target_repo_preflight": "scripts/target_repo_audit.py",
+  "phase_gate_check": "scripts/phase_gate_check.py",
+  "target_repo_audit": "scripts/target_repo_audit.py",
+  "instruction_trust_scan": "scripts/instruction_trust_scan.py",
+  "prompt_sequence_check": "scripts/prompt_sequence_check.py",
+  "quality_notes": [
+    "planning/generation only",
+    "no product runtime implementation",
+    "target-repo audit can write reports with --write",
+    "template application is capability/profile-aware by default",
+    "render_prompt_bundle.py can emit copy/paste prompt bundles for target repos",
+    "build_skill_zip.py creates clean distribution archives",
+    "toolchain preflight can write advisory reports with --write",
+    "external context inventory reports design, component, CAD, PCB, firmware, and verification sources",
+    "repo safety preflight checks git status before writes"
+  ],
+  "template_application": "scripts/apply_zero_to_hero_templates.py --profile auto",
+  "guided_start": "scripts/zero_to_hero_start.py --profile auto --write",
+  "operating_recipes": "references/operating-recipes.md",
+  "proof_first_implementation": "references/proof-first-implementation.md",
+  "prompt_bundle": "scripts/render_prompt_bundle.py --group canonical",
+  "distribution_builder": "scripts/build_skill_zip.py",
+  "toolchain_preflight": "scripts/toolchain_preflight.py",
+  "external_context_inventory": "scripts/external_context_inventory.py",
+  "repo_safety_check": "scripts/repo_safety_check.py",
+  "key_references": [
+    "references/check-operability.md"
+  ],
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": "https://github.com/ryne2010/zero-to-hero",
+  "distribution": "codex-plugin-and-gh-skill"
+}

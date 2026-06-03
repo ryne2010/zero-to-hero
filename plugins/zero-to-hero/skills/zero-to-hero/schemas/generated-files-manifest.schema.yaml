@@ -1,0 +1,12 @@
+type: object
+required: [files_created, files_modified, files_not_touched]
+properties:
+  files_created:
+    type: array
+    items: {type: object}
+  files_modified:
+    type: array
+    items: {type: object}
+  files_not_touched:
+    type: array
+    items: {type: object}

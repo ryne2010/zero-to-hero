@@ -1,0 +1,10 @@
+interface:
+  display_name: "zero-to-hero"
+  short_description: "Turn ideas or early repos into clean, canonical, implementation-ready product repos."
+  icon_small: "./assets/zero-to-hero.svg"
+  icon_large: "./assets/zero-to-hero.svg"
+  brand_color: "#2F6B4F"
+  default_prompt: "$zero-to-hero: start with the deep interview and prepare this repo for implementation-ready Codex/OMX handoff. Do not implement product runtime code."
+policy:
+  allow_implicit_invocation: false
+version: 0.1.0
