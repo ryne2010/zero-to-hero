@@ -1,67 +1,47 @@
 # zero-to-hero quickstart
 
-1. Copy `.agents/skills/zero-to-hero/` into the target repository.
-2. For an existing repo, run preflight from the skill directory:
+1. Install the skill at `.agents/skills/zero-to-hero/`.
+2. Inspect an existing repository without writing:
 
 ```bash
-python scripts/repo_safety_check.py /path/to/repo --write
-python scripts/target_repo_audit.py /path/to/repo --write
-python scripts/toolchain_preflight.py /path/to/repo --write
-python scripts/external_context_inventory.py /path/to/repo --write
+python scripts/target_repo_audit.py /path/to/repo --preflight
 ```
 
-3. Preview capability-aware templates before writing:
+3. Preview automatically selected artifacts:
 
 ```bash
 python scripts/apply_zero_to_hero_templates.py /path/to/repo --profile auto
 ```
 
-4. Apply templates only after review:
+An empty repository requires approved capability evidence or explicit profiles;
+it does not silently become docs-first.
+
+4. For approved composite scope, repeat profiles:
 
 ```bash
-python scripts/apply_zero_to_hero_templates.py /path/to/repo --profile auto --write --require-clean
+python scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --profile mobile-app --profile api-service
 ```
 
-5. Optionally render a prompt bundle:
+5. Review the preview and write only from a clean, safe Git branch:
 
 ```bash
-python scripts/render_prompt_bundle.py . --group canonical --target-repo /path/to/repo --write
+python scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --profile mobile-app --profile api-service --write
 ```
 
-6. In Codex, invoke:
+Existing targets are preserved. Use `--force <exact-generated-path>` only for a
+reviewed, scoped replacement.
 
-```txt
-Use the zero-to-hero skill. Start with the deep interview. Do not implement product runtime code.
-```
-
-7. Follow the canonical prompt sequence under `prompts/`.
-8. Finish with canonical cleanup and implementation-readiness review.
-
-For skill-pack maintenance, run the fast checks during normal use:
+6. Run the post-generation audit:
 
 ```bash
-python scripts/zero_to_hero_check.py .
-python scripts/zero_to_hero_doctor.py .
-python scripts/prompt_sequence_check.py .
-python scripts/instruction_trust_scan.py fixtures/prompt-injection-risk
+python scripts/target_repo_audit.py /path/to/repo \
+  --profile mobile-app --profile api-service
 ```
 
-Before packaging or distribution, run deeper deterministic checks and build a clean ZIP:
+7. Continue with the lifecycle and prompt order generated from
+`references/contract-graph.yaml`. The implementation handoff remains neutral
+unless an operational optional adapter is explicitly selected.
 
-```bash
-python scripts/zero_to_hero_check.py . --deep
-python scripts/zero_to_hero_doctor.py . --deep
-python scripts/build_skill_zip.py . --out zero-to-hero-codex-skill-pack.zip
-```
-
-## Invocation policy
-
-`zero-to-hero` is intentionally configured for explicit invocation. Use `$zero-to-hero` or explicitly say “Use the zero-to-hero skill” so it does not activate during ordinary coding tasks.
-
-## Existing repo quick start
-
-```bash
-python scripts/zero_to_hero_start.py /path/to/repo --profile auto --write
-```
-
-Review `.codex/reports/zero-to-hero/start-here.md` before applying templates or generating docs.
+The skill is explicitly invoked and never implements product runtime code.

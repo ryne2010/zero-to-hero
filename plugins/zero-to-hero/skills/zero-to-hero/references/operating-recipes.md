@@ -8,7 +8,7 @@ Use these recipes to choose the smallest effective zero-to-hero path for a targe
 2. Run research and capability detection.
 3. Generate the canonical docs pack.
 4. Generate design, hardware, or PCB packs only when the interview makes those capabilities relevant.
-5. Generate the harness pack and OMX handoff.
+5. Generate the harness pack and neutral implementation handoff.
 6. Run canonical cleanup and implementation-readiness review.
 
 ## Existing messy repo
@@ -24,9 +24,12 @@ Use these recipes to choose the smallest effective zero-to-hero path for a targe
 1. Generate or repair the Frontend Parity System.
 2. Generate or repair the Product Usability Contract.
 3. Generate or repair the Local Product Done Harness.
-4. Use `$ralplan` to produce a current-state gap analysis and task graph.
-5. Execute only an approved task graph through `$ultragoal`.
-6. Use `$ralph` for final visual, workflow, and evidence review.
+4. Produce a Planner draft, Architect review, Critic review, and explicit
+   consensus.
+5. Execute through native Codex, deterministic sequential work, or compatible
+   OMX Ultragoal.
+6. Run independent code/architecture reviews and final applicable verification.
+   Ralph may be selected as an alternate single-owner loop.
 
 ## API/backend service
 

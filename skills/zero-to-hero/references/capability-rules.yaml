@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "skip_directories": [
+    ".git",
+    ".codex",
+    ".omx",
+    ".agents",
+    ".artifacts",
+    ".venv",
+    "venv",
+    "node_modules",
+    "vendor",
+    "dist",
+    "build",
+    ".next",
+    "coverage",
+    "target"
+  ],
+  "package_dependencies": {
+    "web_frontend": [
+      "@angular/core",
+      "@remix-run/react",
+      "@sveltejs/kit",
+      "astro",
+      "next",
+      "nuxt",
+      "react",
+      "svelte",
+      "vite",
+      "vue"
+    ],
+    "mobile_app": [
+      "@capacitor/core",
+      "@ionic/react",
+      "expo",
+      "react-native"
+    ],
+    "desktop_app": [
+      "@tauri-apps/api",
+      "electron",
+      "neutralinojs",
+      "nw"
+    ],
+    "api_backend": [
+      "@hapi/hapi",
+      "@nestjs/core",
+      "express",
+      "fastify",
+      "hono",
+      "koa",
+      "trpc"
+    ],
+    "cli_tool": [
+      "cac",
+      "commander",
+      "meow",
+      "oclif",
+      "yargs"
+    ],
+    "ai_agent_app": [
+      "@anthropic-ai/sdk",
+      "@openai/agents",
+      "ai",
+      "anthropic",
+      "langchain",
+      "llamaindex",
+      "litellm",
+      "openai"
+    ],
+    "data_ml": [
+      "@tensorflow/tfjs",
+      "apache-arrow",
+      "danfojs-node"
+    ],
+    "infra": [
+      "@pulumi/pulumi",
+      "aws-cdk-lib",
+      "cdktf"
+    ]
+  },
+  "python_dependencies": {
+    "api_backend": [
+      "django",
+      "fastapi",
+      "flask",
+      "litestar",
+      "starlette"
+    ],
+    "cli_tool": [
+      "click",
+      "typer"
+    ],
+    "ai_agent_app": [
+      "anthropic",
+      "langchain",
+      "llama-index",
+      "litellm",
+      "openai"
+    ],
+    "data_ml": [
+      "airflow",
+      "dbt-core",
+      "duckdb",
+      "jupyter",
+      "numpy",
+      "pandas",
+      "polars",
+      "pyspark",
+      "scikit-learn",
+      "tensorflow",
+      "torch"
+    ],
+    "mechanical_cad": [
+      "build123d",
+      "cadquery",
+      "cadquery-ocp"
+    ],
+    "robotics": [
+      "gz-sim",
+      "mujoco",
+      "pybullet",
+      "rclpy",
+      "ros2"
+    ]
+  },
+  "file_globs": {
+    "web_frontend": [
+      "app/**/page.tsx",
+      "app/**/page.jsx",
+      "pages/**/*.tsx",
+      "pages/**/*.jsx",
+      "src/**/*.tsx",
+      "src/**/*.jsx"
+    ],
+    "mobile_app": [
+      "android/app/build.gradle",
+      "android/app/build.gradle.kts",
+      "ios/*.xcodeproj/project.pbxproj",
+      "pubspec.yaml"
+    ],
+    "desktop_app": [
+      "src-tauri/Cargo.toml"
+    ],
+    "infra": [
+      "**/*.tf",
+      "**/*.tf.json",
+      "Pulumi.yaml",
+      "**/Pulumi.yaml",
+      "k8s/**/*.yaml",
+      "kubernetes/**/*.yaml",
+      "helm/**/Chart.yaml",
+      "**/Chart.yaml"
+    ],
+    "firmware": [
+      "**/*.ino",
+      "platformio.ini",
+      "**/platformio.ini",
+      "**/*.ioc",
+      "west.yml",
+      "**/west.yml",
+      "prj.conf",
+      "**/prj.conf",
+      "sdkconfig",
+      "**/sdkconfig"
+    ],
+    "mechanical_cad": [
+      "**/*.step",
+      "**/*.stp",
+      "**/*.stl",
+      "**/*.3mf",
+      "**/*.glb",
+      "**/*.gltf",
+      "**/*.dxf",
+      "**/*.scad"
+    ],
+    "pcb_electronics": [
+      "**/*.kicad_pro",
+      "**/*.kicad_sch",
+      "**/*.kicad_pcb",
+      "**/*.brd",
+      "**/*.sch"
+    ],
+    "robotics": [
+      "**/*.urdf",
+      "**/*.xacro",
+      "**/*.srdf",
+      "**/*.sdf",
+      "**/package.xml",
+      "**/robot_description/**"
+    ],
+    "simulation": [
+      "**/*.world",
+      "**/*.sdf",
+      "**/mujoco*.xml",
+      "**/isaac*.yaml",
+      "**/gazebo/**",
+      "**/simulation/**",
+      "**/sim/**"
+    ]
+  },
+  "content_rules": {
+    "desktop_app": {
+      "globs": [
+        "**/*.xcodeproj/project.pbxproj",
+        "**/*.csproj"
+      ],
+      "tokens_any": [
+        "macosx_deployment_target",
+        "microsoft.net.sdk.windowsdesktop",
+        "sdkroot = macosx",
+        "supported_platforms = macosx",
+        "<outputtype>winexe",
+        "<usewindowsforms>true",
+        "<usewpf>true",
+        "avalonia",
+        "microsoft.maui"
+      ],
+      "negative_reason": "lacks exact desktop application markers"
+    },
+    "firmware": {
+      "globs": [
+        "**/CMakeLists.txt"
+      ],
+      "tokens_any": [
+        "arduino",
+        "esp-idf",
+        "idf_component_register",
+        "pico_sdk_init",
+        "project(zephyr",
+        "zephyr_library"
+      ]
+    },
+    "mechanical_cad": {
+      "globs": [
+        "**/*.py"
+      ],
+      "tokens_any": [
+        "from build123d import",
+        "import build123d",
+        "from cadquery import",
+        "import cadquery"
+      ]
+    },
+    "robotics": {
+      "globs": [
+        "**/package.xml",
+        "**/CMakeLists.txt",
+        "**/*.py",
+        "**/*.xml",
+        "**/*.yaml"
+      ],
+      "tokens_any": [
+        "ament_cmake",
+        "ament_python",
+        "catkin",
+        "gazebo_ros",
+        "moveit",
+        "rclcpp",
+        "rclpy",
+        "robot_state_publisher",
+        "ros2_control"
+      ]
+    },
+    "cross_platform": {
+      "globs": [
+        "package.json",
+        "**/package.json",
+        "pubspec.yaml"
+      ],
+      "tokens_any": [
+        "@capacitor/core",
+        "@tauri-apps/api",
+        "flutter",
+        "react-native"
+      ]
+    }
+  }
+}

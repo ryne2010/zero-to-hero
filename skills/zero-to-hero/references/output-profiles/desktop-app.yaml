@@ -1,13 +1,82 @@
-profile: desktop_app
-applies_when: [desktop_app]
-generate:
-  - docs/product/
-  - docs/architecture/
-  - docs/ui/
-  - docs/product-execution/
-  - docs/production-readiness/
-proof:
-  - app shell launches locally
-  - primary workflow completes without live services
-  - desktop packaging path documented
-  - update/security policy documented
+{
+  "schema_version": 1,
+  "id": "desktop-app",
+  "title": "Desktop application",
+  "description": "Native or cross-platform desktop product with local execution, packaging, update, filesystem, and platform-security contracts.",
+  "detect": {
+    "capabilities_any": [
+      "desktop_app"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "desktop_app"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/desktop/requirements.md"
+    ],
+    "optional": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/data/requirements.md",
+      "docs/infra/requirements.md"
+    ],
+    "forbidden": [
+      "docs/firmware/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "desktop-runtime-contract",
+      "description": "The desktop requirements define the local launch path, primary workflow, filesystem boundaries, and offline behavior.",
+      "artifacts_any": [
+        "docs/desktop/requirements.md"
+      ],
+      "checks_all": [
+        "content:launch-and-primary-workflow",
+        "content:filesystem-and-offline-boundaries"
+      ]
+    },
+    {
+      "id": "packaging-update-security-proof",
+      "description": "The desktop requirements define packaging, update, signing, sandboxing, and platform verification expectations.",
+      "artifacts_any": [
+        "docs/desktop/requirements.md"
+      ],
+      "checks_all": [
+        "content:packaging-and-update-path",
+        "content:signing-sandbox-security-policy"
+      ]
+    }
+  ]
+}

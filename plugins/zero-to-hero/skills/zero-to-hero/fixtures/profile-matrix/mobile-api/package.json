@@ -1,0 +1,7 @@
+{
+  "name": "fixture-mobile-api",
+  "private": true,
+  "dependencies": {
+    "react-native": "0.0.0"
+  }
+}

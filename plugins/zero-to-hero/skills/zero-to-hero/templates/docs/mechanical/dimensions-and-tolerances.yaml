@@ -1,0 +1,103 @@
+schema_version: 1
+status: draft-required-input
+authority: mechanical-dimension-and-tolerance-ledger
+
+units:
+  length: "REQUIRED: mm or in"
+  angle: deg
+  mass: "REQUIRED: g or kg"
+  force: "REQUIRED: N or lbf"
+  torque: "REQUIRED: N*m or lbf*in"
+  temperature: "REQUIRED: C or F"
+  rule: "Never mix unit systems without an explicit conversion entry."
+
+coordinate_system:
+  handedness: REQUIRED
+  origin: REQUIRED
+  positive_x: REQUIRED
+  positive_y: REQUIRED
+  positive_z: REQUIRED
+  angle_convention: REQUIRED
+  source_reference: docs/mechanical/interfaces-and-datums.md
+
+general_tolerances:
+  standard_or_policy: REQUIRED
+  linear: REQUIRED
+  angular: REQUIRED
+  surface_finish: REQUIRED_OR_NOT_APPLICABLE
+  edge_break: REQUIRED_OR_NOT_APPLICABLE
+  interpretation_notes: REQUIRED
+
+dimensions:
+  - id: REQUIRED_DIMENSION_ID
+    description: REQUIRED
+    nominal: REQUIRED_NUMBER
+    unit: REQUIRED
+    tolerance:
+      type: bilateral
+      lower: REQUIRED_NUMBER
+      upper: REQUIRED_NUMBER
+    from_datum_or_reference: REQUIRED
+    to_datum_or_reference: REQUIRED
+    requirement_ids:
+      - MECH-001
+    source_parameter: REQUIRED_NAMED_BUILD123D_PARAMETER
+    measurement_method: REQUIRED
+    validation_target: REQUIRED
+    criticality: critical
+    rationale: REQUIRED
+    owner: REQUIRED
+    status: open
+
+fits:
+  - id: REQUIRED_FIT_ID
+    interface_id: REQUIRED_INTERFACE_ID
+    fit_class_or_clearance: REQUIRED
+    minimum_clearance_or_interference: REQUIRED
+    maximum_clearance_or_interference: REQUIRED
+    unit: REQUIRED
+    temperature_or_load_condition: REQUIRED
+    inspection_method: REQUIRED
+    status: open
+
+tolerance_stacks:
+  - id: REQUIRED_STACK_ID
+    outcome: REQUIRED
+    contributors:
+      - dimension_id: REQUIRED_DIMENSION_ID
+        sign: 1
+    method: worst-case
+    minimum_result: REQUIRED
+    maximum_result: REQUIRED
+    acceptance_range: REQUIRED
+    calculation_evidence: REQUIRED
+    owner: REQUIRED
+    status: open
+
+unit_conversions:
+  - source_value: REQUIRED
+    source_unit: REQUIRED
+    target_value: REQUIRED
+    target_unit: REQUIRED
+    exact_factor_or_reference: REQUIRED
+    affected_ids:
+      - REQUIRED_DIMENSION_ID
+    verified_by: REQUIRED
+
+validation_targets:
+  - id: REQUIRED_VALIDATION_ID
+    artifact: REQUIRED_REPO_RELATIVE_STEP_PATH
+    check: facts_or_measure_or_align_or_diff
+    references:
+      - REQUIRED_GEOMETRY_REFERENCE
+    expected: REQUIRED
+    tolerance: REQUIRED
+    evidence_path: REQUIRED
+    status: not-run
+
+unresolved:
+  - id: REQUIRED_DECISION_ID
+    question: REQUIRED
+    impact: REQUIRED
+    owner: REQUIRED
+    blocking: true

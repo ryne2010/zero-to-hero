@@ -11,4 +11,6 @@ make final legal, medical, safety, or compliance determinations
 bypass user approval for inferred product behavior
 ```
 
-It may create implementation-ready source-of-truth docs, harness layers, prompt sequences, repo-scoped skills, and OMX artifacts.
+It may create implementation-ready source-of-truth docs, harness layers, prompt
+views, repo-scoped skills, and neutral handoff artifacts. A compatible optional
+adapter may derive its own runtime state through its supported CLI.

@@ -2,11 +2,11 @@
 from __future__ import annotations
 import sys
 sys.dont_write_bytecode = True
-import argparse
-import json
-import shutil
-from datetime import datetime, timezone
-from pathlib import Path
+import argparse  # noqa: E402
+import json  # noqa: E402
+import shutil  # noqa: E402
+from datetime import datetime, timezone  # noqa: E402
+from pathlib import Path  # noqa: E402
 
 COMMANDS = {
     'core': ['git', 'python3', 'node', 'npm'],
@@ -31,9 +31,9 @@ CAPABILITY_RECOMMENDED = {
     'database': ['docker'],
     'infra': ['terraform'],
     'firmware': ['platformio'],
-    'mechanical_cad': ['openscad'],
+    'mechanical_cad': ['python3', 'npx'],
     'pcb_electronics': ['kicad-cli'],
-    'robotics': ['platformio'],
+    'robotics': ['python3', 'npx'],
 }
 
 KNOWN_CONFIGS = {
@@ -41,7 +41,10 @@ KNOWN_CONFIGS = {
     'storybook': ['.storybook/main.ts', '.storybook/main.js'],
     'figma_mcp': ['.mcp/figma.json', 'mcp.json', '.cursor/mcp.json'],
     'codex': ['AGENTS.md', 'CODEX.md', '.agents/skills'],
-    'omx': ['.omx/ultragoal', '.omx/context', '.omx/plans'],
+    'omx_neutral_handoff': [
+        'docs/implementation/IMPLEMENTATION_BRIEF.md',
+        'docs/implementation/PLANNING_EVIDENCE.md',
+    ],
     'docker': ['docker-compose.yml', 'compose.yml', 'Dockerfile'],
     'kicad': ['*.kicad_pro'],
 }
@@ -96,8 +99,11 @@ def build_report(repo: Path, skill: Path) -> dict:
         notes.append('web_frontend detected but no Storybook config found; component evidence can still use app routes')
     if 'pcb_electronics' in capabilities and 'kicad-cli' not in available:
         notes.append('pcb_electronics detected but kicad-cli is unavailable; PCB checks may need manual/human review')
-    if 'mechanical_cad' in capabilities and not {'openscad', 'freecad'} & available:
-        notes.append('mechanical_cad detected but no common CAD CLI is available; CAD validation may need external tool setup')
+    if 'mechanical_cad' in capabilities and not {'python3', 'npx'} <= available:
+        notes.append(
+            'mechanical_cad detected but Python or npx is unavailable; '
+            'the earthtojake/text-to-cad adapter cannot be probed'
+        )
     return {
         'tool': 'zero-to-hero-toolchain-preflight',
         'generated_at': datetime.now(timezone.utc).isoformat(),

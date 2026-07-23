@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Inventory zero-to-hero harness layers in a target repo."""
 from __future__ import annotations
-import json, sys
+
+import json
+import sys
 from pathlib import Path
 
 LAYERS = {
@@ -17,7 +19,11 @@ LAYERS = {
     "observability_harness": ["docs/product-execution/observability"],
     "local_product_done_gate": ["docs/product-execution/local-product-done-gate.md", "scripts/verify-local-product.mjs"],
     "repo_scoped_skills": [".agents/skills"],
-    "omx_native_artifacts": [".omx/ultragoal/brief.md", ".omx/ultragoal/goals.json", ".omx/ultragoal/ledger.jsonl"],
+    "neutral_implementation_handoff": [
+        "docs/implementation/IMPLEMENTATION_BRIEF.md",
+        "docs/implementation/PLANNING_EVIDENCE.md",
+        "PLANS.md",
+    ],
 }
 
 def exists(repo: Path, rel: str) -> bool:

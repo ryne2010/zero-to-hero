@@ -1,0 +1,7 @@
+{
+  "name": "fixture-desktop-app",
+  "private": true,
+  "dependencies": {
+    "electron": "0.0.0"
+  }
+}

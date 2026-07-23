@@ -1,12 +1,12 @@
 # Final handoff quality bar
 
-A zero-to-hero run is complete when:
+A zero-to-hero run is complete when the contract-driven target audit passes:
 
-- the repo has one clear source-of-truth hierarchy;
-- every important decision is explicit, inferred with review, unresolved, rejected, or out of scope;
-- capability-specific docs and harnesses exist;
-- generated files are recorded in a manifest;
-- `.omx` uses native context/plans/ultragoal structure;
-- no implementation runtime code was changed by the skill;
-- no iteration residue remains in canonical docs;
-- the next Codex/OMX step is obvious and bounded.
+- one source-of-truth hierarchy and decision vocabulary;
+- exact selected profiles with applicable positive and negative evidence;
+- substantive profile documentation and a target-specific Codex harness;
+- restartable plan, neutral brief, and approved review trail;
+- canonical manifest with hashes, ownership, validation, and provenance;
+- no product runtime code changes or fabricated external-tool state;
+- separate `PASS`, `SKIP`, and `FAIL` reporting for optional integrations;
+- a bounded first implementation milestone and exact done command.

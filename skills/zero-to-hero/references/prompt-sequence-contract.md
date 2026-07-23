@@ -1,19 +1,19 @@
 # Prompt sequence contract
 
-The canonical prompt sequence is intentionally linear and phase-gated:
+Prompt identifiers, order, filenames, applicability, and complete phase
+contracts are defined once in `contract-graph.yaml`. The Markdown files under
+`prompts/` are generated views.
 
-1. Deep interview.
-2. Research and capability detection.
-3. Canonical docs pack.
-4. Design and visual pack.
-5. Hardware/mechanical/PCB pack when applicable.
-6. Frontend parity system.
-7. Product usability contract.
-8. Local product done harness.
-9. OMX handoff.
-10. Canonical cleanup.
-11. Implementation-readiness review.
+Every prompt contains a goal, required reads, entry criteria, constraints,
+allowed and forbidden writes, outputs, evidence/checks, stop conditions,
+explicit done criteria, and the no-runtime-implementation boundary.
 
-Planning and generation prompts must not implement product runtime code. They may create docs, specs, templates, harness scripts, repo-scoped skills, and OMX artifacts only when authorized.
+Run:
 
-`prompt_sequence_check.py` verifies that the prompt set is complete and non-overlapping.
+```bash
+python scripts/sync_contract_views.py .
+python scripts/prompt_sequence_check.py .
+```
+
+Any missing field, order drift, stale rendered prompt, or runtime-code write
+permission is a validation failure.

@@ -6,17 +6,53 @@ on:
   pull_request:
     branches: ["main"]
 
+permissions:
+  contents: read
+
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python-version: "3.10"
+          - os: ubuntu-latest
+            python-version: "3.11"
+          - os: ubuntu-latest
+            python-version: "3.12"
+          - os: ubuntu-latest
+            python-version: "3.13"
+          - os: ubuntu-latest
+            python-version: "3.14"
+          - os: macos-latest
+            python-version: "3.10"
+          - os: macos-latest
+            python-version: "3.14"
+          - os: windows-latest
+            python-version: "3.10"
+          - os: windows-latest
+            python-version: "3.14"
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pinned uv and select Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
-          python-version: "3.11"
-      - name: Validate skill/plugin repo
+          version: "0.11.31"
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Verify locked dependencies
+        run: uv sync --frozen
+
+      - name: Run authoritative release gate
+        run: uv run --frozen python scripts/validate_plugin_repo.py .
+
+      - name: Verify documented make entrypoint
+        if: runner.os == 'Linux' && matrix.python-version == '3.14'
         run: make validate
-      - name: Runtime smoke
-        run: make smoke
-      - name: Archive smoke
-        run: make archive-smoke

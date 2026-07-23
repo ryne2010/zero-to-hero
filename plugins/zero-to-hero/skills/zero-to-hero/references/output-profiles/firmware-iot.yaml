@@ -1,12 +1,84 @@
-profile: firmware_iot
-applies_when: [firmware]
-generate:
-  - docs/product/
-  - docs/firmware/
-  - docs/hardware/
-  - docs/product-execution/
-proof:
-  - target hardware documented
-  - simulator or bench-test plan documented
-  - flashing and rollback path documented
-  - safety gates documented
+{
+  "schema_version": 1,
+  "id": "firmware-iot",
+  "title": "Firmware or IoT product",
+  "description": "Embedded firmware or IoT surface with target, interface, simulation, bring-up, flashing, rollback, and physical-safety contracts.",
+  "detect": {
+    "capabilities_any": [
+      "firmware"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "firmware"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/firmware/requirements.md"
+    ],
+    "optional": [
+      "docs/cli/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md"
+    ],
+    "forbidden": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/data/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "target-interface-simulation-contract",
+      "description": "The firmware requirements define target hardware, pins, protocols, state machines, timing, and simulator or bench-test behavior.",
+      "artifacts_any": [
+        "docs/firmware/requirements.md"
+      ],
+      "checks_all": [
+        "content:target-pin-protocol-map",
+        "content:state-timing-contract",
+        "content:simulation-or-bench-test-plan"
+      ]
+    },
+    {
+      "id": "flash-rollback-safety-proof",
+      "description": "The firmware requirements define build, flash, update, rollback, recovery, and explicit physical-action authorization.",
+      "artifacts_any": [
+        "docs/firmware/requirements.md"
+      ],
+      "checks_all": [
+        "content:build-flash-update-rollback-path",
+        "content:recovery-and-failure-modes",
+        "content:physical-action-authorization-gate"
+      ]
+    }
+  ]
+}

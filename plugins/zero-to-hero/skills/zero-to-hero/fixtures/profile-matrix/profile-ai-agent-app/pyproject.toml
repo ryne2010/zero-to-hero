@@ -1,0 +1,4 @@
+[project]
+name = "fixture-ai-agent-app"
+version = "0.0.0"
+dependencies = ["openai"]

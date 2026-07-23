@@ -1,0 +1,7 @@
+{
+  "name": "fixture-desktop-api",
+  "private": true,
+  "dependencies": {
+    "@tauri-apps/api": "0.0.0"
+  }
+}

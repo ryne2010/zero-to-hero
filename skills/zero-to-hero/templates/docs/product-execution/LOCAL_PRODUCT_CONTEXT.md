@@ -5,11 +5,12 @@ Use for usability and local-product completion work.
 Read first:
 
 1. `docs/product-execution/README.md`
-2. action binding matrix
-3. workflow transaction specs
-4. form lifecycle contracts
-5. dataflow contracts
-6. local provider simulator contracts
-7. local product done gate
+2. the selected profile requirements routed by `docs/AGENT_CONTEXT.md`
+3. the approved implementation brief and planning evidence
+4. the repository's action, workflow, lifecycle, and dataflow contracts
+5. local provider/simulator and negative-path contracts
+6. the authoritative done command in `AGENTS.md`
 
-Every priority workflow must produce runtime evidence.
+Every priority workflow must produce reproducible runtime evidence, including a
+negative or recovery path. Record unavailable providers and external tools as
+skipped; do not count them as passed.

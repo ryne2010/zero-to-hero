@@ -1,0 +1,2 @@
+# Documentation examples mention openai, fastapi, typer, argparse, and pytest.
+unittest2>=1.1

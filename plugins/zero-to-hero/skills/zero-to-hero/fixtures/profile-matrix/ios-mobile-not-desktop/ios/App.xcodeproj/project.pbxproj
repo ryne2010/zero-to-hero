@@ -1,0 +1,4 @@
+// Synthetic native iOS project marker.
+SDKROOT = iphoneos;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+TARGETED_DEVICE_FAMILY = "1,2";

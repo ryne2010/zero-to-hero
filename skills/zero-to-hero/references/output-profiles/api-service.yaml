@@ -1,16 +1,82 @@
-profile: api_service
-capabilities:
-- api_backend
-- database_optional
-generate:
-- docs/product
-- docs/architecture
-- docs/contracts
-- docs/product-execution/runtime-evidence
-- docs/production-readiness
-skip_unless:
-- docs/ui/frontend-parity-system
-minimum_proof:
-- contract tests
-- authz/error/idempotency specs
-- local integration harness
+{
+  "schema_version": 1,
+  "id": "api-service",
+  "title": "API or native service",
+  "description": "HTTP, RPC, event, or native service boundary with contracts for authorization, errors, idempotency, data, and integration behavior.",
+  "detect": {
+    "capabilities_any": [
+      "api_backend"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "api_backend"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/api/requirements.md"
+    ],
+    "optional": [
+      "docs/ai/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/data/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ],
+    "forbidden": [
+      "docs/firmware/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "service-contract-proof",
+      "description": "The API requirements define interfaces, schemas, compatibility, authentication, authorization, errors, retries, and idempotency.",
+      "artifacts_any": [
+        "docs/api/requirements.md"
+      ],
+      "checks_all": [
+        "content:interface-and-schema-contracts",
+        "content:authz-error-idempotency-contracts"
+      ]
+    },
+    {
+      "id": "integration-harness-proof",
+      "description": "The API requirements identify exact local integration and contract-test commands with synthetic dependencies.",
+      "artifacts_any": [
+        "docs/api/requirements.md"
+      ],
+      "checks_all": [
+        "content:local-integration-command",
+        "content:contract-test-command"
+      ]
+    }
+  ]
+}

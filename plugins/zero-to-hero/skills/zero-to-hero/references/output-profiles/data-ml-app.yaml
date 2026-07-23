@@ -1,13 +1,83 @@
-profile: data_ml_app
-applies_when: [data_ml, ai_agent_app]
-generate:
-  - docs/product/
-  - docs/architecture/
-  - docs/contracts/
-  - docs/product-execution/
-  - docs/production-readiness/
-proof:
-  - data lineage documented
-  - eval harness documented
-  - model/provider policy documented
-  - reproducible local run documented
+{
+  "schema_version": 1,
+  "id": "data-ml-app",
+  "title": "Data or machine-learning system",
+  "description": "Data, analytics, or machine-learning system with lineage, reproducibility, evaluation, quality, and drift contracts.",
+  "detect": {
+    "capabilities_any": [
+      "data_ml"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "data_ml"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/data/requirements.md"
+    ],
+    "optional": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ],
+    "forbidden": [
+      "docs/desktop/requirements.md",
+      "docs/firmware/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/pcb/requirements.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "data-lineage-quality-contract",
+      "description": "The data requirements define sources, ownership, lineage, schemas, quality checks, privacy, and retention.",
+      "artifacts_any": [
+        "docs/data/requirements.md"
+      ],
+      "checks_all": [
+        "content:source-lineage-ownership-map",
+        "content:schema-quality-privacy-policy"
+      ]
+    },
+    {
+      "id": "reproducibility-eval-drift-proof",
+      "description": "The data requirements define reproducible local execution, evaluation, versioning, and drift detection.",
+      "artifacts_any": [
+        "docs/data/requirements.md"
+      ],
+      "checks_all": [
+        "content:reproducible-local-run",
+        "content:evaluation-and-versioning",
+        "content:drift-detection-plan"
+      ]
+    }
+  ]
+}

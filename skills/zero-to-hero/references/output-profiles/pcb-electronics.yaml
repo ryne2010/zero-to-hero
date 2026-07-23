@@ -1,16 +1,94 @@
-profile: pcb_electronics
-capabilities:
-- pcb_electronics
-- firmware_optional
-generate:
-- docs/pcb
-- docs/firmware
-- docs/hardware
-- docs/product-execution
-- docs/production-readiness
-minimum_proof:
-- block diagram
-- power tree
-- I/O map
-- ERC/DRC path
-- fabrication handoff checklist
+{
+  "schema_version": 1,
+  "id": "pcb-electronics",
+  "title": "PCB or electronics product",
+  "description": "Electronics product contract with architecture, power, interfaces, components, verification, provenance, and fabrication-authorization boundaries.",
+  "detect": {
+    "capabilities_any": [
+      "pcb_electronics"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "pcb_electronics"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/pcb/requirements.md"
+    ],
+    "optional": [
+      "docs/firmware/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md"
+    ],
+    "forbidden": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/data/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "electrical-architecture-contract",
+      "description": "PCB requirements define the block diagram, power tree, I/O, connectors, critical components, interfaces, and design constraints.",
+      "artifacts_any": [
+        "docs/pcb/requirements.md"
+      ],
+      "checks_all": [
+        "content:block-diagram-power-tree",
+        "content:io-connector-component-map",
+        "content:electrical-and-layout-constraints"
+      ]
+    },
+    {
+      "id": "erc-drc-test-proof",
+      "description": "PCB requirements define exact ERC, DRC, review, DFM, DFT, and test-jig evidence.",
+      "artifacts_any": [
+        "docs/pcb/requirements.md"
+      ],
+      "checks_all": [
+        "content:erc-drc-review-path",
+        "content:dfm-dft-test-jig-plan"
+      ]
+    },
+    {
+      "id": "bom-provenance-authorization-proof",
+      "description": "PCB requirements define BOM provenance and licensing plus explicit human authorization before fabrication, upload, or energizing.",
+      "artifacts_any": [
+        "docs/pcb/requirements.md"
+      ],
+      "checks_all": [
+        "content:bom-provenance-and-license",
+        "content:fabrication-and-energizing-gate"
+      ]
+    }
+  ]
+}

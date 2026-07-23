@@ -1,175 +1,373 @@
 #!/usr/bin/env python3
+"""Run the dependency-free capability/profile fixture contract matrix."""
 from __future__ import annotations
+
 import argparse
-import importlib.util
 import json
-import os
-import signal
-import subprocess
+import shutil
 import sys
-from pathlib import Path
+import tempfile
+from pathlib import Path, PurePosixPath
+from typing import Any
 
 sys.dont_write_bytecode = True
 
 
 def resolve_skill(path_arg: str | None) -> Path:
-    root = Path(path_arg or '.').resolve()
-    if (root / 'SKILL.md').exists():
+    root = Path(path_arg or ".").resolve()
+    if (root / "SKILL.md").is_file():
         return root
-    candidate = root / '.agents' / 'skills' / 'zero-to-hero'
-    if (candidate / 'SKILL.md').exists():
+    candidate = root / ".agents" / "skills" / "zero-to-hero"
+    if (candidate / "SKILL.md").is_file():
         return candidate
     return root
 
 
-def load_module(path: Path, name: str):
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    assert spec and spec.loader
-    spec.loader.exec_module(module)
-    return module
-
-
-def run_bounded(cmd: list[str], label: str, timeout: int, errors: list[str]) -> subprocess.CompletedProcess[str] | None:
-    proc = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        start_new_session=True,
-        env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'},
-    )
+def load_json(path: Path) -> dict[str, Any]:
     try:
-        stdout, stderr = proc.communicate(timeout=timeout)
-        return subprocess.CompletedProcess(cmd, proc.returncode, stdout, stderr)
-    except subprocess.TimeoutExpired:
-        try:
-            os.killpg(proc.pid, signal.SIGKILL)
-        except Exception:
-            proc.kill()
-        stdout, stderr = proc.communicate()
-        tail = ((stdout or '') + (stderr or ''))[-500:]
-        errors.append(f'{label} timed out after {timeout}s. Output tail: {tail}')
-        return None
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"cannot load JSON fixture contract {path}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise RuntimeError(f"fixture contract must contain an object: {path}")
+    return value
+
+
+def approved_capabilities(fixture: Path, case: dict[str, Any]) -> list[str]:
+    relative = case.get("approved_capabilities_file")
+    if relative is None:
+        return []
+    path = fixture / str(relative)
+    payload = load_json(path)
+    values = payload.get("approved_capabilities")
+    if not isinstance(values, list) or not values or not all(
+        isinstance(item, str) and item for item in values
+    ):
+        raise RuntimeError(
+            f"{fixture.name}: approved capability data must contain a non-empty "
+            "approved_capabilities string list"
+        )
+    return list(values)
+
+
+def artifact_paths(items: Any) -> list[str]:
+    if not isinstance(items, list):
+        raise RuntimeError("resolved artifact collection must be a list")
+    paths: list[str] = []
+    for item in items:
+        if not isinstance(item, dict) or not isinstance(item.get("path"), str):
+            raise RuntimeError(f"resolved artifact has no string path: {item!r}")
+        paths.append(item["path"])
+    return sorted(paths)
+
+
+def safe_relative_paths(paths: list[str]) -> bool:
+    for value in paths:
+        path = PurePosixPath(value)
+        if path.is_absolute() or not path.parts or ".." in path.parts:
+            return False
+    return True
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description='Run zero-to-hero fixture tests. Deterministic and fast by default; toolchain smoke is opt-in.')
-    parser.add_argument('path', nargs='?', default='.')
-    parser.add_argument('--timeout', type=int, default=20, help='per-subprocess timeout seconds for optional smoke checks')
-    parser.add_argument('--toolchain-smoke', action='store_true', help='also run the environment-dependent toolchain_preflight fixture smoke')
-    parser.add_argument('--json', action='store_true', help='emit machine-readable JSON')
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run exact capability detection, profile composition, and artifact "
+            "resolution assertions against temporary fixture copies."
+        )
+    )
+    parser.add_argument(
+        "path",
+        nargs="?",
+        default=".",
+        help="skill root or repository containing .agents/skills/zero-to-hero",
+    )
+    parser.add_argument(
+        "--case",
+        action="append",
+        dest="selected_cases",
+        help="run one named matrix case; repeat to run multiple cases",
+    )
+    parser.add_argument("--json", action="store_true", help="emit full JSON results")
     args = parser.parse_args()
 
     skill = resolve_skill(args.path)
+    scripts = skill / "scripts"
+    sys.path.insert(0, str(scripts))
+
+    try:
+        from capability_detect import detect
+        from zero_to_hero_contract import (
+            load_graph,
+            load_profiles,
+            resolve_profiles,
+            selected_artifacts,
+        )
+    except Exception as exc:
+        print(f"fixture tests: failed to load contract APIs: {exc}", file=sys.stderr)
+        return 1
+
+    matrix_root = skill / "fixtures" / "profile-matrix"
+    matrix_path = matrix_root / "matrix.json"
     errors: list[str] = []
-    checks: list[dict] = []
+    checks: list[dict[str, Any]] = []
 
-    cap_path = skill / 'scripts/capability_detect.py'
-    apply_path = skill / 'scripts/apply_zero_to_hero_templates.py'
-    cap_module = load_module(cap_path, 'zero_to_hero_capability_detect') if cap_path.exists() else None
-    apply_module = load_module(apply_path, 'zero_to_hero_apply_templates') if apply_path.exists() else None
-    if cap_module is None:
-        errors.append(f'missing {cap_path}')
-    if apply_module is None:
-        errors.append(f'missing {apply_path}')
+    def check(name: str, actual: Any, expected: Any) -> None:
+        ok = actual == expected
+        checks.append(
+            {
+                "check": name,
+                "ok": ok,
+                "expected": expected,
+                "actual": actual,
+            }
+        )
+        if not ok:
+            errors.append(f"{name}: expected {expected!r}, got {actual!r}")
 
-    expect = {
-        'idea-only': [],
-        'react-vite-scaffold': ['web_frontend'],
-        'nextjs-partial-app': ['web_frontend'],
-        'api-fastapi': ['api_backend'],
-        'cli-python': ['cli_tool'],
-        'hardware-kicad': ['pcb_electronics'],
-        'robotics-firmware': ['firmware'],
-        'docs-first-product': ['docs_existing'],
-        'messy-monorepo': ['web_frontend', 'monorepo'],
-        'prompt-injection-risk': [],
-    }
+    try:
+        matrix = load_json(matrix_path)
+        graph = load_graph(skill)
+        profiles = load_profiles(skill)
+    except Exception as exc:
+        print(f"fixture tests: failed to load matrix/contracts: {exc}", file=sys.stderr)
+        return 1
 
-    if cap_module:
-        for name, caps in expect.items():
-            d = skill / 'fixtures' / name
-            if not d.exists():
-                errors.append(f'missing fixture {name}')
-                checks.append({'check': f'fixture:{name}', 'ok': False, 'error': 'missing fixture'})
-                continue
-            data = cap_module.detect(d)
-            found = set(data.get('capabilities', []))
-            missing = [c for c in caps if c not in found]
-            checks.append({'check': f'capability:{name}', 'ok': not missing, 'expected': caps, 'found': sorted(found), 'missing': missing})
-            for c in missing:
-                errors.append(f'{name}: expected {c}, got {sorted(found)}')
+    declared_profiles = matrix.get("declared_profiles")
+    cases = matrix.get("cases")
+    profile_fixture_cases = matrix.get("profile_fixture_cases")
+    common_required = matrix.get("common_required_paths")
+    if not isinstance(declared_profiles, list) or not all(
+        isinstance(item, str) for item in declared_profiles
+    ):
+        errors.append("matrix declared_profiles must be a string list")
+        declared_profiles = []
+    if not isinstance(cases, dict) or not all(
+        isinstance(name, str) and isinstance(case, dict)
+        for name, case in (cases or {}).items()
+    ):
+        errors.append("matrix cases must be an object of case objects")
+        cases = {}
+    if not isinstance(profile_fixture_cases, dict):
+        errors.append("matrix profile_fixture_cases must be an object")
+        profile_fixture_cases = {}
+    if not isinstance(common_required, list) or not all(
+        isinstance(item, str) for item in common_required
+    ):
+        errors.append("matrix common_required_paths must be a string list")
+        common_required = []
 
-    def dry_apply(fixture: str) -> dict:
-        if not apply_module:
-            return {}
-        try:
-            return apply_module.apply_templates(
-                skill=skill,
-                repo=skill / 'fixtures' / fixture,
-                dry=True,
-                force=False,
-                profile_arg='auto',
-                safety_report={'safe_to_write_templates': False, 'warnings': ['fixture dry-run skips git safety subprocess']},
+    check("matrix:declared-profiles", sorted(profiles), declared_profiles)
+    check(
+        "matrix:base-artifact-paths",
+        sorted(item["path"] for item in graph.get("base_artifacts", [])),
+        common_required,
+    )
+    check(
+        "matrix:profile-fixture-coverage",
+        sorted(profile_fixture_cases),
+        declared_profiles,
+    )
+    for profile_id, case_name in sorted(profile_fixture_cases.items()):
+        if case_name not in cases:
+            errors.append(
+                f"matrix: profile fixture for {profile_id!r} references missing "
+                f"case {case_name!r}"
             )
-        except Exception as exc:
-            errors.append(f'apply dry-run failed for {fixture}: {exc}')
-            checks.append({'check': f'apply:{fixture}', 'ok': False, 'error': str(exc)})
-            return {}
+        elif profile_id not in cases[case_name].get("expected_profiles", []):
+            errors.append(
+                f"matrix: profile fixture {case_name!r} does not select {profile_id!r}"
+            )
 
-    web_manifest = dry_apply('react-vite-scaffold')
-    if web_manifest:
-        checks.append({'check': 'apply:react-vite-scaffold', 'ok': True})
-        created = {x['path'] for x in web_manifest.get('files_created', [])}
-        skipped_profile = {x['path'] for x in web_manifest.get('files_skipped_profile', [])}
-        ok = 'docs/ui/FRONTEND_CONTEXT.md' in created and 'docs/pcb/README.md' in skipped_profile
-        checks.append({'check': 'profile:auto:web_app', 'ok': ok})
-        if 'docs/ui/FRONTEND_CONTEXT.md' not in created:
-            errors.append('profile auto for react-vite-scaffold should include docs/ui/FRONTEND_CONTEXT.md')
-        if 'docs/pcb/README.md' not in skipped_profile:
-            errors.append('profile auto for react-vite-scaffold should skip docs/pcb/README.md')
+    fixture_directories = sorted(
+        path.name for path in matrix_root.iterdir() if path.is_dir()
+    )
+    check("matrix:fixture-directories", fixture_directories, sorted(cases))
 
-    pcb_manifest = dry_apply('hardware-kicad')
-    if pcb_manifest:
-        checks.append({'check': 'apply:hardware-kicad', 'ok': True})
-        created = {x['path'] for x in pcb_manifest.get('files_created', [])}
-        skipped_profile = {x['path'] for x in pcb_manifest.get('files_skipped_profile', [])}
-        ok = 'docs/pcb/README.md' in created and 'docs/ui/FRONTEND_CONTEXT.md' in skipped_profile
-        checks.append({'check': 'profile:auto:pcb', 'ok': ok})
-        if 'docs/pcb/README.md' not in created:
-            errors.append('profile auto for hardware-kicad should include docs/pcb/README.md')
-        if 'docs/ui/FRONTEND_CONTEXT.md' not in skipped_profile:
-            errors.append('profile auto for hardware-kicad should skip docs/ui/FRONTEND_CONTEXT.md')
+    selected_names = sorted(set(args.selected_cases or cases))
+    unknown_cases = sorted(set(selected_names) - set(cases))
+    if unknown_cases:
+        errors.append(f"unknown fixture cases requested: {unknown_cases}")
+        selected_names = [name for name in selected_names if name in cases]
 
-    if args.toolchain_smoke:
-        script = skill / 'scripts/toolchain_preflight.py'
-        run = run_bounded([sys.executable, str(script), str(skill / 'fixtures' / 'react-vite-scaffold')], 'toolchain preflight smoke', timeout=args.timeout, errors=errors)
-        if run is not None and run.returncode != 0:
-            errors.append(f'toolchain preflight failed: {run.stderr or run.stdout}')
-            checks.append({'check': 'toolchain_preflight_smoke', 'ok': False, 'returncode': run.returncode})
-        elif run is not None:
+    with tempfile.TemporaryDirectory(prefix="zero-to-hero-profile-fixtures-") as temp:
+        temp_root = Path(temp)
+        for name in selected_names:
+            case = cases[name]
+            source_fixture = matrix_root / name
+            temp_fixture = temp_root / name
             try:
-                report = json.loads(run.stdout)
-                ok = 'commands' in report and 'configs' in report
-                checks.append({'check': 'toolchain_preflight_smoke', 'ok': ok})
-                if not ok:
-                    errors.append('toolchain preflight report missing commands/configs')
+                shutil.copytree(source_fixture, temp_fixture)
+                detection = detect(temp_fixture)
+                approved = approved_capabilities(temp_fixture, case)
+                resolution = resolve_profiles(
+                    profiles,
+                    repo_capabilities=detection.get("capabilities", []),
+                    approved_capabilities=approved,
+                    explicit_profiles=(),
+                )
+                artifacts = selected_artifacts(
+                    graph, profiles, resolution.get("selected_profiles", [])
+                )
             except Exception as exc:
-                errors.append(f'toolchain preflight emitted invalid JSON: {exc}')
-                checks.append({'check': 'toolchain_preflight_smoke', 'ok': False, 'error': 'invalid_json'})
+                errors.append(f"{name}: fixture execution failed: {exc}")
+                checks.append(
+                    {
+                        "check": f"{name}:execution",
+                        "ok": False,
+                        "error": str(exc),
+                    }
+                )
+                continue
 
+            check(
+                f"{name}:capabilities",
+                detection.get("capabilities"),
+                case.get("expected_capabilities", []),
+            )
+            check(
+                f"{name}:negative-evidence",
+                detection.get("negative_evidence", {}),
+                case.get("expected_negative_evidence", {}),
+            )
+            check(
+                f"{name}:profiles",
+                resolution.get("selected_profiles"),
+                case.get("expected_profiles", []),
+            )
+            check(
+                f"{name}:requires-confirmation",
+                resolution.get("requires_confirmation"),
+                case.get("expected_requires_confirmation", False),
+            )
+            absent_capabilities = case.get("expected_absent_capabilities", [])
+            if absent_capabilities:
+                check(
+                    f"{name}:absent-capabilities",
+                    sorted(
+                        set(detection.get("capabilities", []))
+                        & set(absent_capabilities)
+                    ),
+                    [],
+                )
+            if "expected_selection_provenance" in case:
+                check(
+                    f"{name}:selection-provenance",
+                    resolution.get("selection_provenance"),
+                    case["expected_selection_provenance"],
+                )
+
+            expected_required = sorted(
+                set(common_required)
+                | set(case.get("expected_required_profile_paths", []))
+            )
+            actual_required = artifact_paths(artifacts.get("required"))
+            actual_forbidden = sorted(artifacts.get("forbidden", []))
+            check(f"{name}:required-artifacts", actual_required, expected_required)
+            check(
+                f"{name}:forbidden-artifacts",
+                actual_forbidden,
+                case.get("expected_forbidden_paths", []),
+            )
+            check(
+                f"{name}:required-forbidden-disjoint",
+                sorted(set(actual_required) & set(actual_forbidden)),
+                [],
+            )
+            check(
+                f"{name}:safe-relative-artifact-paths",
+                safe_relative_paths(actual_required + actual_forbidden),
+                True,
+            )
+
+            evidence = detection.get("evidence", {})
+            for capability, fragments in case.get(
+                "expected_evidence_contains", {}
+            ).items():
+                actual_text = "\n".join(evidence.get(capability, []))
+                for fragment in fragments:
+                    ok = fragment in actual_text
+                    checks.append(
+                        {
+                            "check": f"{name}:evidence:{capability}:{fragment}",
+                            "ok": ok,
+                            "expected": fragment,
+                            "actual": actual_text,
+                        }
+                    )
+                    if not ok:
+                        errors.append(
+                            f"{name}: {capability} evidence does not contain "
+                            f"{fragment!r}: {actual_text!r}"
+                        )
+
+            if name == "generic-cmake-nonhardware":
+                check(
+                    f"{name}:generic-cmake-is-not-firmware",
+                    "firmware" in detection.get("capabilities", []),
+                    False,
+                )
+            if name == "ios-mobile-not-desktop":
+                check(
+                    f"{name}:native-ios-is-not-desktop",
+                    "desktop_app" in detection.get("capabilities", []),
+                    False,
+                )
+                check(
+                    f"{name}:native-ios-does-not-select-desktop-profile",
+                    "desktop-app" in resolution.get("selected_profiles", []),
+                    False,
+                )
+            if name == "generic-dotnet-nondesktop":
+                check(
+                    f"{name}:generic-dotnet-is-not-desktop",
+                    "desktop_app" in detection.get("capabilities", []),
+                    False,
+                )
+                check(
+                    f"{name}:generic-dotnet-does-not-select-desktop-profile",
+                    "desktop-app" in resolution.get("selected_profiles", []),
+                    False,
+                )
+            if name == "nested-fastapi-api":
+                check(
+                    f"{name}:nested-python-dependency-selects-api",
+                    "api_backend" in detection.get("capabilities", []),
+                    True,
+                )
+            if name == "profile-mechanical-product-approved":
+                check(
+                    f"{name}:greenfield-is-not-docs-first",
+                    "docs-first-product" in resolution.get("selected_profiles", []),
+                    False,
+                )
+
+    result = {
+        "status": "fail" if errors else "pass",
+        "fixture_count": len(selected_names),
+        "declared_profile_count": len(declared_profiles),
+        "check_count": len(checks),
+        "checks": checks,
+        "errors": errors,
+        "temporary_copies": True,
+        "generator_invoked": False,
+    }
     if args.json:
-        print(json.dumps({'status': 'fail' if errors else 'pass', 'checks': checks, 'errors': errors}, indent=2))
+        print(json.dumps(result, indent=2, sort_keys=True))
+    elif errors:
+        print(
+            f"fixture tests: failed ({len(errors)} error(s), "
+            f"{len(checks)} checks)"
+        )
+        for error in errors:
+            print(f"ERROR: {error}")
     else:
-        print('fixture tests')
-        if errors:
-            for e in errors:
-                print('ERROR:', e)
-            return 1
-        print('passed')
+        print(
+            f"fixture tests: passed ({len(selected_names)} fixtures, "
+            f"{len(declared_profiles)} profiles, {len(checks)} checks)"
+        )
     return 1 if errors else 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     raise SystemExit(main())

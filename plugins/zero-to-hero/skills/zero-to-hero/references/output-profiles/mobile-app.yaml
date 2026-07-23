@@ -1,13 +1,83 @@
-profile: mobile_app
-capabilities:
-- mobile_app
-- api_backend_optional
-generate:
-- docs/product
-- docs/mobile
-- docs/product-execution
-- docs/production-readiness
-minimum_proof:
-- mobile flows
-- offline/error states
-- accessibility/touch target proof
+{
+  "schema_version": 1,
+  "id": "mobile-app",
+  "title": "Mobile application",
+  "description": "Native or cross-platform mobile product surface with device, lifecycle, offline, accessibility, and release contracts.",
+  "detect": {
+    "capabilities_any": [
+      "mobile_app"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "mobile_app"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/mobile/requirements.md"
+    ],
+    "optional": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/data/requirements.md",
+      "docs/infra/requirements.md"
+    ],
+    "forbidden": [
+      "docs/cli/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/firmware/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "mobile-flow-contract",
+      "description": "The mobile requirements define navigation, device states, permissions, gestures, and primary workflows.",
+      "artifacts_any": [
+        "docs/mobile/requirements.md"
+      ],
+      "checks_all": [
+        "content:navigation-device-permission-matrix",
+        "content:primary-mobile-workflows"
+      ]
+    },
+    {
+      "id": "offline-error-accessibility-proof",
+      "description": "The mobile requirements define offline and error behavior, accessibility, touch targets, and deterministic device evidence.",
+      "artifacts_any": [
+        "docs/mobile/requirements.md"
+      ],
+      "checks_all": [
+        "content:offline-and-error-states",
+        "content:accessibility-and-touch-targets",
+        "content:device-evidence-plan"
+      ]
+    }
+  ]
+}

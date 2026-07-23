@@ -8,6 +8,7 @@ purpose: >-
   canonical, implementation-ready repositories for Codex/OMX.
 entrypoint: SKILL.md
 product_code_implementation: false
+contract_graph: references/contract-graph.yaml
 canonical_sequence:
   - prompts/00-deep-interview.md
   - prompts/01-research-and-capability-detection.md
@@ -17,7 +18,7 @@ canonical_sequence:
   - prompts/05-frontend-parity-system.md
   - prompts/06-product-usability-contract.md
   - prompts/07-local-product-done-harness.md
-  - prompts/08-omx-handoff.md
+  - prompts/08-implementation-handoff.md
   - prompts/09-canonical-cleanup.md
   - prompts/10-implementation-readiness-review.md
 

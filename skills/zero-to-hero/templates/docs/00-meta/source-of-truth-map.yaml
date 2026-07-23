@@ -1,24 +1,36 @@
 canonical:
-  product: docs/product/
-  stories: docs/stories/
-  workflows: docs/workflows/
-  architecture: docs/architecture/
-  contracts: docs/contracts/
-  ui: docs/ui/
-  product_execution: docs/product-execution/
-  production_readiness: docs/production-readiness/
-  mechanical: docs/mechanical/
-  pcb: docs/pcb/
-  firmware: docs/firmware/
-  agent_handoff: docs/agents/
+  agent_instructions: AGENTS.md
+  durable_plan_contract: PLANS.md
+  implementation_brief: docs/implementation/IMPLEMENTATION_BRIEF.md
+  planning_evidence: docs/implementation/PLANNING_EVIDENCE.md
+  decision_ledger: docs/00-meta/decision-ledger.yaml
+  generated_file_manifest: docs/00-meta/generated-files.manifest.yaml
+  routed_context: docs/AGENT_CONTEXT.md
+  local_product_contract: docs/product-execution/LOCAL_PRODUCT_CONTEXT.md
+
+profile_contracts:
+  note: Only paths emitted for the selected profile composition are canonical.
+  web: docs/ui/FRONTEND_CONTEXT.md
+  mobile: docs/mobile/requirements.md
+  desktop: docs/desktop/requirements.md
+  api: docs/api/requirements.md
+  cli: docs/cli/requirements.md
+  ai: docs/ai/requirements.md
+  data_ml: docs/data/requirements.md
+  infrastructure: docs/infra/requirements.md
+  firmware: docs/firmware/requirements.md
+  mechanical: docs/mechanical/requirements.md
+  pcb: docs/pcb/requirements.md
+  robotics: docs/robotics/requirements.md
 
 non_authoritative:
-  - .omx/plans/
   - .artifacts/
+  - CLI-owned .omx runtime state, when a compatible OMX adapter is selected
 
 entry_points:
   - AGENTS.md
-  - CODEX.md
-  - FINAL_HANDOFF.md
-  - docs/00-meta/canonical-handoff.md
+  - PLANS.md
   - docs/00-meta/source-of-truth-map.yaml
+  - docs/AGENT_CONTEXT.md
+  - docs/implementation/IMPLEMENTATION_BRIEF.md
+  - FINAL_HANDOFF.md

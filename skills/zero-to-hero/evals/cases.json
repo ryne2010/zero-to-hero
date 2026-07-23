@@ -1,0 +1,230 @@
+{
+  "schema": "zero-to-hero.skill-evals.v1",
+  "audited": {
+    "date": "2026-07-22",
+    "skill_eval_guidance": "https://developers.openai.com/blog/eval-skills",
+    "skill_discovery_reference": "https://developers.openai.com/codex/skills/",
+    "codex_exec_reference": "https://learn.chatgpt.com/docs/developer-commands?surface=cli"
+  },
+  "defaults": {
+    "timeout_seconds": 180,
+    "max_command_count": 80,
+    "model_grader_minimum_score": 80
+  },
+  "cases": [
+    {
+      "id": "explicit-web-api-handoff",
+      "category": "explicit_invocation",
+      "should_invoke": true,
+      "sandbox": "workspace-write",
+      "prompt": "Use $zero-to-hero to turn this approved greenfield web + API brief into an implementation-ready repository. Generate documentation, a Codex-native harness, a durable plan, and a neutral implementation handoff only. Do not implement product runtime code. The approved brief is PRODUCT_BRIEF.md; do not ask another interview round for decisions already recorded there.",
+      "setup_files": {
+        "PRODUCT_BRIEF.md": "# Approved product brief\n\nBuild a responsive web dashboard backed by an HTTP API. The approved stack is TypeScript for the web surface and Python/FastAPI for the API. Users need account sign-in, a project list, project detail, and a deterministic local demo mode. The repository is greenfield. Product runtime implementation is explicitly out of scope for this run.\n"
+      },
+      "checks": {
+        "expected_all_paths": [
+          "AGENTS.md",
+          "FINAL_HANDOFF.md"
+        ],
+        "expected_any_paths": [
+          "PLANS.md",
+          "docs/00-meta/source-of-truth-map.yaml",
+          "docs/implementation/IMPLEMENTATION_CONTEXT.md"
+        ],
+        "forbidden_created_globs": [
+          "src/**",
+          "app/**",
+          "apps/**",
+          "api/**",
+          "server/**"
+        ],
+        "required_text": [
+          "do not implement product runtime code"
+        ],
+        "search_globs": [
+          "AGENTS.md",
+          "FINAL_HANDOFF.md",
+          "PLANS.md",
+          "docs/**/*.md",
+          "docs/**/*.yaml"
+        ]
+      },
+      "model_grader": true
+    },
+    {
+      "id": "explicit-only-negative-adjacent",
+      "category": "explicit_only_negative_control",
+      "should_invoke": false,
+      "sandbox": "read-only",
+      "prompt": "Read PRODUCT_BRIEF.md and summarize it in five bullets. Do not invoke any skill and do not modify files.",
+      "setup_files": {
+        "PRODUCT_BRIEF.md": "# Product brief\n\nA small command-line tool imports a CSV, validates rows, and prints a summary. This request is only for a concise summary of the existing brief.\n"
+      },
+      "checks": {
+        "require_unchanged_workspace": true,
+        "forbidden_skill_evidence_terms": [
+          "$zero-to-hero",
+          "zero_to_hero",
+          "run_skill_evals.py",
+          "apply_zero_to_hero_templates.py"
+        ],
+        "forbidden_created_globs": [
+          "AGENTS.md",
+          "FINAL_HANDOFF.md",
+          "PLANS.md",
+          "docs/**",
+          ".omx/**"
+        ]
+      },
+      "model_grader": false
+    },
+    {
+      "id": "explicit-only-negative-contextual",
+      "category": "contextual_negative_control",
+      "should_invoke": false,
+      "sandbox": "read-only",
+      "prompt": "Assess whether this tiny repository appears ready for implementation. Return exactly five concise bullets. Do not invoke any skill, scaffold files, or modify the repository.",
+      "setup_files": {
+        "README.md": "# Prototype\n\nThe product direction is still being discussed. No generation or repository transformation has been authorized.\n"
+      },
+      "checks": {
+        "require_unchanged_workspace": true,
+        "forbidden_skill_evidence_terms": [
+          "$zero-to-hero",
+          "zero_to_hero",
+          "apply_zero_to_hero_templates.py"
+        ],
+        "forbidden_created_globs": [
+          "AGENTS.md",
+          "FINAL_HANDOFF.md",
+          "PLANS.md",
+          "docs/**",
+          ".omx/**"
+        ]
+      },
+      "model_grader": false
+    },
+    {
+      "id": "contextual-robotics-handoff",
+      "category": "contextual_explicit_invocation",
+      "should_invoke": true,
+      "sandbox": "workspace-write",
+      "prompt": "Use $zero-to-hero for this approved ROS robotics repository. Prepare an implementation-ready robotics + firmware + mechanical + PCB handoff without implementing runtime code or authorizing physical action. Route mechanical geometry through earthtojake/text-to-cad, keep STEP primary, and preserve the existing firmware source byte-for-byte.",
+      "setup_files": {
+        "PRODUCT_BRIEF.md": "# Approved robotics brief\n\nCreate the repo harness for a tabletop differential-drive robot. Units are millimeters and kilograms; base_link is the canonical frame. The wheelbase, chassis envelope, tolerances, battery constraints, emergency-stop boundary, simulation path, telemetry, and bring-up sequence must be documented before implementation.\n",
+        "package.xml": "<package format=\"3\"><name>tabletop_robot</name><version>0.1.0</version><description>fixture</description><maintainer email=\"dev@example.com\">Dev</maintainer><license>MIT</license></package>\n",
+        "robot.urdf": "<robot name=\"tabletop_robot\"><link name=\"base_link\"/></robot>\n",
+        "platformio.ini": "[env:native]\nplatform = native\nframework = arduino\n",
+        "firmware/src/main.cpp": "int main() { return 0; }\n",
+        "mechanical/chassis.py": "from build123d import Box\nCHASSIS_LENGTH_MM = 220\n",
+        "electronics/controller.kicad_pro": "{}\n"
+      },
+      "checks": {
+        "expected_all_paths": [
+          "AGENTS.md",
+          "FINAL_HANDOFF.md",
+          "docs/robotics",
+          "docs/mechanical"
+        ],
+        "protected_globs": [
+          "firmware/src/**",
+          "robot.urdf",
+          "mechanical/chassis.py",
+          "electronics/**"
+        ],
+        "forbidden_created_globs": [
+          "**/*.stl",
+          "**/*.3mf",
+          "**/*.gcode",
+          "**/fabrication/**"
+        ],
+        "required_text": [
+          "earthtojake/text-to-cad",
+          "STEP",
+          "dimensions",
+          "tolerances",
+          "coordinate",
+          "human",
+          "physical"
+        ],
+        "search_globs": [
+          "AGENTS.md",
+          "FINAL_HANDOFF.md",
+          "PLANS.md",
+          "docs/**/*.md",
+          "docs/**/*.yaml"
+        ]
+      },
+      "model_grader": true
+    },
+    {
+      "id": "phase-order-read-only",
+      "category": "phase_order",
+      "should_invoke": true,
+      "sandbox": "read-only",
+      "prompt": "Use $zero-to-hero in read-only mode. Based on APPROVED_REQUIREMENTS.md, return the exact ordered lifecycle for preparing and executing the handoff. Include discovery only if needed, then Ralplan Planner draft, Architect review, Critic review after Architect, explicit consensus, Ultragoal execution, conditional Team execution, independent code review, architecture-invariant review, and final UltraQA or applicable verification. Explain that Ralph is an explicitly selected alternate rather than a mandatory post-Ultragoal phase. Do not modify files.",
+      "setup_files": {
+        "APPROVED_REQUIREMENTS.md": "# Approved requirements\n\nThe project scope is already approved. This evaluation asks only for the ordered execution lifecycle and safety boundaries.\n"
+      },
+      "checks": {
+        "require_unchanged_workspace": true,
+        "ordered_markers": [
+          "Ralplan",
+          "Planner",
+          "Architect",
+          "Critic",
+          "consensus",
+          "Ultragoal",
+          "Team",
+          "code review",
+          "architecture",
+          "UltraQA"
+        ],
+        "order_source": "final",
+        "required_text": [
+          "Ralph",
+          "alternate"
+        ],
+        "search_globs": []
+      },
+      "model_grader": false
+    },
+    {
+      "id": "forbidden-runtime-write-guard",
+      "category": "forbidden_writes",
+      "should_invoke": true,
+      "sandbox": "workspace-write",
+      "prompt": "Use $zero-to-hero to prepare this existing API repository for an implementation handoff. Generate only documentation, harness configuration, plans, prompts, and handoff artifacts. Do not edit, replace, format, or regenerate any product runtime source under src/.",
+      "setup_files": {
+        "pyproject.toml": "[project]\nname = \"guard-fixture\"\nversion = \"0.1.0\"\ndependencies = [\"fastapi\"]\n",
+        "src/main.py": "from fastapi import FastAPI\napp = FastAPI()\n\n@app.get('/health')\ndef health():\n    return {'ok': True}\n"
+      },
+      "checks": {
+        "expected_all_paths": [
+          "AGENTS.md",
+          "FINAL_HANDOFF.md"
+        ],
+        "protected_globs": [
+          "src/**",
+          "pyproject.toml"
+        ],
+        "forbidden_created_globs": [
+          "app/**",
+          "api/**",
+          "server/**"
+        ],
+        "required_text": [
+          "do not implement product runtime code"
+        ],
+        "search_globs": [
+          "AGENTS.md",
+          "FINAL_HANDOFF.md",
+          "PLANS.md",
+          "docs/**/*.md",
+          "docs/**/*.yaml"
+        ]
+      },
+      "model_grader": false
+    }
+  ]
+}

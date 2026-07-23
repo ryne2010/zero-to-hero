@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "zero-to-hero handoff quality grade",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "overall_pass",
+    "score",
+    "checks",
+    "summary"
+  ],
+  "properties": {
+    "overall_pass": {
+      "type": "boolean"
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "pass",
+          "score",
+          "notes",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "target_specificity",
+              "commands_and_harness",
+              "phase_and_ownership",
+              "profile_artifacts",
+              "evidence_and_done",
+              "safety_boundaries",
+              "unresolved_risks"
+            ]
+          },
+          "pass": {
+            "type": "boolean"
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

@@ -1,0 +1,575 @@
+{
+  "schema_version": 1,
+  "declared_profiles": [
+    "ai-agent-app",
+    "api-service",
+    "cli-tool",
+    "data-ml-app",
+    "desktop-app",
+    "docs-first-product",
+    "firmware-iot",
+    "infra-repo",
+    "mechanical-product",
+    "mobile-app",
+    "pcb-electronics",
+    "robotics-product",
+    "web-app"
+  ],
+  "profile_fixture_cases": {
+    "ai-agent-app": "profile-ai-agent-app",
+    "api-service": "profile-api-service",
+    "cli-tool": "profile-cli-tool",
+    "data-ml-app": "profile-data-ml-app",
+    "desktop-app": "profile-desktop-app",
+    "docs-first-product": "profile-docs-first-product",
+    "firmware-iot": "profile-firmware-iot",
+    "infra-repo": "profile-infra-repo",
+    "mechanical-product": "profile-mechanical-product-approved",
+    "mobile-app": "profile-mobile-app",
+    "pcb-electronics": "profile-pcb-electronics",
+    "robotics-product": "profile-robotics-product-ros",
+    "web-app": "profile-web-app"
+  },
+  "common_required_paths": [
+    ".gitattributes",
+    ".gitignore",
+    "AGENTS.md",
+    "CODEX.md",
+    "FINAL_HANDOFF.md",
+    "PLANS.md",
+    "README.md",
+    "docs/00-meta/canonical-handoff.md",
+    "docs/00-meta/decision-ledger.yaml",
+    "docs/00-meta/generated-files.manifest.yaml",
+    "docs/00-meta/source-of-truth-map.yaml",
+    "docs/AGENT_CONTEXT.md",
+    "docs/implementation/IMPLEMENTATION_BRIEF.md",
+    "docs/implementation/IMPLEMENTATION_CONTEXT.md",
+    "docs/implementation/PLANNING_EVIDENCE.md",
+    "docs/product-execution/LOCAL_PRODUCT_CONTEXT.md",
+    "docs/product-execution/README.md"
+  ],
+  "cases": {
+    "profile-ai-agent-app": {
+      "expected_capabilities": ["ai_agent_app"],
+      "expected_profiles": ["ai-agent-app"],
+      "expected_required_profile_paths": ["docs/ai/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md"
+      ]
+    },
+    "profile-api-service": {
+      "expected_capabilities": ["api_backend"],
+      "expected_profiles": ["api-service"],
+      "expected_required_profile_paths": ["docs/api/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ]
+    },
+    "profile-cli-tool": {
+      "expected_capabilities": ["cli_tool"],
+      "expected_profiles": ["cli-tool"],
+      "expected_required_profile_paths": ["docs/cli/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/desktop/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "profile-data-ml-app": {
+      "expected_capabilities": ["data_ml"],
+      "expected_profiles": ["data-ml-app"],
+      "expected_required_profile_paths": ["docs/data/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md"
+      ]
+    },
+    "profile-desktop-app": {
+      "expected_capabilities": ["desktop_app"],
+      "expected_profiles": ["desktop-app"],
+      "expected_required_profile_paths": ["docs/desktop/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "profile-docs-first-product": {
+      "expected_capabilities": ["docs_only"],
+      "expected_profiles": ["docs-first-product"],
+      "expected_required_profile_paths": [],
+      "expected_forbidden_paths": [
+        "docs/ai/requirements.md",
+        "docs/api/requirements.md",
+        "docs/cli/requirements.md",
+        "docs/data/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/infra/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "profile-firmware-iot": {
+      "expected_capabilities": ["firmware"],
+      "expected_profiles": ["firmware-iot"],
+      "expected_required_profile_paths": ["docs/firmware/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/ai/requirements.md",
+        "docs/api/requirements.md",
+        "docs/data/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "profile-infra-repo": {
+      "expected_capabilities": ["infra"],
+      "expected_profiles": ["infra-repo"],
+      "expected_required_profile_paths": ["docs/infra/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md"
+      ]
+    },
+    "profile-mechanical-product-approved": {
+      "approved_capabilities_file": "approved-capabilities.json",
+      "expected_capabilities": ["unknown"],
+      "expected_profiles": ["mechanical-product"],
+      "expected_selection_provenance": {
+        "mechanical-product": ["approved_capability"]
+      },
+      "expected_required_profile_paths": [
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md"
+      ],
+      "expected_forbidden_paths": [
+        "docs/ai/requirements.md",
+        "docs/api/requirements.md",
+        "docs/cli/requirements.md",
+        "docs/data/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/infra/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "profile-mobile-app": {
+      "expected_capabilities": ["mobile_app"],
+      "expected_profiles": ["mobile-app"],
+      "expected_required_profile_paths": ["docs/mobile/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/cli/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "profile-pcb-electronics": {
+      "expected_capabilities": ["pcb_electronics"],
+      "expected_profiles": ["pcb-electronics"],
+      "expected_required_profile_paths": ["docs/pcb/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/ai/requirements.md",
+        "docs/api/requirements.md",
+        "docs/cli/requirements.md",
+        "docs/data/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/infra/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "profile-robotics-product-ros": {
+      "expected_capabilities": ["robotics", "simulation"],
+      "expected_profiles": ["robotics-product", "mechanical-product"],
+      "expected_selection_provenance": {
+        "robotics-product": ["repository_evidence"],
+        "mechanical-product": ["profile_default"]
+      },
+      "expected_required_profile_paths": [
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ],
+      "expected_forbidden_paths": [
+        "docs/ai/requirements.md",
+        "docs/api/requirements.md",
+        "docs/cli/requirements.md",
+        "docs/data/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/infra/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ],
+      "expected_evidence_contains": {
+        "robotics": ["package.xml", "robot.urdf", "robot.srdf", "robot.sdf", "ament_cmake"],
+        "simulation": ["robot.sdf"]
+      }
+    },
+    "profile-web-app": {
+      "expected_capabilities": ["web_frontend"],
+      "expected_profiles": ["web-app"],
+      "expected_required_profile_paths": ["docs/ui/FRONTEND_CONTEXT.md"],
+      "expected_forbidden_paths": [
+        "docs/cli/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ]
+    },
+    "greenfield-approved-web-api": {
+      "approved_capabilities_file": "approved-capabilities.json",
+      "expected_capabilities": ["unknown"],
+      "expected_profiles": ["api-service", "web-app"],
+      "expected_selection_provenance": {
+        "api-service": ["approved_capability"],
+        "web-app": ["approved_capability"]
+      },
+      "expected_required_profile_paths": [
+        "docs/api/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ],
+      "expected_forbidden_paths": [
+        "docs/cli/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ]
+    },
+    "mobile-api": {
+      "expected_capabilities": ["api_backend", "cross_platform", "mobile_app"],
+      "expected_profiles": ["api-service", "mobile-app"],
+      "expected_required_profile_paths": [
+        "docs/api/requirements.md",
+        "docs/mobile/requirements.md"
+      ],
+      "expected_forbidden_paths": [
+        "docs/cli/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "desktop-api-native-service": {
+      "expected_capabilities": ["api_backend", "cross_platform", "desktop_app"],
+      "expected_profiles": ["api-service", "desktop-app"],
+      "expected_required_profile_paths": [
+        "docs/api/requirements.md",
+        "docs/desktop/requirements.md"
+      ],
+      "expected_forbidden_paths": [
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ]
+    },
+    "ai-data-web": {
+      "expected_capabilities": ["ai_agent_app", "data_ml", "web_frontend"],
+      "expected_profiles": ["ai-agent-app", "data-ml-app", "web-app"],
+      "expected_required_profile_paths": [
+        "docs/ai/requirements.md",
+        "docs/data/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ],
+      "expected_forbidden_paths": [
+        "docs/cli/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ]
+    },
+    "infra-api": {
+      "expected_capabilities": ["api_backend", "infra"],
+      "expected_profiles": ["api-service", "infra-repo"],
+      "expected_required_profile_paths": [
+        "docs/api/requirements.md",
+        "docs/infra/requirements.md"
+      ],
+      "expected_forbidden_paths": [
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ]
+    },
+    "robotics-hardware-composite": {
+      "expected_capabilities": [
+        "firmware",
+        "mechanical_cad",
+        "pcb_electronics",
+        "robotics",
+        "simulation"
+      ],
+      "expected_profiles": [
+        "firmware-iot",
+        "mechanical-product",
+        "pcb-electronics",
+        "robotics-product"
+      ],
+      "expected_required_profile_paths": [
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ],
+      "expected_forbidden_paths": [
+        "docs/ai/requirements.md",
+        "docs/api/requirements.md",
+        "docs/cli/requirements.md",
+        "docs/data/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/infra/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ],
+      "expected_evidence_contains": {
+        "firmware": ["platformio.ini"],
+        "mechanical_cad": ["build123d", "chassis.step"],
+        "pcb_electronics": ["controller.kicad_pro"],
+        "robotics": ["package.xml", "robot.urdf", "robot.srdf", "robot.sdf", "ament_cmake", "ros2_control"],
+        "simulation": ["robot.sdf"]
+      }
+    },
+    "generic-cmake-nonhardware": {
+      "expected_capabilities": ["web_frontend"],
+      "expected_profiles": ["web-app"],
+      "expected_required_profile_paths": ["docs/ui/FRONTEND_CONTEXT.md"],
+      "expected_forbidden_paths": [
+        "docs/cli/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ],
+      "expected_negative_evidence": {
+        "firmware": ["CMakeLists.txt is generic CMake without firmware markers"]
+      }
+    },
+    "generic-dotnet-nondesktop": {
+      "expected_capabilities": ["unknown"],
+      "expected_profiles": [],
+      "expected_requires_confirmation": true,
+      "expected_required_profile_paths": [],
+      "expected_forbidden_paths": [],
+      "expected_negative_evidence": {
+        "desktop_app": [
+          "src/Library.csproj lacks exact desktop application markers"
+        ]
+      }
+    },
+    "ios-mobile-not-desktop": {
+      "expected_capabilities": ["mobile_app"],
+      "expected_profiles": ["mobile-app"],
+      "expected_required_profile_paths": ["docs/mobile/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/cli/requirements.md",
+        "docs/desktop/requirements.md",
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ],
+      "expected_negative_evidence": {
+        "desktop_app": [
+          "ios/App.xcodeproj/project.pbxproj lacks exact desktop application markers"
+        ]
+      }
+    },
+    "nested-fastapi-api": {
+      "expected_capabilities": ["api_backend"],
+      "expected_profiles": ["api-service"],
+      "expected_required_profile_paths": ["docs/api/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/firmware/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md",
+        "docs/robotics/simulation-and-bring-up.md"
+      ],
+      "expected_evidence_contains": {
+        "api_backend": [
+          "services/api/pyproject.toml",
+          "fastapi"
+        ]
+      }
+    },
+    "pyproject-description-negative": {
+      "expected_capabilities": ["unknown"],
+      "expected_profiles": [],
+      "expected_requires_confirmation": true,
+      "expected_required_profile_paths": [],
+      "expected_forbidden_paths": [],
+      "expected_absent_capabilities": [
+        "ai_agent_app",
+        "api_backend",
+        "cli_tool",
+        "test_harness"
+      ]
+    },
+    "requirements-comment-negative": {
+      "expected_capabilities": ["unknown"],
+      "expected_profiles": [],
+      "expected_requires_confirmation": true,
+      "expected_required_profile_paths": [],
+      "expected_forbidden_paths": [],
+      "expected_absent_capabilities": [
+        "ai_agent_app",
+        "api_backend",
+        "cli_tool",
+        "test_harness"
+      ]
+    },
+    "nested-requirements-cli": {
+      "expected_capabilities": ["cli_tool"],
+      "expected_profiles": ["cli-tool"],
+      "expected_required_profile_paths": ["docs/cli/requirements.md"],
+      "expected_forbidden_paths": [
+        "docs/desktop/requirements.md",
+        "docs/mechanical/cad-adapter.md",
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/interfaces-and-datums.md",
+        "docs/mechanical/requirements.md",
+        "docs/mobile/requirements.md",
+        "docs/pcb/requirements.md",
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ],
+      "expected_absent_capabilities": [
+        "ai_agent_app",
+        "api_backend",
+        "test_harness"
+      ],
+      "expected_evidence_contains": {
+        "cli_tool": [
+          "requirements/dev.txt",
+          "typer"
+        ]
+      }
+    }
+  }
+}

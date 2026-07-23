@@ -1,128 +1,106 @@
 # zero-to-hero Codex skill
 
-`zero-to-hero` converts a product idea, partial prototype, or messy repository into a clean, canonical, implementation-ready repo for Codex/OMX.
+`zero-to-hero` prepares product repositories for later agent implementation. It
+generates canonical requirements, capability-specific documentation, a
+Codex-native harness, durable planning contracts, safe manifests, and neutral
+handoff evidence. It supports software, hardware, and composite products.
 
-It generates source-of-truth docs, feature/workflow specs, design packs, hardware packs when applicable, product harness layers, repo-scoped skills, `.omx` handoff artifacts, and a final cleanup report. It does not implement product runtime code.
+It never implements target product runtime code and never authorizes production
+or physical effects.
 
-## Install
+## Install and invoke
 
-Copy this directory into the target repo:
+Install this directory as:
 
 ```txt
 .agents/skills/zero-to-hero/
 ```
 
-## Recommended invocation
-
-In Codex:
+Invoke explicitly:
 
 ```txt
-Use the zero-to-hero skill.
-Start with the deep interview and do not implement product runtime code.
+Use $zero-to-hero to prepare this repository for implementation. Generate
+documentation, harness, plans, and handoff artifacts only; do not implement
+product runtime code.
 ```
 
-For an existing repo, first run the guided start command from the skill directory:
+## Contract-driven workflow
+
+`references/contract-graph.yaml` is the executable phase and prompt source of
+truth. Output profiles under `references/output-profiles/` select exact required
+and forbidden artifacts from repository evidence plus approved capability data.
+
+Verify generated views:
 
 ```bash
-python scripts/zero_to_hero_start.py /path/to/repo --profile auto --write
+python scripts/sync_contract_views.py .
+python scripts/prompt_sequence_check.py .
 ```
 
-This writes a start report plus the target-repo audit under `.codex/reports/zero-to-hero/`.
+## Preview and apply
 
-To preview generated templates without writing files:
+The generator is dry-run by default:
 
 ```bash
 python scripts/apply_zero_to_hero_templates.py /path/to/repo --profile auto
 ```
 
-To apply selected templates after reviewing the dry-run manifest:
+For a greenfield or interview-selected product family, provide approved
+capability evidence:
 
 ```bash
-python scripts/apply_zero_to_hero_templates.py /path/to/repo --profile auto --write --require-clean
+python scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --approved-capabilities-file /path/to/approved-capabilities.json
 ```
 
-Use `--profile full` only when the repo truly needs every product surface.
-
-## Canonical workflow
-
-```txt
-deep interview
-→ research and capability detection
-→ canonical docs pack
-→ approved design/visual pack
-→ hardware/mechanical/PCB pack when applicable
-→ frontend parity system
-→ product usability contract
-→ local product done harness
-→ repo-scoped implementation skills
-→ OMX single aggregate goal handoff
-→ lossless canonical cleanup
-→ implementation readiness review
-```
-
-
-## Prompt bundles
-
-To produce a durable prompt bundle for a target repo:
+Compose profiles by repeating `--profile`:
 
 ```bash
-python scripts/render_prompt_bundle.py . --group all --target-repo /path/to/repo --write
+python scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --profile robotics-product \
+  --profile pcb-electronics
 ```
 
-## Build a clean ZIP
-
-To distribute the skill without cache or runtime artifacts:
+After reviewing the preview, write only into a clean, safe Git worktree:
 
 ```bash
-python scripts/build_skill_zip.py . --out zero-to-hero-codex-skill-pack.zip
+python scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --profile web-app --profile api-service --write
 ```
 
-## Health and release checks
-
-Use the fast checks for day-to-day validation:
+Existing files are preserved. Replacement is explicit and scoped:
 
 ```bash
-python scripts/zero_to_hero_check.py .
-python scripts/zero_to_hero_doctor.py .
+python scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --profile web-app --write --force docs/ui/FRONTEND_CONTEXT.md
 ```
 
-Use deeper deterministic checks before packaging or distribution:
+The only generated manifest is
+`docs/00-meta/generated-files.manifest.yaml`.
+
+## Optional adapters
+
+- `scripts/omx_adapter.py` probes audited OMX compatibility. Compatible OMX
+  creates and owns its runtime state from the neutral implementation brief;
+  missing OMX falls back to native Codex or deterministic sequential execution.
+- `scripts/text_to_cad_probe.py` probes the installed
+  `earthtojake/text-to-cad` interface for mechanical and robotics geometry.
+  STEP remains primary and physical actions stay human-authorized.
+
+## Validation and distribution
+
+From the repository that packages this skill, run the authoritative pinned gate:
 
 ```bash
-python scripts/zero_to_hero_check.py . --deep
-python scripts/zero_to_hero_doctor.py . --deep
+make validate
 ```
 
-Executable target smoke checks are separate from the main check runner. Run fixture and toolchain probes directly only when needed:
-
-```bash
-python scripts/run_fixture_tests.py .
-python scripts/toolchain_preflight.py fixtures/react-vite-scaffold
-python scripts/external_context_inventory.py fixtures/react-vite-scaffold
-python scripts/repo_safety_check.py fixtures/react-vite-scaffold
-```
-
-For long interactive runs, add `--jsonl` to `zero_to_hero_check.py` or `--json` to `zero_to_hero_doctor.py` for machine-readable output. See `references/check-operability.md`.
-
-## Distribution hygiene
-
-The distributed skill pack must not include generated cache directories, `.codex` report artifacts, duplicate prompt phases, or stale reference files. Run the deep check path before sharing a ZIP:
+For a standalone skill copy:
 
 ```bash
 python scripts/zero_to_hero_check.py . --deep
-python scripts/build_skill_zip.py . --out zero-to-hero-codex-skill-pack.zip
+python scripts/build_skill_zip.py . --out /tmp/zero-to-hero-skill.zip
 ```
 
-## Small reliability utilities
-
-- `scripts/zero_to_hero_start.py --write` writes a start report, target-repo audit, and template dry-run summary.
-- `scripts/target_repo_audit.py --write` writes preflight reports under `.codex/reports/zero-to-hero/`.
-- `scripts/apply_zero_to_hero_templates.py --profile auto` applies capability-aware templates.
-- `scripts/instruction_trust_scan.py` reports untrusted instruction-like content in target repos.
-- `scripts/prompt_sequence_check.py` verifies the canonical prompt sequence is complete and non-overlapping.
-- `scripts/render_prompt_bundle.py` emits copy/paste prompt bundles for target repos.
-- `scripts/build_skill_zip.py` creates a clean distributable skill ZIP.
-
-## Invocation policy
-
-`zero-to-hero` is intentionally configured for explicit invocation. Use `$zero-to-hero` or explicitly say “Use the zero-to-hero skill” so it does not activate during ordinary coding tasks.
+Model-backed evaluations and external adapters report `PASS`, `SKIP`, or `FAIL`
+separately. Unavailable tooling is never represented as a pass.

@@ -1,37 +1,43 @@
 #!/usr/bin/env python3
+"""Verify that every derived phase gate exactly matches the contract graph."""
+
 from __future__ import annotations
+
 import sys
 from pathlib import Path
-try:
-    import yaml
-except Exception:
-    yaml = None
 
-REQUIRED_PHASES = [
-    'interview', 'research_and_capability_detection', 'canonical_docs_pack',
-    'design_and_visual_pack', 'hardware_pack', 'harness_pack',
-    'omx_handoff_pack', 'canonical_cleanup', 'implementation_readiness_review'
-]
+sys.dont_write_bytecode = True
+
+from zero_to_hero_contract import (  # noqa: E402
+    ContractError,
+    load_graph,
+    rendered_phase_views,
+)
+
 
 def main() -> int:
-    skill = Path(sys.argv[1] if len(sys.argv) > 1 else '.').resolve()
-    if not (skill / 'SKILL.md').exists():
-        skill = skill / '.agents/skills/zero-to-hero'
-    path = skill / 'references/phase-gates.yaml'
-    if not path.exists():
-        print('missing references/phase-gates.yaml')
+    skill = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    if not (skill / "SKILL.md").is_file():
+        skill = skill / ".agents" / "skills" / "zero-to-hero"
+    try:
+        graph = load_graph(skill)
+    except ContractError as exc:
+        print(f"contract graph invalid: {exc}")
         return 1
-    if not yaml:
-        print('PyYAML unavailable; phase gate file exists')
-        return 0
-    data = yaml.safe_load(path.read_text(encoding='utf-8')) or {}
-    gates = data.get('gates', {})
-    missing = [p for p in REQUIRED_PHASES if p not in gates]
-    if missing:
-        print('missing phase gates:', ', '.join(missing))
+    failures: list[str] = []
+    for relative, expected in rendered_phase_views(graph).items():
+        path = skill / relative
+        if not path.is_file():
+            failures.append(f"missing {relative}")
+        elif path.read_bytes() != expected:
+            failures.append(f"derived phase view drift: {relative}")
+    if failures:
+        for failure in failures:
+            print(f"ERROR: {failure}")
         return 1
-    print('phase gates: passed')
+    print(f"phase gates: PASS ({len(graph['phases'])} phases from contract graph)")
     return 0
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     raise SystemExit(main())

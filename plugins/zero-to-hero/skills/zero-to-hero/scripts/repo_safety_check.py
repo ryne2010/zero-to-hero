@@ -11,6 +11,10 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 
+class GitStatusError(RuntimeError):
+    """Raised when repository cleanliness cannot be established."""
+
+
 def run_git(repo: Path, args: list[str], timeout: int = 8) -> tuple[int, str, str]:
     env = os.environ.copy()
     env['GIT_OPTIONAL_LOCKS'] = '0'
@@ -30,16 +34,20 @@ def run_git(repo: Path, args: list[str], timeout: int = 8) -> tuple[int, str, st
 
 
 def status_porcelain(repo: Path) -> list[str]:
-    code, out, _ = run_git(repo, ['status', '--porcelain=v1', '-uno'])
+    code, out, err = run_git(repo, ['status', '--porcelain=v1', '-uno'])
     if code != 0:
-        return []
+        raise GitStatusError(
+            f"tracked git status failed with exit {code}: {err or 'no diagnostic'}"
+        )
     return [line for line in out.splitlines() if line.strip()]
 
 
 def untracked_porcelain(repo: Path) -> list[str]:
-    code, out, _ = run_git(repo, ['status', '--porcelain=v1', '--untracked-files=all'])
+    code, out, err = run_git(repo, ['status', '--porcelain=v1', '--untracked-files=all'])
     if code != 0:
-        return []
+        raise GitStatusError(
+            f"untracked git status failed with exit {code}: {err or 'no diagnostic'}"
+        )
     return [line for line in out.splitlines() if line.startswith('?? ')]
 
 
@@ -67,8 +75,19 @@ def build_report(repo: Path) -> dict:
     _, branch, _ = run_git(repo, ['branch', '--show-current'])
     _, head, _ = run_git(repo, ['rev-parse', '--short', 'HEAD'])
     _, upstream, _ = run_git(repo, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'])
-    tracked_changes = status_porcelain(repo)
-    untracked = untracked_porcelain(repo)
+    try:
+        tracked_changes = status_porcelain(repo)
+        untracked = untracked_porcelain(repo)
+    except GitStatusError as exc:
+        report['safe_to_write_templates'] = False
+        report['warnings'].append(
+            'repository cleanliness could not be established; generated writes are blocked'
+        )
+        report['recommended_actions'].append(
+            'repair the git status failure and rerun the safety check'
+        )
+        report['git_status_error'] = str(exc)
+        return report
     report.update({
         'branch': branch or '(detached)',
         'head': head,

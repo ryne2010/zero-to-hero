@@ -1,24 +1,82 @@
-profile: web_app
-capabilities:
-- web_frontend
-- api_backend_optional
-- database_optional
-generate:
-- docs/product
-- docs/architecture
-- docs/ui
-- docs/ui/frontend-parity-system
-- docs/product-execution
-- docs/production-readiness
-- .agents/skills/frontend-parity
-- .agents/skills/product-usability
-- .omx/ultragoal
-skip_unless:
-- docs/mechanical
-- docs/pcb
-- docs/firmware
-minimum_proof:
-- route/screens/contracts
-- action-binding
-- no-scaffold/no-dead-controls
-- local-product-done-gate
+{
+  "schema_version": 1,
+  "id": "web-app",
+  "title": "Web application",
+  "description": "Browser-delivered product surface with route, state, interaction, accessibility, and visual-behavior contracts.",
+  "detect": {
+    "capabilities_any": [
+      "web_frontend"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "web_frontend"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ],
+    "optional": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/data/requirements.md",
+      "docs/infra/requirements.md"
+    ],
+    "forbidden": [
+      "docs/cli/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/firmware/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "route-screen-state-contract",
+      "description": "The frontend contract identifies routes, screens, responsive states, actions, data dependencies, and negative states.",
+      "artifacts_any": [
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ],
+      "checks_all": [
+        "content:routes-screens-states-actions",
+        "review:responsive-and-negative-states"
+      ]
+    },
+    {
+      "id": "accessibility-and-visual-proof",
+      "description": "The frontend contract defines accessibility expectations and reproducible visual evidence.",
+      "artifacts_any": [
+        "docs/ui/FRONTEND_CONTEXT.md"
+      ],
+      "checks_all": [
+        "content:accessibility-contract",
+        "content:visual-evidence-plan"
+      ]
+    }
+  ]
+}

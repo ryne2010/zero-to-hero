@@ -1,12 +1,83 @@
-profile: infra_repo
-applies_when: [infra]
-generate:
-  - docs/product/
-  - docs/architecture/
-  - docs/production-readiness/
-  - docs/product-execution/runtime-evidence/
-proof:
-  - plan/validate command documented
-  - secret handling documented
-  - rollback path documented
-  - environment matrix documented
+{
+  "schema_version": 1,
+  "id": "infra-repo",
+  "title": "Infrastructure repository",
+  "description": "Infrastructure, deployment, or platform repository with environment, validation, secrets, change, rollback, and authorization contracts.",
+  "detect": {
+    "capabilities_any": [
+      "infra"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "infra"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/infra/requirements.md"
+    ],
+    "optional": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/data/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/firmware/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ],
+    "forbidden": [
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/pcb/requirements.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "environment-validation-contract",
+      "description": "The infrastructure requirements define environment boundaries and exact format, validate, plan, test, and policy commands.",
+      "artifacts_any": [
+        "docs/infra/requirements.md"
+      ],
+      "checks_all": [
+        "content:environment-matrix",
+        "content:format-validate-plan-test-commands"
+      ]
+    },
+    {
+      "id": "secrets-change-rollback-proof",
+      "description": "The infrastructure requirements define secret handling, change review, rollback, drift, and explicit deployment authorization.",
+      "artifacts_any": [
+        "docs/infra/requirements.md"
+      ],
+      "checks_all": [
+        "content:secrets-and-state-policy",
+        "content:rollback-and-drift-plan",
+        "content:deployment-authorization-gate"
+      ]
+    }
+  ]
+}

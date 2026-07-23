@@ -1,32 +1,65 @@
-# Codex / OMX Handoff
+# Codex / OMX handoff
 
-## Default flow
+OMX is an optional execution adapter. The durable handoff is a neutral implementation brief plus approved planning evidence; it must remain usable by native Codex when OMX is absent or incompatible.
 
-```txt
-$deep-interview when scope is unclear
-$ralplan --interactive --deliberate for planning
-$ultragoal for the long-running aggregate goal
-$ralph for final verification and completion review
+See [OMX compatibility](omx-compatibility.md) for the audited version, probe contract, and executable integration test.
+
+## Lifecycle
+
+1. Run discovery or `$deep-interview` when material requirements remain unclear.
+2. Ask the Ralplan Planner for the draft plan.
+3. Complete Architect review before Critic review.
+4. Complete Critic review against the Architect-reviewed draft.
+5. Record an explicit consensus gate and its evidence.
+6. Use `$ultragoal` for durable execution when the adapter reports `PASS`.
+7. Use Team only for independently owned parallel work in a supported environment.
+8. Run independent code review and architecture-invariant review.
+9. Run `$ultraqa` or the applicable final product verification.
+
+`$ralph` is an explicitly selected single-owner alternate execution loop. It is not a mandatory review phase after Ultragoal.
+
+## Neutral handoff
+
+Always preserve these execution-neutral inputs outside `.omx/ultragoal/`:
+
+- the traceable implementation brief;
+- the Planner draft;
+- Architect and Critic review evidence;
+- the explicit consensus decision;
+- validation commands, stop conditions, and unresolved blockers.
+
+When OMX is missing or unsupported, use those inputs with native Codex planning and scoped subagents, or a deterministic sequential plan. Do not fabricate OMX-native files.
+
+## Compatible OMX path
+
+Probe without writing:
+
+```bash
+python <skill-root>/scripts/omx_adapter.py <target-repo> --json
 ```
 
-## OMX artifacts
+After the probe reports `PASS`, explicitly authorize CLI-owned artifact creation:
 
-```txt
+```bash
+python <skill-root>/scripts/omx_adapter.py <target-repo> \
+  --require-compatible \
+  --create-goals \
+  --brief-file <neutral-implementation-brief> \
+  --json
+```
+
+The adapter intentionally does not pass `--force` and refuses creation when any audited runtime artifact already exists.
+
+## Ownership boundary
+
+The compatible OMX CLI owns:
+
+```text
 .omx/ultragoal/brief.md
 .omx/ultragoal/goals.json
 .omx/ultragoal/ledger.jsonl
-.omx/context/<project>-local-product-completion.md
-.omx/context/<project>-canonical-stories.md
-.omx/context/<project>-sequential-workflow.md
-.omx/plans/
 ```
 
-Do not create `.omx/AGENTS.md`.
+Do not template, hand-edit, locally schema-validate, or pre-create these files. Runtime and HUD state also remain OMX-owned.
 
-## Aggregate goal policy
-
-Use one aggregate goal with multiple ordered stories unless the user requests otherwise.
-
-## Final review
-
-Final `$ralph` must verify evidence, not summaries.
+The leader alone creates goals, steers the plan, records review blockers, and checkpoints Ultragoal state. Team workers return scoped evidence upward; they never mutate or checkpoint the leader's ledger.

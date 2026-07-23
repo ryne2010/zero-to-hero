@@ -1,14 +1,108 @@
-profile: mechanical_product
-capabilities:
-- mechanical_cad
-generate:
-- docs/mechanical
-- docs/product
-- docs/product-execution
-- docs/production-readiness
-minimum_proof:
-- requirements
-- dimensions
-- tolerances
-- CAD generation path
-- manufacturing review checklist
+{
+  "schema_version": 1,
+  "id": "mechanical-product",
+  "title": "Mechanical or CAD product",
+  "description": "Mechanical product contract with dimensions, tolerances, materials, datums, interfaces, STEP-first parametric source, validation, and manufacturing-review boundaries.",
+  "detect": {
+    "capabilities_any": [
+      "mechanical_cad"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "mechanical_cad"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md"
+    ],
+    "optional": [
+      "docs/firmware/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md"
+    ],
+    "forbidden": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/data/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "dimension-tolerance-material-contract",
+      "description": "Mechanical requirements and ledger define units, named dimensions, tolerances, materials, manufacturing assumptions, and validation targets.",
+      "artifacts_any": [
+        "docs/mechanical/dimensions-and-tolerances.yaml",
+        "docs/mechanical/requirements.md"
+      ],
+      "checks_all": [
+        "validation:dimension-ledger-schema",
+        "content:units-tolerances-materials",
+        "content:manufacturing-assumptions"
+      ]
+    },
+    {
+      "id": "interface-datum-frame-contract",
+      "description": "Mechanical interfaces identify mating surfaces, datums, coordinate frames, units, conversions, and assembly prerequisites.",
+      "artifacts_any": [
+        "docs/mechanical/interfaces-and-datums.md"
+      ],
+      "checks_all": [
+        "content:interfaces-datums-frames",
+        "content:unit-conversions-and-assembly-prerequisites"
+      ]
+    },
+    {
+      "id": "step-first-cad-proof",
+      "description": "The CAD adapter routes to earthtojake text-to-CAD skills and defines parametric build123d source, explicit-target STEP generation, deterministic checks, snapshot review, and source repair.",
+      "artifacts_any": [
+        "docs/mechanical/cad-adapter.md"
+      ],
+      "checks_all": [
+        "content:text-to-cad-routing",
+        "content:build123d-step-first-loop",
+        "content:deterministic-geometry-checks",
+        "content:snapshot-and-smallest-source-repair"
+      ]
+    },
+    {
+      "id": "manufacturing-authorization-proof",
+      "description": "Mechanical requirements distinguish generated engineering intent from human engineering review, fabrication, and other physical authorization.",
+      "artifacts_any": [
+        "docs/mechanical/requirements.md"
+      ],
+      "checks_all": [
+        "content:human-engineering-review-gate",
+        "content:fabrication-authorization-gate"
+      ]
+    }
+  ]
+}

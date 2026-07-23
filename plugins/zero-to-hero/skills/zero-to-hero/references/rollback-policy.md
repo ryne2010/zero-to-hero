@@ -5,9 +5,9 @@
 Required outputs:
 
 ```txt
-.codex/reports/zero-to-hero/generated-files.manifest.yaml
-.codex/reports/zero-to-hero/change-summary.md
-.codex/reports/zero-to-hero/unresolved-decisions.md
+docs/00-meta/generated-files.manifest.yaml
+docs/00-meta/decision-ledger.yaml
+FINAL_HANDOFF.md
 ```
 
 Rollback guidance:

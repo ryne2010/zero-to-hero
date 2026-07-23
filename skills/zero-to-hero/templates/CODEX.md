@@ -1,16 +1,38 @@
 # Codex handoff
 
-Use this repository through a planning-first workflow.
+`AGENTS.md` contains the automatically discovered operating contract. This file
+adds execution-adapter detail; it does not override `AGENTS.md`.
 
-Recommended sequence:
+Start from the neutral brief in
+`docs/implementation/IMPLEMENTATION_BRIEF.md` and the durable planning contract
+in `PLANS.md`.
 
-```txt
-$deep-interview when product intent is incomplete
-$ralplan for planning and task-graph generation
-$ultragoal for long-running aggregate execution
-$ralph for final review and fix pressure
-```
+## Planning and execution lifecycle
 
-Do not start implementation until the source-of-truth map, decision ledger, and relevant harness contracts are present.
+1. Complete discovery or a deep interview when requirements are incomplete.
+2. Produce a Planner draft.
+3. Run an Architect review.
+4. Run a Critic review after the Architect.
+5. Record explicit consensus in
+   `docs/implementation/PLANNING_EVIDENCE.md`.
+6. Execute through native Codex, deterministic sequential work, or compatible
+   OMX Ultragoal.
+7. Use Team/parallel agents only when supported and write ownership is disjoint.
+8. Run independent code and architecture-invariant reviews.
+9. Run UltraQA or the applicable final product verification.
 
-Keep sandboxing strict. Real providers, secrets, production data, and external effects must remain disabled until explicit gates pass.
+Ralph is an explicitly selected alternate single-owner loop, not a mandatory
+post-Ultragoal review phase.
+
+## OMX boundary
+
+Probe the installed CLI before use. A compatible OMX CLI creates and owns its
+runtime state from the neutral brief. Do not hand-author goals, ledgers,
+checkpoints, HUD state, or logs. Only the leader mutates Ultragoal state; workers
+return evidence.
+
+If OMX is missing or incompatible, retain the same brief and evidence contract
+and use native Codex planning/subagents or deterministic sequential execution.
+
+Keep sandboxing strict. Real providers, credentials, production data,
+deployment, and physical effects remain disabled until separately authorized.

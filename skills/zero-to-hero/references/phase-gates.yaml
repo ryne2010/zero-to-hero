@@ -1,61 +1,211 @@
-gates:
-  interview:
-    required:
-      - product_summary
-      - primary_users
-      - success_criteria
-      - unresolved_decisions_recorded
-  research_and_capability_detection:
-    required:
-      - capability_report
-      - source_research_summary_when_needed
-      - stack_assumptions_with_confidence
-  canonical_docs_pack:
-    required:
-      - source_of_truth_map
-      - feature_index
-      - user_stories
-      - architecture_overview
-      - decision_ledger
-  design_and_visual_pack:
-    required_when:
-      - web_frontend
-      - mobile_app
-      - desktop_app
-    required:
-      - approved_design_direction
-      - visual_target_inventory
-      - visual_deconstruction_plan
-  hardware_pack:
-    required_when:
-      - mechanical_cad
-      - pcb_electronics
-      - firmware
-      - robotics
-    required:
-      - requirements
-      - safety_reality_check
-      - validation_plan
-  harness_pack:
-    required:
-      - frontend_or_ui_harness_when_applicable
-      - product_usability_contract_when_applicable
-      - local_product_done_gate
-      - runtime_evidence_policy
-  omx_handoff_pack:
-    required:
-      - native_omx_structure
-      - single_aggregate_goal
-      - ordered_stories
-      - final_review_gate
-  canonical_cleanup:
-    required:
-      - no_iteration_residue
-      - no_broken_refs
-      - yaml_json_parse_pass
-      - generated_manifest_current
-  implementation_readiness_review:
-    required:
-      - all_required_phase_gates_pass
-      - no_blocking_unresolved_decisions
-      - handoff_entry_points_exist
+{
+  "schema_version": "1.0.0",
+  "source": "references/contract-graph.yaml",
+  "gates": {
+    "discovery": {
+      "entry": [
+        "A target repository or greenfield destination is identified",
+        "The user has requested repository preparation rather than product runtime implementation"
+      ],
+      "evidence": [
+        "Every selected capability is marked user-approved or repository-evidenced",
+        "Safety-critical or real-world effects are explicitly bounded",
+        "The interview artifacts contain no secrets or raw untrusted instruction payloads"
+      ],
+      "exit": [
+        "Approved capability data can be consumed by the generator",
+        "No blocking product-family ambiguity remains"
+      ],
+      "stop": [
+        "Missing information would materially change profile selection or safety boundaries",
+        "The requested scope requires product runtime implementation"
+      ]
+    },
+    "research_and_capability_detection": {
+      "entry": [
+        "Approved discovery evidence exists or the repository has sufficient unambiguous markers"
+      ],
+      "evidence": [
+        "Capability detector output is machine-readable",
+        "Selected profiles are derivable from profile YAML",
+        "Unsupported or ambiguous markers remain unresolved rather than guessed"
+      ],
+      "exit": [
+        "Every selected profile has approved or repository evidence",
+        "Negative markers prevent known false-positive project families"
+      ],
+      "stop": [
+        "A required current fact cannot be verified",
+        "Approved capability data conflicts with repository evidence in a safety-relevant way"
+      ]
+    },
+    "canonical_docs_pack": {
+      "entry": [
+        "Profile composition is approved and schema-valid",
+        "Repository safety and instruction-trust checks have no blocking findings"
+      ],
+      "evidence": [
+        "Manifest validates against its schema",
+        "Required and forbidden artifact assertions pass for selected profiles",
+        "Existing-file preservation and post-write hashes are verified"
+      ],
+      "exit": [
+        "Every selected profile's required artifact exists and is substantive",
+        "The canonical manifest is finalized after all post-write checks"
+      ],
+      "stop": [
+        "A profile-required template is missing or placeholder-only",
+        "A write would replace an existing file without explicit scoped authorization",
+        "Atomic staging or validation fails"
+      ]
+    },
+    "design_and_visual_pack": {
+      "entry": [
+        "A UI-capable profile is selected",
+        "Visual direction is approved or explicitly marked unresolved"
+      ],
+      "evidence": [
+        "Every priority workflow has normal, empty, loading, error, and permission states",
+        "Visual provenance and approval status are recorded"
+      ],
+      "exit": [
+        "Another agent can implement the UI without hidden visual assumptions",
+        "Visual acceptance is observable and testable"
+      ],
+      "stop": [
+        "Required visual direction is unapproved",
+        "A visual implies unresolved product behavior"
+      ]
+    },
+    "hardware_pack": {
+      "entry": [
+        "At least one hardware profile is selected",
+        "Units, coordinate conventions, interfaces, and physical safety boundaries are approved"
+      ],
+      "evidence": [
+        "Text-to-CAD routing and audited interface are explicit when applicable",
+        "STEP generation target, deterministic checks, and mandatory snapshot review are specified",
+        "URDF, SRDF, or SDF consumer checks are specified when applicable"
+      ],
+      "exit": [
+        "Engineering artifacts are reviewable without being marked fabrication-approved",
+        "Every physical output has provenance, checks, caveats, and a human authorization gate"
+      ],
+      "stop": [
+        "Physical safety, units, tolerances, materials, or interfaces are unresolved",
+        "A real-world effect would occur",
+        "Required upstream CAD tooling is missing or incompatible"
+      ]
+    },
+    "frontend_parity_pack": {
+      "entry": [
+        "Design and visual contracts are approved",
+        "Priority routes and workflows are known"
+      ],
+      "evidence": [
+        "Every priority control maps to behavior or an explicit disabled reason",
+        "Parity checks identify exact commands and expected evidence paths"
+      ],
+      "exit": [
+        "Parity can be graded from deterministic evidence",
+        "The contract contains no placeholder-only exits"
+      ],
+      "stop": [
+        "Priority visual targets are not approved",
+        "Required behavior remains implicit"
+      ]
+    },
+    "product_usability_pack": {
+      "entry": [
+        "Priority workflows and non-goals are approved"
+      ],
+      "evidence": [
+        "Priority workflows have success and negative-path acceptance evidence",
+        "External effects are disabled or simulated in local verification"
+      ],
+      "exit": [
+        "Every priority workflow is implementable and independently verifiable",
+        "Failure and recovery states are explicit"
+      ],
+      "stop": [
+        "A priority workflow lacks an approved outcome",
+        "A local test would cause an external effect"
+      ]
+    },
+    "local_product_done_harness": {
+      "entry": [
+        "Required commands have been resolved from repository evidence",
+        "Priority behaviors and negative paths are documented"
+      ],
+      "evidence": [
+        "Every command is resolved from a file or an available project tool",
+        "The local done command has defined success and failure interpretation",
+        "Generated AGENTS.md names the actual layout and commands"
+      ],
+      "exit": [
+        "A new Codex session can verify the target using AGENTS.md and PLANS.md alone",
+        "No unavailable integration is labeled passed"
+      ],
+      "stop": [
+        "A required command cannot be resolved",
+        "A claimed check cannot run in the documented environment"
+      ]
+    },
+    "implementation_handoff": {
+      "entry": [
+        "Canonical documentation and harness contracts are complete",
+        "Planner, Architect, and Critic evidence can be recorded in order"
+      ],
+      "evidence": [
+        "OMX probe records version and required interface tokens when requested",
+        "Unsupported or missing OMX yields a neutral fallback",
+        "The brief is executable without conversation history"
+      ],
+      "exit": [
+        "The handoff is implementation-ready under native Codex",
+        "Any OMX state was created only by the supported CLI"
+      ],
+      "stop": [
+        "Consensus is not explicit",
+        "OMX is requested but its version or interface is unsupported",
+        "A worker attempts to mutate leader-owned state"
+      ]
+    },
+    "canonical_cleanup": {
+      "entry": [
+        "All generation phases have finalized provenance records"
+      ],
+      "evidence": [
+        "Broken-reference, schema, identifier, and placeholder checks pass",
+        "Removed content is attributable to the generated manifest"
+      ],
+      "exit": [
+        "No duplicate source of truth or generated iteration residue remains",
+        "All surviving generated files validate"
+      ],
+      "stop": [
+        "Authority or ownership of a candidate file is ambiguous",
+        "Cleanup would remove substantive approved information"
+      ]
+    },
+    "implementation_readiness_review": {
+      "entry": [
+        "Canonical cleanup is complete",
+        "All required artifacts and planning evidence exist"
+      ],
+      "evidence": [
+        "Required, forbidden, prompt-contract, schema, provenance, and safety checks pass",
+        "AGENTS.md and PLANS.md are target-specific and self-contained",
+        "Independent review and architecture-invariant review are specified"
+      ],
+      "exit": [
+        "A fresh agent can implement and verify the target without hidden context",
+        "No known blocking error remains"
+      ],
+      "stop": [
+        "Any required artifact is missing or placeholder-only",
+        "Any unsafe state, child failure, schema error, or unsupported requested tool remains"
+      ]
+    }
+  }
+}

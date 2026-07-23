@@ -1,0 +1,39 @@
+# Large generated CAD exchange, mesh, and machine-oriented artifacts use Git LFS.
+# Editable build123d/Python, Markdown, YAML, JSON, URDF, SRDF, SDF, KiCad source,
+# and other reviewable text remain normal Git objects.
+*.step filter=lfs diff=lfs merge=lfs -text
+*.stp filter=lfs diff=lfs merge=lfs -text
+*.stl filter=lfs diff=lfs merge=lfs -text
+*.3mf filter=lfs diff=lfs merge=lfs -text
+*.glb filter=lfs diff=lfs merge=lfs -text
+*.gltf filter=lfs diff=lfs merge=lfs -text
+*.obj filter=lfs diff=lfs merge=lfs -text
+*.ply filter=lfs diff=lfs merge=lfs -text
+*.dxf filter=lfs diff=lfs merge=lfs -text
+*.gcode filter=lfs diff=lfs merge=lfs -text
+*.gcode.3mf filter=lfs diff=lfs merge=lfs -text
+
+# Fabrication-oriented outputs are derived and require a separately authorized
+# downstream workflow. If intentionally retained, keep them out of normal Git.
+*.gbr filter=lfs diff=lfs merge=lfs -text
+*.ger filter=lfs diff=lfs merge=lfs -text
+*.drl filter=lfs diff=lfs merge=lfs -text
+*.xln filter=lfs diff=lfs merge=lfs -text
+pcb/generated/fabrication/** filter=lfs diff=lfs merge=lfs -text
+
+# Only generated engineering-review imagery is LFS-tracked. Product/UI source
+# images elsewhere in the repository remain governed by project policy.
+docs/mechanical/evidence/**/*.png filter=lfs diff=lfs merge=lfs -text
+docs/mechanical/evidence/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+docs/mechanical/evidence/**/*.jpeg filter=lfs diff=lfs merge=lfs -text
+docs/mechanical/evidence/**/*.webp filter=lfs diff=lfs merge=lfs -text
+docs/robotics/evidence/**/*.png filter=lfs diff=lfs merge=lfs -text
+docs/robotics/evidence/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+docs/robotics/evidence/**/*.jpeg filter=lfs diff=lfs merge=lfs -text
+docs/robotics/evidence/**/*.webp filter=lfs diff=lfs merge=lfs -text
+
+# Robot descriptions remain reviewable text even when broad parent-directory
+# LFS rules are added later.
+*.urdf !filter !diff !merge text eol=lf
+*.srdf !filter !diff !merge text eol=lf
+*.sdf !filter !diff !merge text eol=lf

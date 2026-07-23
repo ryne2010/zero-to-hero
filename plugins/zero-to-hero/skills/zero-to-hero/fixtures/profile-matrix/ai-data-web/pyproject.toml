@@ -1,0 +1,4 @@
+[project]
+name = "fixture-ai-data-web"
+version = "0.0.0"
+dependencies = ["pandas"]

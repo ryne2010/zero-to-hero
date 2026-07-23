@@ -53,30 +53,21 @@ def pyproject_version(path: Path) -> str | None:
     return match.group(1) if match else None
 
 
-def update_skill_frontmatter(path: Path, version: str) -> None:
+def validate_skill_frontmatter(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
-    if not text.startswith("---"):
-        raise SystemExit(f"missing YAML frontmatter: {path}")
-    parts = text.split("---", 2)
-    front = parts[1].strip().splitlines()
-    body = parts[2]
-    out = []
-    seen_version = False
-    seen_license = False
-    for line in front:
-        if line.startswith("version:"):
-            out.append(f"version: {version}")
-            seen_version = True
-        elif line.startswith("license:"):
-            out.append("license: MIT")
-            seen_license = True
-        else:
-            out.append(line)
-    if not seen_license:
-        out.append("license: MIT")
-    if not seen_version:
-        out.append(f"version: {version}")
-    path.write_text("---\n" + "\n".join(out) + "\n---" + body, encoding="utf-8")
+    frontmatter = parse_frontmatter(text, path)
+    required = {"name", "description"}
+    missing = sorted(required - set(frontmatter))
+    extra = sorted(set(frontmatter) - required)
+    if missing:
+        raise SystemExit(f"SKILL.md frontmatter missing fields: {', '.join(missing)}")
+    if extra:
+        raise SystemExit(
+            "SKILL.md frontmatter must contain only name and description; "
+            f"unexpected: {', '.join(extra)}"
+        )
+    if frontmatter["name"] != "zero-to-hero":
+        raise SystemExit("SKILL.md frontmatter name must be zero-to-hero")
 
 
 def update_json(path: Path, updater) -> None:
@@ -109,7 +100,7 @@ def mirror_skill() -> None:
 
 def stamp_release(tag: str) -> None:
     version = parse_tag(tag)
-    update_skill_frontmatter(SKILL / "SKILL.md", version)
+    validate_skill_frontmatter(SKILL / "SKILL.md")
     update_openai_yaml(SKILL / "agents" / "openai.yaml", version)
     update_json(SKILL / "manifest.json", lambda d: d.update({"version": version, "license": "MIT"}))
     skill_manifest = SKILL / "skill-manifest.yaml"
@@ -136,7 +127,10 @@ def validate_metadata() -> None:
     if not skill_md.exists():
         errors.append("missing skills/zero-to-hero/SKILL.md")
     else:
-        versions["skill_frontmatter"] = parse_frontmatter(skill_md.read_text(encoding="utf-8"), skill_md).get("version")
+        try:
+            validate_skill_frontmatter(skill_md)
+        except SystemExit as exc:
+            errors.append(str(exc))
 
     openai_yaml = SKILL / "agents" / "openai.yaml"
     versions["agents_openai_yaml"] = yaml_scalar(openai_yaml, "version")

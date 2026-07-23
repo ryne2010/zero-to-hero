@@ -8,11 +8,15 @@ Writes interview and decision-ledger artifacts only.
 
 ## Planning mode
 
-Writes plans under `.omx/plans/` or reports under `.codex/reports/`.
+Writes a neutral implementation brief, approved planning evidence, and an
+ExecPlan following the generated `PLANS.md` contract. A compatible OMX CLI may
+derive its own runtime state from that brief.
 
 ## Generation mode
 
-Writes canonical docs, harness templates, repo-scoped skills, visual/design contracts, hardware packs, and OMX handoff artifacts.
+Writes canonical docs, harness templates, repo-scoped skills, visual/design
+contracts, applicable hardware packs, and execution-neutral handoff artifacts.
+It never hand-authors OMX runtime state.
 
 ## Cleanup mode
 

@@ -1,6 +1,8 @@
 # zero-to-hero prompts
 
-Use the numbered prompts as the canonical sequence. The prompts are intentionally phase-specific so Codex/OMX can stop at approval gates instead of making hidden product decisions.
+`references/contract-graph.yaml` is the executable source of truth for prompt
+order and content. These files are generated views; run
+`scripts/sync_contract_views.py` to verify them.
 
 ## Standard sequence
 
@@ -12,7 +14,7 @@ Use the numbered prompts as the canonical sequence. The prompts are intentionall
 6. `05-frontend-parity-system.md` when UI exists
 7. `06-product-usability-contract.md` when app workflows exist
 8. `07-local-product-done-harness.md`
-9. `08-omx-handoff.md`
+9. `08-implementation-handoff.md`
 10. `09-canonical-cleanup.md`
 11. `10-implementation-readiness-review.md`
 

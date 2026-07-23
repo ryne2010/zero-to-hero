@@ -1,0 +1,8 @@
+[project]
+name = "metadata-only-fixture"
+version = "0.0.0"
+description = "Documentation mentions OpenAI, FastAPI, Typer, argparse, and pytest without depending on them."
+dependencies = ["unittest2>=1.1"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers"

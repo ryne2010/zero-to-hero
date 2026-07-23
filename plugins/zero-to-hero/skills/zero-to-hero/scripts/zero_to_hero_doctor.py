@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 try:
@@ -65,7 +64,11 @@ def runtime_artifacts(skill: Path) -> dict:
 
 def yaml_parse(skill: Path) -> dict:
     if yaml is None:
-        return {'check': 'yaml_parse', 'ok': True, 'warning': 'PyYAML unavailable; skipped'}
+        return {
+            'check': 'yaml_parse',
+            'ok': False,
+            'error': 'PyYAML unavailable; use the pinned repository environment',
+        }
     failures = []
     for p in list(skill.rglob('*.yaml')) + list(skill.rglob('*.yml')):
         if any(part in {'.git', '.codex', '.omx', '.artifacts', '__pycache__'} for part in p.parts):

@@ -1,28 +1,18 @@
-# Implementation-Ready Done Definition
+# Implementation-ready definition
 
-A repo is implementation-ready when:
+A repository is ready when:
 
-```txt
-canonical source-of-truth docs exist
-approved design direction exists or design generation is explicitly pending
-all user stories/workflows have acceptance criteria
-UI/product execution contracts exist where applicable
-hardware/mechanical/PCB contracts exist where applicable
-harness checks exist
-OMX goal/story handoff exists
-repo-scoped skills exist where useful
-cleanup checks pass
-there is a clear first PR/story
-there is a final review prompt
-```
+- the source-of-truth map and decision ledger have no blocking conflict;
+- selected profiles and approved capability provenance are explicit;
+- every profile-required artifact is substantive and every forbidden artifact
+  is absent;
+- target `AGENTS.md` contains actual layout, exact commands, boundaries, and one
+  authoritative local done command;
+- `PLANS.md`, the neutral brief, and ordered planning-review evidence exist;
+- required harness and negative-path evidence is reproducible;
+- the canonical generated-file manifest validates and matches current hashes;
+- cleanup and readiness review pass without changing runtime product code.
 
-It is not implementation-ready if:
-
-```txt
-source-of-truth conflicts exist
-rejected design alternatives remain in canonical docs
-implementation tasks are vague
-visible controls lack action contracts
-there is no local product done gate
-there are no stop conditions
-```
+OMX is not required. When selected, a compatible CLI owns its runtime files.
+Skipped external integrations remain visible and do not satisfy profile
+evidence.

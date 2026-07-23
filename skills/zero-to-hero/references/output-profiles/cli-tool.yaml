@@ -1,12 +1,82 @@
-profile: cli_tool
-capabilities:
-- cli_tool
-generate:
-- docs/product
-- docs/cli
-- docs/product-execution
-- docs/production-readiness
-minimum_proof:
-- command matrix
-- golden command outputs
-- error path tests
+{
+  "schema_version": 1,
+  "id": "cli-tool",
+  "title": "Command-line tool",
+  "description": "Command-line product with command, option, stream, exit-code, compatibility, and deterministic output contracts.",
+  "detect": {
+    "capabilities_any": [
+      "cli_tool"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "cli_tool"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/cli/requirements.md"
+    ],
+    "optional": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/data/requirements.md",
+      "docs/firmware/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md"
+    ],
+    "forbidden": [
+      "docs/desktop/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "command-contract-proof",
+      "description": "The CLI requirements define commands, options, arguments, streams, exit codes, configuration precedence, and compatibility.",
+      "artifacts_any": [
+        "docs/cli/requirements.md"
+      ],
+      "checks_all": [
+        "content:command-option-exit-code-matrix",
+        "content:configuration-precedence"
+      ]
+    },
+    {
+      "id": "golden-and-error-proof",
+      "description": "The CLI requirements define golden help/output cases and deterministic negative-path tests.",
+      "artifacts_any": [
+        "docs/cli/requirements.md"
+      ],
+      "checks_all": [
+        "content:golden-output-cases",
+        "content:error-path-tests"
+      ]
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import subprocess
 import re
 import sys
 from pathlib import Path
+from zero_to_hero_contract import ContractError, graph_prompts, load_graph
 try:
     import yaml
 except Exception:
@@ -37,22 +38,26 @@ required = [
     'references/hardware-reality-checks.md','references/phase-output-artifacts.yaml',
     'references/phase-gates.yaml','references/risk-tiering.md','references/source-research-policy.md',
     'references/target-repo-preflight.md','references/repo-safety-preflight.md','references/toolchain-preflight.md','references/external-context-sources.md','references/phase-prompt-contract.md','references/acceptance-evidence.md','references/final-handoff-quality-bar.md','references/artifact-lifecycle.md','references/instruction-trust-scan.md','references/prompt-sequence-contract.md','references/target-repo-audit-report.md','references/template-application-profiles.md','references/prompt-bundle.md','references/distribution.md','references/check-operability.md',
+    'schemas/contract-graph.schema.json','schemas/output-profile.schema.json',
     'schemas/decision-ledger.schema.yaml','schemas/generated-files-manifest.schema.yaml','schemas/recovery-task-graph.schema.yaml',
+    'evals/cases.json','evals/handoff-quality-rubric.md',
+    'evals/handoff-quality-rubric.schema.json',
     'scripts/apply_zero_to_hero_templates.py','scripts/capability_detect.py','scripts/zero_to_hero_start.py',
     'scripts/canonical_cleanup_check.py','scripts/toolchain_preflight.py','scripts/external_context_inventory.py','scripts/instruction_trust_scan.py','scripts/prompt_sequence_check.py','scripts/render_prompt_bundle.py','scripts/build_skill_zip.py','scripts/run_fixture_tests.py',
-    'scripts/zero_to_hero_check.py','scripts/zero_to_hero_doctor.py','scripts/prune_skill_artifacts.py','scripts/target_repo_audit.py','scripts/repo_safety_check.py','scripts/phase_gate_check.py','fixtures/README.md',
+    'scripts/zero_to_hero_check.py','scripts/zero_to_hero_doctor.py','scripts/prune_skill_artifacts.py','scripts/target_repo_audit.py','scripts/repo_safety_check.py','scripts/phase_gate_check.py',
+    'scripts/schema_validate.py','scripts/run_skill_evals.py','scripts/omx_adapter.py','scripts/test_omx_integration.py',
+    'scripts/text_to_cad_probe.py','scripts/test_text_to_cad_probe.py','scripts/test_generation_transactions.py',
+    'scripts/test_profile_generation_matrix.py','fixtures/README.md',
 ]
 for r in required:
     require(r)
 
-expected_prompts = [
-    '00-deep-interview.md','01-research-and-capability-detection.md',
-    '02-canonical-docs-pack.md','03-design-visual-pack.md',
-    '04-hardware-mechanical-pcb-pack.md','05-frontend-parity-system.md',
-    '06-product-usability-contract.md','07-local-product-done-harness.md',
-    '08-omx-handoff.md','09-canonical-cleanup.md',
-    '10-implementation-readiness-review.md','98-target-repo-preflight.md','99-one-shot-small-product.md',
-]
+try:
+    graph = load_graph(skill)
+    expected_prompts = [item['prompt_file'] for item in graph_prompts(graph)]
+except ContractError as exc:
+    errors.append(f'contract graph invalid: {exc}')
+    expected_prompts = []
 prompt_dir = skill / 'prompts'
 prompts = sorted(p.name for p in prompt_dir.glob('*.md')) if prompt_dir.exists() else []
 for name in expected_prompts:
@@ -91,9 +96,23 @@ for duplicate in ['references/context-router.md','references/skill-pack-health.m
 for bad_template_dir in ['templates/omx','templates/agents-skills','templates/reports','templates/manifest','templates/decision-ledger']:
     if (skill / bad_template_dir).exists():
         errors.append(f'noncanonical template directory remains: {bad_template_dir}')
-for expected_template in ['templates/.omx/ultragoal/goals.json','templates/.omx/context/zero-to-hero-context.md','templates/.agents/skills/frontend-parity/SKILL.md','templates/AGENTS.md','templates/CODEX.md','templates/FINAL_HANDOFF.md']:
+for expected_template in [
+    'templates/AGENTS.md',
+    'templates/PLANS.md',
+    'templates/CODEX.md',
+    'templates/FINAL_HANDOFF.md',
+    'templates/docs/implementation/IMPLEMENTATION_BRIEF.md',
+    'templates/docs/implementation/PLANNING_EVIDENCE.md',
+]:
     if not (skill / expected_template).exists():
         errors.append(f'missing canonical template: {expected_template}')
+for forbidden_runtime_template in [
+    'templates/.omx/ultragoal/goals.json',
+    'templates/.omx/ultragoal/ledger.jsonl',
+    'templates/.omx/ultragoal/brief.md',
+]:
+    if (skill / forbidden_runtime_template).exists():
+        errors.append(f'runtime-owned OMX template must not be packaged: {forbidden_runtime_template}')
 
 if yaml:
     for yp in list(skill.rglob('*.yaml')) + list(skill.rglob('*.yml')):
@@ -102,7 +121,7 @@ if yaml:
         except Exception as exc:
             errors.append(f'yaml parse failed {rel(yp)}: {exc}')
 else:
-    warnings.append('PyYAML not available')
+    errors.append('PyYAML not available; use the pinned repository environment')
 
 for js in skill.rglob('*.json'):
     try:

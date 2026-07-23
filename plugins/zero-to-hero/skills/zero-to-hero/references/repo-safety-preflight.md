@@ -1,6 +1,8 @@
 # Repo safety preflight
 
-`zero-to-hero` can generate docs, harnesses, repo-scoped skills, and OMX artifacts. Before writing into an existing repository, run a safety preflight so generated files are reviewable and reversible.
+`zero-to-hero` generates documentation, harnesses, plans, and neutral handoff
+artifacts. Before writing, run the safety preflight so changes are reviewable
+and recoverable. Optional OMX runtime artifacts remain CLI-owned.
 
 ## Required checks
 
@@ -16,9 +18,10 @@ The skill should inspect:
 
 ## Default behavior
 
-The safety check is advisory by default. It should not block audits, interviews, dry-runs, or report generation.
-
-Template writes should remain dry-run by default. For direct writes, agents should warn when:
+Audits and dry-runs may inspect an unsafe worktree. Direct generation is
+fail-closed when the target is not a Git worktree, is dirty, or is on a protected
+main/master branch. The generator stages and validates the entire plan before
+atomic replacement and rolls back a failed commit.
 
 - the repo is not in git;
 - the repo has uncommitted tracked changes;
@@ -40,11 +43,8 @@ python scripts/repo_safety_check.py /path/to/repo --fail-on-unsafe
 
 ## Agent guidance
 
-When the safety check reports `safe_to_write_templates: false`, the agent should prefer:
-
-1. report-only mode;
-2. dry-run template manifests;
-3. asking the user to create a branch, commit, stash, or back up current work;
-4. only then writing generated artifacts.
+When the safety check reports `safe_to_write_templates: false`, remain in
+report-only or dry-run mode. Do not bypass the gate or reinterpret the result as
+success.
 
 Do not delete or rewrite existing product implementation to create a clean state. This preflight protects user work; it is not a cleanup command.

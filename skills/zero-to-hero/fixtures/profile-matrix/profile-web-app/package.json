@@ -1,0 +1,7 @@
+{
+  "name": "fixture-web-app",
+  "private": true,
+  "dependencies": {
+    "react": "0.0.0"
+  }
+}

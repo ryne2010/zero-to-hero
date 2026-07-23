@@ -1,12 +1,390 @@
-type: object
-required: [files_created, files_modified, files_not_touched]
-properties:
-  files_created:
-    type: array
-    items: {type: object}
-  files_modified:
-    type: array
-    items: {type: object}
-  files_not_touched:
-    type: array
-    items: {type: object}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openai.local/zero-to-hero/generated-files-manifest.schema.json",
+  "title": "zero-to-hero generated-file manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool",
+    "generated_at",
+    "status",
+    "selected_profiles",
+    "repo_capabilities",
+    "approved_capabilities",
+    "selection_provenance",
+    "approved_capability_source",
+    "transaction",
+    "validation",
+    "files",
+    "files_not_touched"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "tool": {
+      "const": "zero-to-hero"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": [
+        "preview",
+        "in_progress",
+        "complete"
+      ]
+    },
+    "selected_profiles": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "repo_capabilities": {
+      "$ref": "#/$defs/stringSet"
+    },
+    "approved_capabilities": {
+      "$ref": "#/$defs/stringSet"
+    },
+    "selection_provenance": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/nonEmptyStringSet"
+      }
+    },
+    "approved_capability_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "$ref": "#/$defs/nullableHash"
+        }
+      }
+    },
+    "transaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "canonical_manifest",
+        "preserve_existing_by_default",
+        "force_paths",
+        "rollback_on_commit_error"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "dry-run",
+            "staged-atomic-with-rollback"
+          ]
+        },
+        "canonical_manifest": {
+          "const": "docs/00-meta/generated-files.manifest.yaml"
+        },
+        "preserve_existing_by_default": {
+          "const": true
+        },
+        "force_paths": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "rollback_on_commit_error": {
+          "const": true
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "checks",
+        "forbidden_artifacts_absent",
+        "instruction_trust_severity",
+        "repo_safety",
+        "external_feature_gates"
+      ],
+      "properties": {
+        "status": {
+          "const": "passed"
+        },
+        "checks": {
+          "$ref": "#/$defs/nonEmptyStringSet"
+        },
+        "forbidden_artifacts_absent": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "instruction_trust_severity": {
+          "type": "string"
+        },
+        "repo_safety": {
+          "type": "boolean"
+        },
+        "external_feature_gates": {
+          "$ref": "#/$defs/externalFeatureGates"
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/fileRecord"
+      }
+    },
+    "files_not_touched": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "reason"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stringSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "nonEmptyStringSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "nullableHash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "externalProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "version",
+        "license",
+        "audited_at"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audited_at": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "externalFeatureGates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text_to_cad"
+      ],
+      "properties": {
+        "text_to_cad": {
+          "$ref": "#/$defs/textToCadGate"
+        }
+      }
+    },
+    "textToCadGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested",
+        "status",
+        "audited_version",
+        "required_features",
+        "operational_features",
+        "blocked_features",
+        "operational_checks_claimed",
+        "fallback"
+      ],
+      "properties": {
+        "requested": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "not_applicable",
+            "operational",
+            "neutral_fallback"
+          ]
+        },
+        "audited_version": {
+          "const": "0.3.9"
+        },
+        "required_features": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "operational_features": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "blocked_features": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "feature",
+              "status",
+              "reason_code"
+            ],
+            "properties": {
+              "feature": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason_code": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "operational_checks_claimed": {
+          "type": "boolean"
+        },
+        "fallback": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "fileRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_path",
+        "source",
+        "phase_id",
+        "profiles",
+        "capabilities",
+        "action",
+        "pre_write_sha256",
+        "post_write_sha256",
+        "regeneration_command",
+        "validation_evidence",
+        "generated_status",
+        "ownership",
+        "external_provenance"
+      ],
+      "properties": {
+        "target_path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phase_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profiles": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "capabilities": {
+          "$ref": "#/$defs/stringSet"
+        },
+        "action": {
+          "enum": [
+            "create",
+            "modify",
+            "skip"
+          ]
+        },
+        "pre_write_sha256": {
+          "$ref": "#/$defs/nullableHash"
+        },
+        "post_write_sha256": {
+          "$ref": "#/$defs/nullableHash"
+        },
+        "regeneration_command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "validation_evidence": {
+          "$ref": "#/$defs/nonEmptyStringSet"
+        },
+        "generated_status": {
+          "enum": [
+            "planned",
+            "written",
+            "preserved",
+            "manifest-self-reference"
+          ]
+        },
+        "ownership": {
+          "enum": [
+            "zero-to-hero",
+            "target-repository"
+          ]
+        },
+        "external_provenance": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/externalProvenance"
+          }
+        }
+      }
+    }
+  }
+}

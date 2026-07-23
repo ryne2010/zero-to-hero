@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/zero-to-hero/contract-graph.schema.json",
+  "title": "zero-to-hero executable contract graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_id",
+    "audited_at",
+    "runtime_boundary",
+    "canonical_manifest_path",
+    "global_forbidden_write_paths",
+    "base_artifacts",
+    "implementation_lifecycle",
+    "prompt_groups",
+    "phases",
+    "auxiliary_prompts"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "contract_id": {
+      "const": "zero-to-hero"
+    },
+    "audited_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "runtime_boundary": {
+      "type": "string",
+      "minLength": 40
+    },
+    "canonical_manifest_path": {
+      "const": "docs/00-meta/generated-files.manifest.yaml"
+    },
+    "global_forbidden_write_paths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000]+$"
+      }
+    },
+    "base_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "implementation_lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordered_steps",
+        "ralph_policy",
+        "omx_policy",
+        "team_policy"
+      ],
+      "properties": {
+        "ordered_steps": {
+          "type": "array",
+          "minItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "ralph_policy": {
+          "type": "string",
+          "minLength": 20
+        },
+        "omx_policy": {
+          "type": "string",
+          "minLength": 20
+        },
+        "team_policy": {
+          "type": "string",
+          "minLength": 20
+        }
+      }
+    },
+    "prompt_groups": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/prompt_contract"
+      }
+    },
+    "auxiliary_prompts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/prompt_contract"
+      }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "source",
+        "required"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*\\.\\.)[^\\u0000]+$"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 3
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "render": {
+          "enum": [
+            "copy",
+            "agents",
+            "manifest"
+          ]
+        }
+      }
+    },
+    "prompt_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "order",
+        "kind",
+        "title",
+        "prompt_file",
+        "goal",
+        "required_reads",
+        "entry_criteria",
+        "constraints",
+        "allowed_writes",
+        "forbidden_writes",
+        "expected_outputs",
+        "evidence_and_checks",
+        "stop_conditions",
+        "done_when",
+        "runtime_boundary"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999
+        },
+        "kind": {
+          "enum": [
+            "phase",
+            "auxiliary"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "prompt_file": {
+          "type": "string",
+          "pattern": "^\\d{2}-[a-z0-9-]+\\.md$"
+        },
+        "applicability": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "capabilities_any": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "profiles_any": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 20
+        },
+        "required_reads": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "entry_criteria": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "constraints": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "allowed_writes": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "forbidden_writes": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "expected_outputs": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "evidence_and_checks": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "stop_conditions": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "done_when": {
+          "$ref": "#/$defs/nonempty_strings"
+        },
+        "runtime_boundary": {
+          "type": "string",
+          "minLength": 30
+        }
+      }
+    },
+    "nonempty_strings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 2
+      }
+    }
+  }
+}

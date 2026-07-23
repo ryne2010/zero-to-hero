@@ -1,0 +1,4 @@
+[project]
+name = "nested-fastapi-fixture"
+version = "0.1.0"
+dependencies = ["fastapi"]

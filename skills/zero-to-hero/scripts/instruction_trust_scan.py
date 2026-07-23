@@ -6,9 +6,13 @@ content but does not fail unless --fail-on-high is passed. It treats findings as
 review cues, not proof of malicious intent.
 """
 from __future__ import annotations
-import argparse, json, re, sys
-from pathlib import Path
+
+import argparse
 import hashlib
+import json
+import re
+import sys
+from pathlib import Path
 
 SKIP_DIRS = {'.git','node_modules','.venv','venv','dist','build','.next','coverage','target','vendor','.codex','.omx','.agents','.artifacts'}
 TEXT_EXTS = {'.md','.txt','.rst','.yaml','.yml','.json','.toml','.ini','.env','.example','.py','.js','.ts','.tsx','.jsx','.html','.css'}

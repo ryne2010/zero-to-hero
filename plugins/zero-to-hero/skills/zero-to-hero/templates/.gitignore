@@ -12,5 +12,39 @@
 .env
 .env.*
 !.env.example
+.venv/
 __pycache__/
 *.pyc
+
+# CAD and viewer scratch state. Primary STEP and intentionally retained derived
+# artifacts are not ignored; `.gitattributes` routes them through Git LFS.
+.cad-cache/
+**/.cad-cache/
+.cad-viewer-cache/
+**/.cad-viewer-cache/
+.cad-explorer/
+**/.cad-explorer/
+cad/tmp/
+mechanical/tmp/
+robotics/tmp/
+docs/mechanical/evidence/tmp/
+docs/robotics/evidence/tmp/
+*.FCStd1
+
+# Firmware build/cache state. Do not place reviewed source or evidence here.
+.pio/
+.west/
+firmware/build/
+zephyr/build/
+
+# EDA application-local backups and UI state. KiCad source projects, reviewed
+# ERC/DRC evidence, and authorized derived handoffs remain explicit artifacts.
+*-backups/
+*.kicad_prl
+fp-info-cache
+~*.kicad_*
+pcb/tmp/
+
+# Fabrication, flash, deployment, and actuation outputs are never produced by
+# this scaffold. A separately authorized downstream workflow must choose an
+# explicit tracked/LFS path rather than relying on a broad ignored directory.

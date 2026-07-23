@@ -43,8 +43,8 @@ def md_report(summary: dict) -> str:
     audit = summary.get('audit', {})
     templates = summary.get('template_preview', {})
     external = summary.get('external_context', {})
-    caps = audit.get('capabilities', {}).get('capabilities', []) if isinstance(audit.get('capabilities'), dict) else []
-    missing = audit.get('missing', [])
+    caps = audit.get('repo_capabilities', [])
+    missing = audit.get('readiness_gaps', audit.get('failures', []))
     recommended = audit.get('recommended_next_actions', [])
     lines = [
         '# zero-to-hero start report',
@@ -69,11 +69,15 @@ def md_report(summary: dict) -> str:
     lines += ['', '## Recommended next actions']
     lines += [f'- {r}' for r in recommended] or ['- none']
     lines += ['', '## Template dry-run summary']
+    file_records = templates.get('files', []) if isinstance(templates, dict) else []
+    actions = {
+        action: sum(1 for item in file_records if item.get('action') == action)
+        for action in ('create', 'modify', 'skip')
+    }
     lines += [
-        f'- would create: {len(templates.get("files_created", []))}',
-        f'- would modify: {len(templates.get("files_modified", []))}',
-        f'- skipped existing: {len(templates.get("files_skipped_existing", []))}',
-        f'- skipped by profile: {len(templates.get("files_skipped_profile", []))}',
+        f'- would create: {actions["create"]}',
+        f'- would modify: {actions["modify"]}',
+        f'- would preserve/skip: {actions["skip"]}',
     ]
     lines += ['', '## Suggested next prompt']
     lines += [
@@ -98,13 +102,33 @@ def md_report(summary: dict) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description='Start a zero-to-hero run against a target repo. Writes only reports when --write is used.')
     ap.add_argument('repo', nargs='?', default='.', help='target repository root')
-    ap.add_argument('--profile', default='auto', help='template profile for preview; default auto')
+    ap.add_argument(
+        '--profile',
+        action='append',
+        help='template profile for preview; repeat or comma-separate; default auto',
+    )
+    ap.add_argument(
+        '--approved-capabilities-file',
+        help='JSON discovery artifact containing approved capabilities',
+    )
     ap.add_argument('--write', action='store_true', help='write .codex/reports/zero-to-hero/start-here.md and audit reports')
     args = ap.parse_args()
     repo = Path(args.repo).resolve()
     skill = Path(__file__).resolve().parents[1]
     reports_dir = repo / '.codex' / 'reports' / 'zero-to-hero'
-    audit_cmd = [sys.executable, str(skill / 'scripts' / 'target_repo_audit.py'), str(repo)]
+    profile_args = args.profile or ['auto']
+    audit_cmd = [
+        sys.executable,
+        str(skill / 'scripts' / 'target_repo_audit.py'),
+        str(repo),
+        '--preflight',
+    ]
+    for profile in args.profile or []:
+        audit_cmd.extend(['--profile', profile])
+    if args.approved_capabilities_file:
+        audit_cmd.extend(
+            ['--approved-capabilities-file', args.approved_capabilities_file]
+        )
     if args.write:
         audit_cmd.append('--write')
     external_cmd = [sys.executable, str(skill / 'scripts' / 'external_context_inventory.py'), str(repo)]
@@ -117,9 +141,13 @@ def main() -> int:
         sys.executable,
         str(skill / 'scripts' / 'apply_zero_to_hero_templates.py'),
         str(repo),
-        '--profile',
-        args.profile,
     ]
+    for profile in profile_args:
+        template_cmd.extend(['--profile', profile])
+    if args.approved_capabilities_file:
+        template_cmd.extend(
+            ['--approved-capabilities-file', args.approved_capabilities_file]
+        )
     audit = run_json(audit_cmd)
     external_context = run_json(external_cmd)
     repo_safety = run_json(repo_safety_cmd)
@@ -128,7 +156,7 @@ def main() -> int:
         'tool': 'zero-to-hero-start',
         'generated_at': datetime.now(timezone.utc).isoformat(),
         'repo': str(repo),
-        'profile': args.profile,
+        'profile': profile_args,
         'write': bool(args.write),
         'audit': audit,
         'external_context': external_context,
@@ -150,7 +178,8 @@ def main() -> int:
         (reports_dir / 'start-here.md').write_text(md_report(summary), encoding='utf-8')
         summary['written_reports'] = [str(reports_dir / 'start-here.json'), str(reports_dir / 'start-here.md')]
     print(json.dumps(summary, indent=2))
-    return 0 if audit.get('ok', True) is not False and external_context.get('ok', True) is not False and repo_safety.get('ok', True) is not False and templates.get('ok', True) is not False else 1
+    children = (audit, external_context, repo_safety, templates)
+    return 0 if all(child.get('ok', True) is not False for child in children) else 1
 
 
 if __name__ == '__main__':

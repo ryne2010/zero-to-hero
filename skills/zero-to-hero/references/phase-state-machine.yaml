@@ -1,171 +1,376 @@
-phases:
-  interview:
-    purpose: Clarify product intent, users, constraints, risks, capabilities, and unresolved decisions.
-    entry_requires: []
-    may_write:
-      - .omx/context/zero-to-hero-interview.md
-      - .codex/reports/zero-to-hero/interview-summary.md
-      - .codex/reports/zero-to-hero/unresolved-decisions.md
-    must_not_write:
-      - app source files
-      - production configs
-      - live provider credentials
-    exit_requires:
-      - product_summary
-      - target_users
-      - primary_jobs
-      - non_goals
-      - unresolved_decision_ledger
-    stop_if:
-      - user refuses clarification required for safe scope
-
-  research_and_capability_detection:
-    purpose: Verify time-sensitive facts and detect capability profile.
-    entry_requires:
-      - interview_summary_or_equivalent
-    may_write:
-      - .codex/reports/zero-to-hero/capability-report.yaml
-      - .codex/reports/zero-to-hero/research-queue.md
-      - .codex/reports/zero-to-hero/source-notes.md
-    must_not_write:
-      - app source files
-    exit_requires:
-      - capability_profile
-      - output_profile_selection
-      - research_risks_logged
-
-  canonical_docs_pack:
-    purpose: Generate canonical product, architecture, stories, workflows, security, data, runbooks, and source-of-truth docs.
-    entry_requires:
-      - approved_interview
-      - capability_profile
-    may_write:
-      - docs/
-      - AGENTS.md
-      - CODEX.md
-      - FINAL_HANDOFF.md
-      - .codex/reports/zero-to-hero/generated-files.manifest.yaml
-    must_not_write:
-      - app source files
-    exit_requires:
-      - docs/00-meta/source-of-truth-map.yaml
-      - docs/00-meta/feature-index.yaml
-      - canonical_decision_ledger
-      - broken_reference_check_passed
-
-  design_and_visual_pack:
-    purpose: Create and approve UI/art/design visual targets, then convert them into contracts.
-    entry_requires:
-      - canonical_docs_pack
-    may_write:
-      - docs/ui/
-      - docs/design/
-      - docs/screens/
-      - .codex/reports/zero-to-hero/visual-approval-ledger.md
-    must_not_write:
-      - app source files
-    exit_requires:
-      - approved_design_direction
-      - visual_deconstruction_contracts
-      - frontend_parity_scope_or_not_applicable
-    stop_if:
-      - visual_direction_unapproved
-
-  hardware_pack_if_applicable:
-    purpose: Generate mechanical, CAD, PCB, firmware, IoT, or robotics source-of-truth packs when capability detection requires them.
-    entry_requires:
-      - capability_profile
-    may_write:
-      - docs/mechanical/
-      - docs/pcb/
-      - docs/firmware/
-      - docs/robotics/
-      - docs/hardware/
-    must_not_write:
-      - manufacturing output files as approved-for-fabrication
-    exit_requires:
-      - hardware_risk_boundaries
-      - review_checklists
-      - validation_path
-
-  harness_pack:
-    purpose: Add verification harness layers that turn specs into implementable and testable product behavior.
-    entry_requires:
-      - canonical_docs_pack
-    may_write:
-      - docs/product-execution/
-      - docs/production-readiness/
-      - scripts/*check*
-      - .gitignore
-      - package.json scripts when appropriate
-    must_not_write:
-      - app feature implementation
-    exit_requires:
-      - local_product_done_gate
-      - runtime_evidence_harness
-      - traceability_harness
-      - local_simulator_harness_when_applicable
-
-  repo_scoped_skills_pack:
-    purpose: Add only useful repo-scoped implementation skills.
-    entry_requires:
-      - harness_pack
-    may_write:
-      - .agents/skills/
-    must_not_write:
-      - .omx/AGENTS.md
-      - app source files
-    exit_requires:
-      - repo_skill_count_reasonable
-      - each_skill_has_clear_description
-      - no_duplicate_skill_scope
-
-  omx_handoff_pack:
-    purpose: Create native OMX artifacts for one aggregate implementation goal with ordered stories.
-    entry_requires:
-      - canonical_docs_pack
-      - harness_pack
-    may_write:
-      - .omx/ultragoal/brief.md
-      - .omx/ultragoal/goals.json
-      - .omx/ultragoal/ledger.jsonl
-      - .omx/context/
-      - .omx/plans/.gitkeep
-    must_not_write:
-      - .omx/AGENTS.md
-      - multiple competing goal ledgers
-    exit_requires:
-      - one_aggregate_goal
-      - ordered_stories
-      - checkpoint_policy
-
-  canonical_cleanup:
-    purpose: Remove iteration residue and reconcile duplicates while preserving all substantive decisions.
-    entry_requires:
-      - generated_docs_and_handoff
-    may_write:
-      - docs/
-      - .codex/reports/zero-to-hero/cleanup-report.md
-    must_not_write:
-      - app source files unless renaming generated docs references requires it and user approves
-    exit_requires:
-      - no_iteration_residue
-      - no_broken_refs
-      - no_invalid_yaml
-      - no_duplicate_source_of_truth
-      - substance_preservation_report
-
-  implementation_readiness_review:
-    purpose: Final check that the repository is ready for Codex/OMX implementation.
-    entry_requires:
-      - canonical_cleanup
-    may_write:
-      - .codex/reports/zero-to-hero/final-readiness.md
-      - FINAL_HANDOFF.md
-    must_not_write:
-      - app source files
-    exit_requires:
-      - handoff_files_listed
-      - run_sequence_listed
-      - local_done_gate_defined
-      - unresolved_decisions_logged
+{
+  "schema_version": "1.0.0",
+  "source": "references/contract-graph.yaml",
+  "global_forbidden_write_paths": [
+    ".codex/config.toml",
+    ".omx/**",
+    "**/*.c",
+    "**/*.cc",
+    "**/*.cpp",
+    "**/*.cs",
+    "**/*.dart",
+    "**/*.go",
+    "**/*.gcode",
+    "**/*.java",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.kt",
+    "**/*.kts",
+    "**/*.py",
+    "**/*.rs",
+    "**/*.step",
+    "**/*.stl",
+    "**/*.stp",
+    "**/*.swift",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.3mf"
+  ],
+  "phases": [
+    {
+      "id": "discovery",
+      "order": 0,
+      "title": "Discovery and deep interview",
+      "prompt_file": "00-deep-interview.md",
+      "applicability": {},
+      "entry_criteria": [
+        "A target repository or greenfield destination is identified",
+        "The user has requested repository preparation rather than product runtime implementation"
+      ],
+      "allowed_writes": [
+        ".codex/reports/zero-to-hero/interview-summary.md",
+        ".codex/reports/zero-to-hero/approved-capabilities.json",
+        ".codex/reports/zero-to-hero/unresolved-decisions.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Production configuration or credentials",
+        ".omx runtime state"
+      ],
+      "stop_conditions": [
+        "Missing information would materially change profile selection or safety boundaries",
+        "The requested scope requires product runtime implementation"
+      ],
+      "done_when": [
+        "Approved capability data can be consumed by the generator",
+        "No blocking product-family ambiguity remains"
+      ]
+    },
+    {
+      "id": "research_and_capability_detection",
+      "order": 1,
+      "title": "Research and capability detection",
+      "prompt_file": "01-research-and-capability-detection.md",
+      "applicability": {},
+      "entry_criteria": [
+        "Approved discovery evidence exists or the repository has sufficient unambiguous markers"
+      ],
+      "allowed_writes": [
+        ".codex/reports/zero-to-hero/capability-report.yaml",
+        ".codex/reports/zero-to-hero/source-notes.md",
+        ".codex/reports/zero-to-hero/research-queue.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Generated hardware or fabrication outputs",
+        ".omx runtime state"
+      ],
+      "stop_conditions": [
+        "A required current fact cannot be verified",
+        "Approved capability data conflicts with repository evidence in a safety-relevant way"
+      ],
+      "done_when": [
+        "Every selected profile has approved or repository evidence",
+        "Negative markers prevent known false-positive project families"
+      ]
+    },
+    {
+      "id": "canonical_docs_pack",
+      "order": 2,
+      "title": "Canonical documentation pack",
+      "prompt_file": "02-canonical-docs-pack.md",
+      "applicability": {},
+      "entry_criteria": [
+        "Profile composition is approved and schema-valid",
+        "Repository safety and instruction-trust checks have no blocking findings"
+      ],
+      "allowed_writes": [
+        ".gitignore",
+        ".gitattributes",
+        "AGENTS.md",
+        "PLANS.md",
+        "CODEX.md",
+        "FINAL_HANDOFF.md",
+        "README.md",
+        "docs/",
+        "docs/00-meta/generated-files.manifest.yaml"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "User-level Codex configuration",
+        ".omx runtime-owned files"
+      ],
+      "stop_conditions": [
+        "A profile-required template is missing or placeholder-only",
+        "A write would replace an existing file without explicit scoped authorization",
+        "Atomic staging or validation fails"
+      ],
+      "done_when": [
+        "Every selected profile's required artifact exists and is substantive",
+        "The canonical manifest is finalized after all post-write checks"
+      ]
+    },
+    {
+      "id": "design_and_visual_pack",
+      "order": 3,
+      "title": "Design and visual contract pack",
+      "prompt_file": "03-design-visual-pack.md",
+      "applicability": {
+        "profiles_any": [
+          "web-app",
+          "mobile-app",
+          "desktop-app"
+        ]
+      },
+      "entry_criteria": [
+        "A UI-capable profile is selected",
+        "Visual direction is approved or explicitly marked unresolved"
+      ],
+      "allowed_writes": [
+        "docs/ui/",
+        "docs/design/",
+        ".codex/reports/zero-to-hero/visual-approval-ledger.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "UI component implementation",
+        "Unapproved canonical visual assets"
+      ],
+      "stop_conditions": [
+        "Required visual direction is unapproved",
+        "A visual implies unresolved product behavior"
+      ],
+      "done_when": [
+        "Another agent can implement the UI without hidden visual assumptions",
+        "Visual acceptance is observable and testable"
+      ]
+    },
+    {
+      "id": "hardware_pack",
+      "order": 4,
+      "title": "Hardware, robotics, firmware, mechanical, and PCB pack",
+      "prompt_file": "04-hardware-mechanical-pcb-pack.md",
+      "applicability": {
+        "profiles_any": [
+          "firmware-iot",
+          "mechanical-product",
+          "pcb-electronics",
+          "robotics-product"
+        ]
+      },
+      "entry_criteria": [
+        "At least one hardware profile is selected",
+        "Units, coordinate conventions, interfaces, and physical safety boundaries are approved"
+      ],
+      "allowed_writes": [
+        "docs/hardware/",
+        "docs/firmware/",
+        "docs/mechanical/",
+        "docs/pcb/",
+        "docs/robotics/"
+      ],
+      "forbidden_writes": [
+        "Firmware runtime source",
+        "CAD source or derived geometry in the target product",
+        "Fabrication release files",
+        "Printer, upload, deployment, energizing, or actuation commands"
+      ],
+      "stop_conditions": [
+        "Physical safety, units, tolerances, materials, or interfaces are unresolved",
+        "A real-world effect would occur",
+        "Required upstream CAD tooling is missing or incompatible"
+      ],
+      "done_when": [
+        "Engineering artifacts are reviewable without being marked fabrication-approved",
+        "Every physical output has provenance, checks, caveats, and a human authorization gate"
+      ]
+    },
+    {
+      "id": "frontend_parity_pack",
+      "order": 5,
+      "title": "Frontend parity contract",
+      "prompt_file": "05-frontend-parity-system.md",
+      "applicability": {
+        "profiles_any": [
+          "web-app",
+          "mobile-app",
+          "desktop-app"
+        ]
+      },
+      "entry_criteria": [
+        "Design and visual contracts are approved",
+        "Priority routes and workflows are known"
+      ],
+      "allowed_writes": [
+        "docs/ui/frontend-parity-system/",
+        "docs/ui/FRONTEND_CONTEXT.md",
+        ".agents/skills/frontend-parity/"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Frontend component implementation"
+      ],
+      "stop_conditions": [
+        "Priority visual targets are not approved",
+        "Required behavior remains implicit"
+      ],
+      "done_when": [
+        "Parity can be graded from deterministic evidence",
+        "The contract contains no placeholder-only exits"
+      ]
+    },
+    {
+      "id": "product_usability_pack",
+      "order": 6,
+      "title": "Product usability contract",
+      "prompt_file": "06-product-usability-contract.md",
+      "applicability": {},
+      "entry_criteria": [
+        "Priority workflows and non-goals are approved"
+      ],
+      "allowed_writes": [
+        "docs/product-execution/",
+        ".agents/skills/product-usability/"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Live provider configuration",
+        "Production data"
+      ],
+      "stop_conditions": [
+        "A priority workflow lacks an approved outcome",
+        "A local test would cause an external effect"
+      ],
+      "done_when": [
+        "Every priority workflow is implementable and independently verifiable",
+        "Failure and recovery states are explicit"
+      ]
+    },
+    {
+      "id": "local_product_done_harness",
+      "order": 7,
+      "title": "Local product done harness",
+      "prompt_file": "07-local-product-done-harness.md",
+      "applicability": {},
+      "entry_criteria": [
+        "Required commands have been resolved from repository evidence",
+        "Priority behaviors and negative paths are documented"
+      ],
+      "allowed_writes": [
+        "AGENTS.md",
+        "PLANS.md",
+        "docs/product-execution/",
+        ".agents/skills/local-mode-verification/"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "User-level Codex configuration",
+        "Fabrication, deployment, or live-effect scripts"
+      ],
+      "stop_conditions": [
+        "A required command cannot be resolved",
+        "A claimed check cannot run in the documented environment"
+      ],
+      "done_when": [
+        "A new Codex session can verify the target using AGENTS.md and PLANS.md alone",
+        "No unavailable integration is labeled passed"
+      ]
+    },
+    {
+      "id": "implementation_handoff",
+      "order": 8,
+      "title": "Neutral implementation handoff and optional OMX adapter",
+      "prompt_file": "08-implementation-handoff.md",
+      "applicability": {},
+      "entry_criteria": [
+        "Canonical documentation and harness contracts are complete",
+        "Planner, Architect, and Critic evidence can be recorded in order"
+      ],
+      "allowed_writes": [
+        "docs/implementation/IMPLEMENTATION_BRIEF.md",
+        "docs/implementation/PLANNING_EVIDENCE.md",
+        "FINAL_HANDOFF.md",
+        ".omx/ultragoal/ only through a compatible OMX CLI explicitly requested by the user"
+      ],
+      "forbidden_writes": [
+        "Hand-authored .omx goals.json or ledger.jsonl",
+        ".omx runtime state, HUD state, logs, or worker checkpoints",
+        "Product runtime source"
+      ],
+      "stop_conditions": [
+        "Consensus is not explicit",
+        "OMX is requested but its version or interface is unsupported",
+        "A worker attempts to mutate leader-owned state"
+      ],
+      "done_when": [
+        "The handoff is implementation-ready under native Codex",
+        "Any OMX state was created only by the supported CLI"
+      ]
+    },
+    {
+      "id": "canonical_cleanup",
+      "order": 9,
+      "title": "Canonical cleanup",
+      "prompt_file": "09-canonical-cleanup.md",
+      "applicability": {},
+      "entry_criteria": [
+        "All generation phases have finalized provenance records"
+      ],
+      "allowed_writes": [
+        "Generated documentation listed in the canonical manifest",
+        ".codex/reports/zero-to-hero/cleanup-report.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Unmanifested user-authored files",
+        "Runtime caches, logs, or generated archives"
+      ],
+      "stop_conditions": [
+        "Authority or ownership of a candidate file is ambiguous",
+        "Cleanup would remove substantive approved information"
+      ],
+      "done_when": [
+        "No duplicate source of truth or generated iteration residue remains",
+        "All surviving generated files validate"
+      ]
+    },
+    {
+      "id": "implementation_readiness_review",
+      "order": 10,
+      "title": "Implementation readiness review",
+      "prompt_file": "10-implementation-readiness-review.md",
+      "applicability": {},
+      "entry_criteria": [
+        "Canonical cleanup is complete",
+        "All required artifacts and planning evidence exist"
+      ],
+      "allowed_writes": [
+        ".codex/reports/zero-to-hero/final-readiness.md",
+        "FINAL_HANDOFF.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Fabrication, deployment, energizing, or actuation actions",
+        ".omx leader state from a Team worker"
+      ],
+      "stop_conditions": [
+        "Any required artifact is missing or placeholder-only",
+        "Any unsafe state, child failure, schema error, or unsupported requested tool remains"
+      ],
+      "done_when": [
+        "A fresh agent can implement and verify the target without hidden context",
+        "No known blocking error remains"
+      ]
+    }
+  ]
+}

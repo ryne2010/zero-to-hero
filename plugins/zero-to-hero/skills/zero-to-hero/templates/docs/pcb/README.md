@@ -1,3 +1,7 @@
 # PCB and electronics source-of-truth pack
 
-Use this directory for electrical requirements, block diagrams, power tree, connector map, pin map, BOM policy, schematic/layout constraints, DFM/DFT, firmware bring-up, and manufacturing handoff.
+`requirements.md` is the implementation-ready electrical contract for architecture, power, I/O, connectors, components, schematic/layout constraints, verification, provenance, and safety.
+
+This pack may prepare inert design-review and ERC/DRC evidence. It does not authorize fabrication output generation, vendor upload, ordering, assembly, flashing, energizing, RF transmission, or physical bring-up.
+
+Source schematics, layouts, libraries, and constraint files remain authoritative. Rendered plots, fabrication packages, images, and reports are derived evidence or downstream outputs and require explicit ownership and review.

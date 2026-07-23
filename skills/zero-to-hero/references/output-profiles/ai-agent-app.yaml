@@ -1,15 +1,84 @@
-profile: ai_agent_app
-capabilities:
-- agent_runtime
-- ai
-generate:
-- docs/agents
-- docs/ai
-- docs/product-execution
-- docs/production-readiness
-- .agents/skills
-minimum_proof:
-- tool permission matrix
-- eval suite
-- prompt injection defenses
-- runtime traces
+{
+  "schema_version": 1,
+  "id": "ai-agent-app",
+  "title": "AI or agent application",
+  "description": "AI-enabled or agentic product with model, prompt, tool, permission, grounding, evaluation, and trace contracts.",
+  "detect": {
+    "capabilities_any": [
+      "ai_agent_app"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "ai_agent_app"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "robotics-product",
+      "web-app"
+    ],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/ai/requirements.md"
+    ],
+    "optional": [
+      "docs/api/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/data/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ],
+    "forbidden": [
+      "docs/firmware/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/pcb/requirements.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "model-tool-permission-contract",
+      "description": "The AI requirements define model/provider policy, prompts, tools, permission boundaries, grounding, and failure behavior.",
+      "artifacts_any": [
+        "docs/ai/requirements.md"
+      ],
+      "checks_all": [
+        "content:model-prompt-tool-registry",
+        "content:tool-permission-matrix",
+        "content:grounding-and-failure-policy"
+      ]
+    },
+    {
+      "id": "eval-and-trace-proof",
+      "description": "The AI requirements define deterministic evaluations, prompt-injection defenses, trace evidence, and human escalation.",
+      "artifacts_any": [
+        "docs/ai/requirements.md"
+      ],
+      "checks_all": [
+        "content:eval-suite",
+        "content:prompt-injection-controls",
+        "content:trace-and-escalation-plan"
+      ]
+    }
+  ]
+}

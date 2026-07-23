@@ -1,12 +1,13 @@
 PYTHON ?= python3
+UV ?= uv
 
 .PHONY: help validate deep-validate py-compile clean-runtime-artifacts sync-mirror mirror-parity skill-health doctor deep-doctor smoke metadata plugin-metadata plugin-json archive archive-smoke release-check clean
 
 help:
 	@printf '%s\n' 'zero-to-hero maintainer commands'
 	@printf '%s\n' ''
-	@printf '%-24s %s\n' 'make validate' 'Run deterministic structural validation.'
-	@printf '%-24s %s\n' 'make deep-validate' 'Run deterministic deeper structural validation.'
+	@printf '%-24s %s\n' 'make validate' 'Run the complete authoritative release gate in the locked environment.'
+	@printf '%-24s %s\n' 'make deep-validate' 'Compatibility alias for the complete authoritative release gate.'
 	@printf '%-24s %s\n' 'make doctor' 'Run a fast operational doctor for the source skill.'
 	@printf '%-24s %s\n' 'make deep-doctor' 'Run the deterministic deep doctor for the source skill.'
 	@printf '%-24s %s\n' 'make sync-mirror' 'Copy skills/zero-to-hero into the plugin mirror.'
@@ -19,10 +20,10 @@ help:
 	@printf '%-24s %s\n' 'make clean' 'Remove Python runtime cache artifacts.'
 
 validate:
-	$(PYTHON) scripts/validate_plugin_repo.py .
+	$(UV) run --frozen python scripts/validate_plugin_repo.py .
 
 deep-validate:
-	$(PYTHON) scripts/validate_plugin_repo.py . --deep --timeout 120
+	$(UV) run --frozen python scripts/validate_plugin_repo.py . --deep
 
 
 py-compile:

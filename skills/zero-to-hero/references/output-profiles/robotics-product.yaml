@@ -1,17 +1,111 @@
-profile: robotics_product
-capabilities:
-- robotics
-- firmware
-- mechanical_cad_optional
-- pcb_electronics_optional
-generate:
-- docs/robotics
-- docs/mechanical
-- docs/firmware
-- docs/hardware
-- docs/product-execution
-minimum_proof:
-- simulation plan
-- safety constraints
-- bring-up plan
-- telemetry contracts
+{
+  "schema_version": 1,
+  "id": "robotics-product",
+  "title": "Robotics product",
+  "description": "Robotics system contract covering geometry, frames, kinematics, simulation, firmware interfaces, bring-up, telemetry, failure modes, and physical-safety boundaries.",
+  "detect": {
+    "capabilities_any": [
+      "robotics"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "robotics"
+    ]
+  },
+  "composition": {
+    "compatible_with": [
+      "ai-agent-app",
+      "api-service",
+      "cli-tool",
+      "data-ml-app",
+      "desktop-app",
+      "firmware-iot",
+      "infra-repo",
+      "mechanical-product",
+      "mobile-app",
+      "pcb-electronics",
+      "web-app"
+    ],
+    "default_profiles": [
+      "mechanical-product"
+    ]
+  },
+  "artifacts": {
+    "required": [
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md"
+    ],
+    "optional": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/data/requirements.md",
+      "docs/firmware/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ],
+    "forbidden": [
+      "docs/desktop/requirements.md",
+      "docs/mobile/requirements.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "robot-geometry-frame-contract",
+      "description": "Robotics geometry policy defines source and derived geometry, units, frames, joints, inertial, visual, collision, assembly, and consumer checks.",
+      "artifacts_any": [
+        "docs/robotics/geometry-policy.md"
+      ],
+      "checks_all": [
+        "content:source-derived-geometry-map",
+        "content:units-frames-joints-inertials",
+        "content:visual-collision-assembly-policy",
+        "content:urdf-srdf-sdf-consumer-checks"
+      ]
+    },
+    {
+      "id": "step-first-geometry-proof",
+      "description": "Robotics geometry requirements route applicable geometry through the text-to-CAD adapter with STEP-first deterministic validation and snapshot review.",
+      "artifacts_any": [
+        "docs/robotics/geometry-policy.md",
+        "docs/robotics/requirements.md"
+      ],
+      "checks_all": [
+        "content:text-to-cad-routing",
+        "content:step-first-source-derived-policy",
+        "content:deterministic-geometry-and-snapshot-evidence"
+      ]
+    },
+    {
+      "id": "simulation-bring-up-telemetry-proof",
+      "description": "Simulation and bring-up requirements define deterministic simulation, staged bring-up, telemetry, failure injection, and recovery evidence.",
+      "artifacts_any": [
+        "docs/robotics/simulation-and-bring-up.md"
+      ],
+      "checks_all": [
+        "content:simulation-and-consumer-plan",
+        "content:staged-bring-up-and-telemetry",
+        "content:failure-injection-and-recovery"
+      ]
+    },
+    {
+      "id": "physical-safety-authorization-proof",
+      "description": "Robotics requirements require human engineering review and separate authorization before deployment, energizing, or physical actuation.",
+      "artifacts_any": [
+        "docs/robotics/requirements.md"
+      ],
+      "checks_all": [
+        "content:human-engineering-review-gate",
+        "content:physical-action-authorization-gate"
+      ]
+    }
+  ]
+}

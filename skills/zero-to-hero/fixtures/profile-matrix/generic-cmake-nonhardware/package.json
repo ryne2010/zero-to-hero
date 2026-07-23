@@ -1,0 +1,7 @@
+{
+  "name": "fixture-generic-cmake-web",
+  "private": true,
+  "dependencies": {
+    "react": "0.0.0"
+  }
+}

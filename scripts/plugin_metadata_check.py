@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,19 +28,6 @@ def yaml_scalar(text: str, key: str) -> str | None:
     if not match:
         return None
     return match.group(1).strip().strip('"\'')
-
-
-def frontmatter_version(path: Path) -> str | None:
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---"):
-        return None
-    parts = text.split("---", 2)
-    if len(parts) < 3:
-        return None
-    for line in parts[1].splitlines():
-        if line.strip().startswith("version:"):
-            return line.split(":", 1)[1].strip().strip('"\'')
-    return None
 
 
 def pyproject_version(path: Path) -> str | None:
@@ -155,7 +141,6 @@ def main() -> int:
         if "default_prompt:" not in text:
             errors.append("agents/openai.yaml missing default_prompt")
 
-    versions["skill_frontmatter"] = frontmatter_version(SOURCE_SKILL / "SKILL.md") if (SOURCE_SKILL / "SKILL.md").exists() else None
     versions["skill_manifest_yaml"] = yaml_scalar((SOURCE_SKILL / "skill-manifest.yaml").read_text(encoding="utf-8"), "version") if (SOURCE_SKILL / "skill-manifest.yaml").exists() else None
     if (SOURCE_SKILL / "manifest.json").exists():
         data = load_json(SOURCE_SKILL / "manifest.json")

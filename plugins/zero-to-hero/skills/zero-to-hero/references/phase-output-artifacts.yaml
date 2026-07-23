@@ -1,36 +1,228 @@
-interview:
-  required:
-    - .omx/context/zero-to-hero-interview.md
-    - .codex/reports/zero-to-hero/interview-summary.md
-research_and_capability_detection:
-  required:
-    - .codex/reports/zero-to-hero/capability-report.yaml
-    - .codex/reports/zero-to-hero/research-queue.md
-canonical_docs_pack:
-  required:
-    - docs/00-meta/source-of-truth-map.yaml
-    - docs/00-meta/feature-index.yaml
-    - docs/00-meta/decision-ledger.yaml
-design_and_visual_pack:
-  required_when:
-    - web_frontend
-    - mobile_app
-    - server_rendered_ui
-  required:
-    - docs/ui/DIRECTION.md
-    - docs/ui/frontend-parity-system/README.md
-harness_pack:
-  required:
-    - docs/product-execution/README.md
-    - docs/product-execution/local-product-done-gate.md
-omx_handoff_pack:
-  required:
-    - .omx/ultragoal/brief.md
-    - .omx/ultragoal/goals.json
-    - .omx/ultragoal/ledger.jsonl
-canonical_cleanup:
-  required:
-    - .codex/reports/zero-to-hero/cleanup-report.md
-implementation_readiness_review:
-  required:
-    - .codex/reports/zero-to-hero/final-readiness.md
+{
+  "schema_version": "1.0.0",
+  "source": "references/contract-graph.yaml",
+  "global_forbidden_write_paths": [
+    ".codex/config.toml",
+    ".omx/**",
+    "**/*.c",
+    "**/*.cc",
+    "**/*.cpp",
+    "**/*.cs",
+    "**/*.dart",
+    "**/*.go",
+    "**/*.gcode",
+    "**/*.java",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.kt",
+    "**/*.kts",
+    "**/*.py",
+    "**/*.rs",
+    "**/*.step",
+    "**/*.stl",
+    "**/*.stp",
+    "**/*.swift",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.3mf"
+  ],
+  "phases": {
+    "discovery": {
+      "allowed_writes": [
+        ".codex/reports/zero-to-hero/interview-summary.md",
+        ".codex/reports/zero-to-hero/approved-capabilities.json",
+        ".codex/reports/zero-to-hero/unresolved-decisions.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Production configuration or credentials",
+        ".omx runtime state"
+      ],
+      "expected_outputs": [
+        "Approved product summary, users, jobs, non-goals, risks, and constraints",
+        "Approved capabilities and candidate profile composition",
+        "Unresolved decision ledger"
+      ]
+    },
+    "research_and_capability_detection": {
+      "allowed_writes": [
+        ".codex/reports/zero-to-hero/capability-report.yaml",
+        ".codex/reports/zero-to-hero/source-notes.md",
+        ".codex/reports/zero-to-hero/research-queue.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Generated hardware or fabrication outputs",
+        ".omx runtime state"
+      ],
+      "expected_outputs": [
+        "Exact detected capabilities with evidence and negative evidence",
+        "Selected composable output profiles with provenance",
+        "Audited external source notes"
+      ]
+    },
+    "canonical_docs_pack": {
+      "allowed_writes": [
+        ".gitignore",
+        ".gitattributes",
+        "AGENTS.md",
+        "PLANS.md",
+        "CODEX.md",
+        "FINAL_HANDOFF.md",
+        "README.md",
+        "docs/",
+        "docs/00-meta/generated-files.manifest.yaml"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "User-level Codex configuration",
+        ".omx runtime-owned files"
+      ],
+      "expected_outputs": [
+        "Target-specific AGENTS.md and self-contained PLANS.md contract",
+        "Canonical source-of-truth and decision maps",
+        "Profile-required substantive documentation",
+        "Canonical generated-file provenance manifest"
+      ]
+    },
+    "design_and_visual_pack": {
+      "allowed_writes": [
+        "docs/ui/",
+        "docs/design/",
+        ".codex/reports/zero-to-hero/visual-approval-ledger.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "UI component implementation",
+        "Unapproved canonical visual assets"
+      ],
+      "expected_outputs": [
+        "Approved direction contract",
+        "Screen, route, interaction, and asset contracts",
+        "Visual validation evidence policy"
+      ]
+    },
+    "hardware_pack": {
+      "allowed_writes": [
+        "docs/hardware/",
+        "docs/firmware/",
+        "docs/mechanical/",
+        "docs/pcb/",
+        "docs/robotics/"
+      ],
+      "forbidden_writes": [
+        "Firmware runtime source",
+        "CAD source or derived geometry in the target product",
+        "Fabrication release files",
+        "Printer, upload, deployment, energizing, or actuation commands"
+      ],
+      "expected_outputs": [
+        "Requirements, tolerances, materials, interfaces, datums, frames, and unit ledgers",
+        "Source-to-derived artifact and provenance maps",
+        "Simulation, bring-up, telemetry, failure-mode, and safety contracts",
+        "Human engineering and physical authorization gates"
+      ]
+    },
+    "frontend_parity_pack": {
+      "allowed_writes": [
+        "docs/ui/frontend-parity-system/",
+        "docs/ui/FRONTEND_CONTEXT.md",
+        ".agents/skills/frontend-parity/"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Frontend component implementation"
+      ],
+      "expected_outputs": [
+        "Route and component parity contracts",
+        "Golden flow and screenshot evidence policy",
+        "No-scaffold and no-dead-control rules"
+      ]
+    },
+    "product_usability_pack": {
+      "allowed_writes": [
+        "docs/product-execution/",
+        ".agents/skills/product-usability/"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Live provider configuration",
+        "Production data"
+      ],
+      "expected_outputs": [
+        "Action-binding and workflow transaction contracts",
+        "Scenario, role, permission, error, and recovery contracts",
+        "No-dead-ends policy"
+      ]
+    },
+    "local_product_done_harness": {
+      "allowed_writes": [
+        "AGENTS.md",
+        "PLANS.md",
+        "docs/product-execution/",
+        ".agents/skills/local-mode-verification/"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "User-level Codex configuration",
+        "Fabrication, deployment, or live-effect scripts"
+      ],
+      "expected_outputs": [
+        "Exact command matrix and one authoritative local done command",
+        "Runtime evidence, traceability, simulator, and negative-path contracts",
+        "Scoped subagent ownership guidance"
+      ]
+    },
+    "implementation_handoff": {
+      "allowed_writes": [
+        "docs/implementation/IMPLEMENTATION_BRIEF.md",
+        "docs/implementation/PLANNING_EVIDENCE.md",
+        "FINAL_HANDOFF.md",
+        ".omx/ultragoal/ only through a compatible OMX CLI explicitly requested by the user"
+      ],
+      "forbidden_writes": [
+        "Hand-authored .omx goals.json or ledger.jsonl",
+        ".omx runtime state, HUD state, logs, or worker checkpoints",
+        "Product runtime source"
+      ],
+      "expected_outputs": [
+        "Neutral implementation brief with ordered stories and dependencies",
+        "Planner, Architect, Critic, and consensus evidence",
+        "Native ExecPlan or deterministic sequential fallback",
+        "Optional OMX CLI command only when compatibility probing passes"
+      ]
+    },
+    "canonical_cleanup": {
+      "allowed_writes": [
+        "Generated documentation listed in the canonical manifest",
+        ".codex/reports/zero-to-hero/cleanup-report.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Unmanifested user-authored files",
+        "Runtime caches, logs, or generated archives"
+      ],
+      "expected_outputs": [
+        "Lossless cleanup report",
+        "Reconciled canonical documentation",
+        "Updated provenance actions and hashes"
+      ]
+    },
+    "implementation_readiness_review": {
+      "allowed_writes": [
+        ".codex/reports/zero-to-hero/final-readiness.md",
+        "FINAL_HANDOFF.md"
+      ],
+      "forbidden_writes": [
+        "Product runtime source",
+        "Fabrication, deployment, energizing, or actuation actions",
+        ".omx leader state from a Team worker"
+      ],
+      "expected_outputs": [
+        "Profile-aware readiness verdict",
+        "Exact verification results and skipped external integrations",
+        "Remaining unknowns and explicit blockers"
+      ]
+    }
+  }
+}

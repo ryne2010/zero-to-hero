@@ -1,0 +1,4 @@
+[project]
+name = "fixture-infra-api"
+version = "0.0.0"
+dependencies = ["fastapi"]

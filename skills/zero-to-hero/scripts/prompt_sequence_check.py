@@ -1,48 +1,91 @@
 #!/usr/bin/env python3
+"""Verify prompt order and every machine-rendered phase prompt contract."""
 from __future__ import annotations
-import json, re, sys
+
+import sys
 from pathlib import Path
 
-EXPECTED = [
- '00-deep-interview.md','01-research-and-capability-detection.md','02-canonical-docs-pack.md','03-design-visual-pack.md','04-hardware-mechanical-pcb-pack.md','05-frontend-parity-system.md','06-product-usability-contract.md','07-local-product-done-harness.md','08-omx-handoff.md','09-canonical-cleanup.md','10-implementation-readiness-review.md','98-target-repo-preflight.md','99-one-shot-small-product.md'
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from zero_to_hero_contract import (  # noqa: E402
+    ContractError,
+    graph_prompts,
+    load_graph,
+    render_prompt,
+    skill_root_from,
+)
+
+REQUIRED_HEADINGS = [
+    "## Goal",
+    "## Context and required reads",
+    "## Entry criteria",
+    "## Constraints",
+    "## Allowed writes",
+    "## Forbidden writes",
+    "## Expected outputs",
+    "## Evidence and checks",
+    "## Stop or block when",
+    "## Done when",
+    "## Runtime implementation boundary",
 ]
-NO_CODE_PHASES = {'00','01','02','03','04','05','06','07','08','09','10','98'}
 
-def resolve(path: str|None) -> Path:
-    root=Path(path or '.').resolve()
-    if (root/'SKILL.md').exists(): return root
-    return root/'.agents/skills/zero-to-hero'
 
-skill=resolve(sys.argv[1] if len(sys.argv)>1 else None)
-pdir=skill/'prompts'
-errors=[]; warnings=[]
-files=sorted(p.name for p in pdir.glob('*.md')) if pdir.exists() else []
-for e in EXPECTED:
-    if e not in files: errors.append(f'missing prompt {e}')
-extra=[f for f in files if f not in EXPECTED and f!='README.md']
-if extra: warnings.append(f'extra prompt files: {extra}')
-prefixes={}
-for f in files:
-    m=re.match(r'^(\d+)-', f)
-    if m: prefixes.setdefault(m.group(1),[]).append(f)
-for pref,names in prefixes.items():
-    if pref!='99' and len(names)>1: errors.append(f'duplicate phase prefix {pref}: {names}')
-for f in files:
-    pref=f.split('-',1)[0]
-    text=(pdir/f).read_text(errors='ignore')
-    lowered = text.lower()
-    blocks_code = any(phrase in lowered for phrase in [
-        'do not implement product runtime code',
-        'do not write implementation code',
-        'do not write code',
-        'do not write app code',
-        'do not write app implementation code',
-        'do not implement product code',
-        'do not generate app source files',
-        'do not modify app source files',
-        'do not change app source files',
-    ])
-    if pref in NO_CODE_PHASES and not blocks_code and f!='README.md':
-        warnings.append(f'{f} should explicitly block product implementation code')
-print(json.dumps({'status':'pass' if not errors else 'fail','prompt_count':len(files),'errors':errors,'warnings':warnings}, indent=2))
-if errors: sys.exit(1)
+def main() -> int:
+    try:
+        skill = skill_root_from(sys.argv[1] if len(sys.argv) > 1 else ".")
+        graph = load_graph(skill)
+    except ContractError as exc:
+        print(f"prompt contract: failed: {exc}", file=sys.stderr)
+        return 1
+
+    errors: list[str] = []
+    previous = -1
+    for contract in graph_prompts(graph):
+        order = int(contract["order"])
+        if order <= previous:
+            errors.append(f"non-ascending prompt order at {contract['id']}")
+        previous = order
+        path = skill / "prompts" / contract["prompt_file"]
+        if not path.is_file():
+            errors.append(f"missing prompt {path.relative_to(skill)}")
+            continue
+        actual = path.read_text(encoding="utf-8")
+        expected = render_prompt(
+            contract,
+            global_forbidden_write_paths=graph["global_forbidden_write_paths"],
+        )
+        if actual != expected:
+            errors.append(
+                f"{path.relative_to(skill)} is not the graph-rendered prompt view"
+            )
+        for heading in REQUIRED_HEADINGS:
+            if actual.count(heading) != 1:
+                errors.append(
+                    f"{path.relative_to(skill)} must contain exactly one {heading!r}"
+                )
+        if "Do not implement" not in actual and "Never implement" not in actual:
+            errors.append(
+                f"{path.relative_to(skill)} lacks explicit no-runtime implementation boundary"
+            )
+
+    declared = {
+        contract["prompt_file"] for contract in graph_prompts(graph)
+    }
+    extras = sorted(
+        path.name
+        for path in (skill / "prompts").glob("[0-9][0-9]-*.md")
+        if path.name not in declared
+    )
+    if extras:
+        errors.append(f"undeclared prompt files: {extras}")
+    if errors:
+        for error in errors:
+            print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+    print(f"prompt contracts: passed ({len(declared)} prompts)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,12 +1,74 @@
-profile: docs_first_product
-capabilities:
-- docs_only
-generate:
-- docs
-- docs/product-execution
-- .omx/ultragoal
-minimum_proof:
-- source-of-truth map
-- feature index
-- implementation handoff
-- cleanup report
+{
+  "schema_version": 1,
+  "id": "docs-first-product",
+  "title": "Documentation-first product",
+  "description": "Implementation-ready product definition for repositories whose approved scope is documentation-first and has no selected implementation-family profile.",
+  "detect": {
+    "capabilities_any": [
+      "docs_only"
+    ],
+    "capabilities_all": []
+  },
+  "approved": {
+    "capabilities_any": [
+      "docs_only"
+    ]
+  },
+  "composition": {
+    "compatible_with": [],
+    "default_profiles": []
+  },
+  "artifacts": {
+    "required": [
+      "docs/00-meta/source-of-truth-map.yaml",
+      "docs/AGENT_CONTEXT.md"
+    ],
+    "optional": [],
+    "forbidden": [
+      "docs/ai/requirements.md",
+      "docs/api/requirements.md",
+      "docs/cli/requirements.md",
+      "docs/data/requirements.md",
+      "docs/desktop/requirements.md",
+      "docs/firmware/requirements.md",
+      "docs/infra/requirements.md",
+      "docs/mechanical/cad-adapter.md",
+      "docs/mechanical/dimensions-and-tolerances.yaml",
+      "docs/mechanical/interfaces-and-datums.md",
+      "docs/mechanical/requirements.md",
+      "docs/mobile/requirements.md",
+      "docs/pcb/requirements.md",
+      "docs/robotics/geometry-policy.md",
+      "docs/robotics/requirements.md",
+      "docs/robotics/simulation-and-bring-up.md",
+      "docs/ui/FRONTEND_CONTEXT.md"
+    ]
+  },
+  "evidence_requirements": [
+    {
+      "id": "source-of-truth-proof",
+      "description": "The documentation-first scaffold identifies canonical sources, authority, unresolved decisions, and implementation entry points.",
+      "artifacts_any": [
+        "docs/00-meta/source-of-truth-map.yaml",
+        "docs/AGENT_CONTEXT.md"
+      ],
+      "checks_all": [
+        "content:canonical-source-map",
+        "content:authority-and-unresolved-decisions",
+        "content:implementation-entry-points"
+      ]
+    },
+    {
+      "id": "implementation-handoff-proof",
+      "description": "The agent context contains implementation boundaries, validation expectations, and the no-runtime-generation invariant.",
+      "artifacts_any": [
+        "docs/AGENT_CONTEXT.md"
+      ],
+      "checks_all": [
+        "content:implementation-boundaries",
+        "content:validation-expectations",
+        "content:no-runtime-generation-boundary"
+      ]
+    }
+  ]
+}
