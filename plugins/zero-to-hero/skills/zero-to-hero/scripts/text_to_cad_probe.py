@@ -960,6 +960,12 @@ def _parse_json_line(output: str) -> Mapping[str, Any] | None:
     return None
 
 
+def _single_line_python(source: str) -> str:
+    """Keep ``python -c`` payloads safe to forward through Windows batch proxies."""
+
+    return f"exec({source!r})"
+
+
 def probe_python_runtime(python_command: str, *, timeout: int) -> dict[str, Any]:
     executable = _resolve_executable(python_command)
     if executable is None:
@@ -969,7 +975,7 @@ def probe_python_runtime(python_command: str, *, timeout: int) -> dict[str, Any]
             f"Python command {python_command!r} was not found.",
             minimum_version=list(MINIMUM_PYTHON),
         )
-    code = (
+    code = _single_line_python(
         "import json,sys\n"
         "PROBE_KIND='text-to-cad-python-runtime'\n"
         "print(json.dumps({'probe':PROBE_KIND,'version':list(sys.version_info[:3]),"
@@ -1048,7 +1054,7 @@ def probe_python_imports(
             paths=[str(path) for path in paths],
         )
     executable = str(python_runtime["executable"])
-    code = (
+    code = _single_line_python(
         "import importlib,json,sys\n"
         "PROBE_KIND='text-to-cad-python-imports'\n"
         "modules=json.loads(sys.argv[1]); paths=json.loads(sys.argv[2])\n"

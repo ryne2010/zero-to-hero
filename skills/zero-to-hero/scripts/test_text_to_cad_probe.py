@@ -86,6 +86,8 @@ def _fake_python(
 import sys
 
 if sys.argv[1:2] == ["-c"]:
+    if "\\n" in sys.argv[2] or "\\r" in sys.argv[2]:
+        raise SystemExit("multiline -c payload is not safe through a batch proxy")
     if "text-to-cad-python-runtime" in sys.argv[2]:
         print({runtime_payload!r})
     else:
