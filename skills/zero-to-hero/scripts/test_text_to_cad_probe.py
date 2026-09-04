@@ -36,10 +36,10 @@ def _write_python_command(path: Path, content: str) -> Path:
     """Create a directly invokable Python-backed fake on POSIX and Windows."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    script = path.with_suffix(".py")
+    script = path.with_name(path.name + ".py")
     script.write_text(content, encoding="utf-8")
     if os.name == "nt":
-        command = path.with_suffix(".cmd")
+        command = path.with_name(path.name + ".cmd")
         command.write_text(
             f'@echo off\r\n"{sys.executable}" "{script}" %*\r\n',
             encoding="utf-8",
@@ -225,6 +225,12 @@ def run_tests() -> dict[str, Any]:
             missing_import=True,
         )
         npm = _fake_npm(bin_dir / "npm")
+        _assert(
+            checks,
+            (bin_dir / "python-3.12.py").is_file()
+            and (bin_dir / "python-3.11.py").is_file(),
+            "python:dotted-fake-names-remain-distinct",
+        )
 
         absent_repo = root / "absent-repo"
         absent_repo.mkdir()
