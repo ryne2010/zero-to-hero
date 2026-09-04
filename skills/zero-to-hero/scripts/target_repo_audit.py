@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from apply_zero_to_hero_templates import (  # noqa: E402
     CANONICAL_MANIFEST,
+    CANONICAL_MANIFEST_REL,
     GenerationError,
     _is_substantive,
     _load_approved_capabilities,
@@ -199,7 +200,7 @@ def _audit_manifest_records(
             continue
         actual = _sha256_path(repo / rel)
         expected = record.get("post_write_sha256")
-        self_reference = rel == str(CANONICAL_MANIFEST)
+        self_reference = rel == CANONICAL_MANIFEST_REL
         matches = self_reference and expected is None or actual == expected
         result = {
             "target_path": rel,
