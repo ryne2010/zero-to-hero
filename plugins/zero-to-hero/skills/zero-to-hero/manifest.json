@@ -24,6 +24,7 @@
   ],
   "target_repo_preflight": "scripts/target_repo_audit.py",
   "phase_gate_check": "scripts/phase_gate_check.py",
+  "planning_evidence_check": "scripts/planning_evidence_check.py",
   "target_repo_audit": "scripts/target_repo_audit.py",
   "instruction_trust_scan": "scripts/instruction_trust_scan.py",
   "prompt_sequence_check": "scripts/prompt_sequence_check.py",

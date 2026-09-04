@@ -26,6 +26,9 @@
     "**/*.tsx",
     "**/*.3mf"
   ],
+  "global_forbidden_write_exceptions": [
+    "scripts/zero_to_hero_handoff_check.py"
+  ],
   "phases": [
     {
       "id": "discovery",
@@ -103,6 +106,7 @@
         "FINAL_HANDOFF.md",
         "README.md",
         "docs/",
+        "scripts/zero_to_hero_handoff_check.py",
         "docs/00-meta/generated-files.manifest.yaml"
       ],
       "forbidden_writes": [
@@ -269,6 +273,8 @@
       "allowed_writes": [
         "AGENTS.md",
         "PLANS.md",
+        "docs/implementation/EXECPLAN.md",
+        "scripts/zero_to_hero_handoff_check.py",
         "docs/product-execution/",
         ".agents/skills/local-mode-verification/"
       ],
@@ -298,6 +304,7 @@
       ],
       "allowed_writes": [
         "docs/implementation/IMPLEMENTATION_BRIEF.md",
+        "docs/implementation/EXECPLAN.md",
         "docs/implementation/PLANNING_EVIDENCE.md",
         "FINAL_HANDOFF.md",
         ".omx/ultragoal/ only through a compatible OMX CLI explicitly requested by the user"
@@ -309,11 +316,13 @@
       ],
       "stop_conditions": [
         "Consensus is not explicit",
+        "OMX Ralplan role routing lacks documented leader proof or tracker-backed native subagent evidence",
         "OMX is requested but its version or interface is unsupported",
+        "Product implementation would start before unavailable command categories and their authoritative ordered gate are bootstrapped",
         "A worker attempts to mutate leader-owned state"
       ],
       "done_when": [
-        "The handoff is implementation-ready under native Codex",
+        "The handoff is implementation-ready under native Codex /goal with a current durable ExecPlan",
         "Any OMX state was created only by the supported CLI"
       ]
     },

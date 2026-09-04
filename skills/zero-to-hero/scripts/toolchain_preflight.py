@@ -43,7 +43,9 @@ KNOWN_CONFIGS = {
     'codex': ['AGENTS.md', 'CODEX.md', '.agents/skills'],
     'omx_neutral_handoff': [
         'docs/implementation/IMPLEMENTATION_BRIEF.md',
+        'docs/implementation/EXECPLAN.md',
         'docs/implementation/PLANNING_EVIDENCE.md',
+        'scripts/zero_to_hero_handoff_check.py',
     ],
     'docker': ['docker-compose.yml', 'compose.yml', 'Dockerfile'],
     'kicad': ['*.kicad_pro'],

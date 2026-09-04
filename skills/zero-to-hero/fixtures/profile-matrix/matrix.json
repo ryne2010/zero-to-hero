@@ -43,11 +43,13 @@
     "docs/00-meta/generated-files.manifest.yaml",
     "docs/00-meta/source-of-truth-map.yaml",
     "docs/AGENT_CONTEXT.md",
+    "docs/implementation/EXECPLAN.md",
     "docs/implementation/IMPLEMENTATION_BRIEF.md",
     "docs/implementation/IMPLEMENTATION_CONTEXT.md",
     "docs/implementation/PLANNING_EVIDENCE.md",
     "docs/product-execution/LOCAL_PRODUCT_CONTEXT.md",
-    "docs/product-execution/README.md"
+    "docs/product-execution/README.md",
+    "scripts/zero_to_hero_handoff_check.py"
   ],
   "cases": {
     "profile-ai-agent-app": {

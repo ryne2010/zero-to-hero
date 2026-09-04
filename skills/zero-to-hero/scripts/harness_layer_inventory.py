@@ -21,7 +21,9 @@ LAYERS = {
     "repo_scoped_skills": [".agents/skills"],
     "neutral_implementation_handoff": [
         "docs/implementation/IMPLEMENTATION_BRIEF.md",
+        "docs/implementation/EXECPLAN.md",
         "docs/implementation/PLANNING_EVIDENCE.md",
+        "scripts/zero_to_hero_handoff_check.py",
         "PLANS.md",
     ],
 }

@@ -71,7 +71,8 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
         },
         "sha256": {
           "$ref": "#/$defs/nullableHash"
@@ -86,7 +87,8 @@
         "canonical_manifest",
         "preserve_existing_by_default",
         "force_paths",
-        "rollback_on_commit_error"
+        "rollback_on_commit_error",
+        "refresh_command"
       ],
       "properties": {
         "mode": {
@@ -106,6 +108,20 @@
         },
         "rollback_on_commit_error": {
           "const": true
+        },
+        "refresh_command": {
+          "type": "string",
+          "minLength": 1,
+          "allOf": [
+            {
+              "pattern": "--write(?:\\s|.)*--refresh-manifest"
+            },
+            {
+              "not": {
+                "pattern": "(?:^|\\s)--force(?:\\s|=|$)"
+              }
+            }
+          ]
         }
       }
     },
@@ -358,7 +374,17 @@
         },
         "regeneration_command": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "allOf": [
+            {
+              "pattern": "--write(?:\\s|.)*--replay-manifest"
+            },
+            {
+              "not": {
+                "pattern": "(?:^|\\s)--force(?:\\s|=|$)"
+              }
+            }
+          ]
         },
         "validation_evidence": {
           "$ref": "#/$defs/nonEmptyStringSet"

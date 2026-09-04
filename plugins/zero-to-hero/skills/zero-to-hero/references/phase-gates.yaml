@@ -157,17 +157,21 @@
         "Planner, Architect, and Critic evidence can be recorded in order"
       ],
       "evidence": [
-        "OMX probe records version and required interface tokens when requested",
+        "Planning evidence records planning_artifacts, ralplan_architect_review, ralplan_critic_review, and ralplan_consensus_gate with Architect-before-Critic approval provenance",
+        "OMX probe records version, /goal clear lifecycle guidance, and the complete structured steering interface when requested",
         "Unsupported or missing OMX yields a neutral fallback",
+        "Every unavailable product command is labeled unavailable, no replacement command is invented, and the active ExecPlan blocks profile implementation on a real ordered product gate",
         "The brief is executable without conversation history"
       ],
       "exit": [
-        "The handoff is implementation-ready under native Codex",
+        "The handoff is implementation-ready under native Codex /goal with a current durable ExecPlan",
         "Any OMX state was created only by the supported CLI"
       ],
       "stop": [
         "Consensus is not explicit",
+        "OMX Ralplan role routing lacks documented leader proof or tracker-backed native subagent evidence",
         "OMX is requested but its version or interface is unsupported",
+        "Product implementation would start before unavailable command categories and their authoritative ordered gate are bootstrapped",
         "A worker attempts to mutate leader-owned state"
       ]
     },

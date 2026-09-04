@@ -1,6 +1,7 @@
 canonical:
   agent_instructions: AGENTS.md
   durable_plan_contract: PLANS.md
+  active_execplan: docs/implementation/EXECPLAN.md
   implementation_brief: docs/implementation/IMPLEMENTATION_BRIEF.md
   planning_evidence: docs/implementation/PLANNING_EVIDENCE.md
   decision_ledger: docs/00-meta/decision-ledger.yaml
@@ -30,6 +31,7 @@ non_authoritative:
 entry_points:
   - AGENTS.md
   - PLANS.md
+  - docs/implementation/EXECPLAN.md
   - docs/00-meta/source-of-truth-map.yaml
   - docs/AGENT_CONTEXT.md
   - docs/implementation/IMPLEMENTATION_BRIEF.md

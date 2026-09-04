@@ -21,6 +21,7 @@ from apply_zero_to_hero_templates import (  # noqa: E402
     _run_json_child,
     _sha256_path,
     _validate_agents_contract,
+    _validate_execplan_contract,
     validate_manifest,
 )
 from profile_evidence import evaluate_profile_evidence  # noqa: E402
@@ -145,6 +146,19 @@ def _audit_required_artifacts(
                 if not valid_agents:
                     failures.append(
                         f"AGENTS.md is not target-specific: {agents_reason}"
+                    )
+            if rel == "docs/implementation/EXECPLAN.md" and substantive:
+                valid_execplan, execplan_reason = _validate_execplan_contract(
+                    repo,
+                    path.read_bytes(),
+                    selected_profiles=resolution["selected_profiles"],
+                )
+                result["target_specific"] = valid_execplan
+                result["execplan_contract"] = execplan_reason
+                if not valid_execplan:
+                    failures.append(
+                        "active ExecPlan is not target-specific: "
+                        f"{execplan_reason}"
                     )
         results.append(result)
     return results, failures

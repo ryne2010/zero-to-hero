@@ -11,7 +11,7 @@ See [OMX compatibility](omx-compatibility.md) for the audited version, probe con
 3. Complete Architect review before Critic review.
 4. Complete Critic review against the Architect-reviewed draft.
 5. Record an explicit consensus gate and its evidence.
-6. Use `$ultragoal` for durable execution when the adapter reports `PASS`.
+6. Execute through native Codex Goal Mode or use `$ultragoal` when the adapter reports `PASS`.
 7. Use Team only for independently owned parallel work in a supported environment.
 8. Run independent code review and architecture-invariant review.
 9. Run `$ultraqa` or the applicable final product verification.
@@ -29,6 +29,12 @@ Always preserve these execution-neutral inputs outside `.omx/ultragoal/`:
 - validation commands, stop conditions, and unresolved blockers.
 
 When OMX is missing or unsupported, use those inputs with native Codex planning and scoped subagents, or a deterministic sequential plan. Do not fabricate OMX-native files.
+
+## Native Codex 0.145.0 path
+
+Treat `PLANS.md` as the durable ExecPlan contract and maintain a separate active ExecPlan that follows it. When the outcome or execution scope is unclear, enter `/plan` and refine one observable outcome, constraints and non-goals, authority and external-effect boundaries, verification evidence, and the stop condition. Record the accepted result in that living ExecPlan, then enter `/goal`. Goal Mode provides thread-level continuity; it does not replace durable evidence or broaden authority.
+
+Give each parallel Codex thread its own Git worktree and disjoint write ownership. Never give parallel threads write access to the same mutable working tree or shared generated/runtime state.
 
 ## Compatible OMX path
 
@@ -49,6 +55,8 @@ python <skill-root>/scripts/omx_adapter.py <target-repo> \
 ```
 
 The adapter intentionally does not pass `--force` and refuses creation when any audited runtime artifact already exists.
+
+Aggregate Ultragoal uses the Codex thread's active Goal Mode pointer. Do not run `/goal clear` before the first aggregate run or while a run is active. After an aggregate run reaches a terminal state, and only when another aggregate run will begin in the same Codex thread, run `/goal clear` before creating the second run.
 
 ## Ownership boundary
 

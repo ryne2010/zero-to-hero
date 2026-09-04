@@ -41,6 +41,7 @@ execution, or a compatible OMX adapter.
 - Decision ledger: `docs/00-meta/decision-ledger.yaml`
 - Agent context: `docs/AGENT_CONTEXT.md`
 - Durable plan contract: `PLANS.md`
+- Active target-specific ExecPlan: `docs/implementation/EXECPLAN.md`
 - Profile-specific contracts: every selected profile requirement linked by
   `docs/00-meta/source-of-truth-map.yaml`.
 
@@ -61,13 +62,22 @@ execution, or a compatible OMX adapter.
 
 ## Execution adapter
 
-- Native Codex path: create an ExecPlan following `PLANS.md`, use scoped
-  subagents only for disjoint work, and run the authoritative done command.
+- Native Codex 0.145.0 path: when the outcome or scope is unclear, use `/plan`
+  to refine one observable outcome, constraints and non-goals, verification
+  evidence, and the stop condition. Record the accepted result in the durable
+  ExecPlan at `docs/implementation/EXECPLAN.md` following `PLANS.md`, then use
+  `/goal` for thread-level continuity. Goal Mode does not replace the ExecPlan
+  or broaden authority.
+- Native parallelism: give each parallel Codex thread its own Git worktree and
+  disjoint write ownership. Do not share write access to one mutable working
+  tree or generated/runtime state.
 - Deterministic fallback: execute the ordered stories sequentially and record
   progress, decisions, and evidence in the same plan.
 - OMX path: only after a compatible CLI probe, let OMX create and own its
   runtime state from this brief. This repository must not fabricate goals,
-  ledgers, checkpoints, HUD state, or logs.
+  ledgers, checkpoints, HUD state, or logs. In aggregate mode, run `/goal clear`
+  only after a terminal run and before a second aggregate run in the same Codex
+  thread; never clear the first or an active run.
 
 ## Blocking unknowns
 

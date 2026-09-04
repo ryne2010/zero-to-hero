@@ -9,8 +9,16 @@ Writes interview and decision-ledger artifacts only.
 ## Planning mode
 
 Writes a neutral implementation brief, approved planning evidence, and an
-ExecPlan following the generated `PLANS.md` contract. A compatible OMX CLI may
-derive its own runtime state from that brief.
+ExecPlan following the generated `PLANS.md` contract. When the outcome or scope
+is unclear, native Codex CLI 0.145.0 uses `/plan`, records the accepted outcome,
+constraints, verification, and stop condition in the durable ExecPlan, then
+uses `/goal` for thread continuity. A compatible OMX CLI may derive its own
+runtime state from that brief.
+
+Ralplan consensus requires sequential, tracker-backed native-subagent Architect
+and Critic reviews from distinct completed threads. Planning artifacts alone
+are not approval. If role routing lacks documented leader proof, fail closed or
+use the native Codex planning path without fabricating OMX provenance.
 
 ## Generation mode
 

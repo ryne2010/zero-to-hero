@@ -7,6 +7,7 @@ Start with:
 ```txt
 AGENTS.md
 PLANS.md
+docs/implementation/EXECPLAN.md
 docs/00-meta/source-of-truth-map.yaml
 docs/AGENT_CONTEXT.md
 docs/implementation/IMPLEMENTATION_BRIEF.md
@@ -14,5 +15,7 @@ docs/implementation/PLANNING_EVIDENCE.md
 ```
 
 `AGENTS.md` is generated from the target repository's actual layout and
-commands. `CODEX.md` documents optional execution adapters; it is secondary to
-the automatically discovered agent instructions.
+commands. `PLANS.md` is the durable plan contract;
+`docs/implementation/EXECPLAN.md` is the living target-specific plan.
+`CODEX.md` documents optional execution adapters; it is secondary to the
+automatically discovered agent instructions.

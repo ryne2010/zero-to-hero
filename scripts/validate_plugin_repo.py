@@ -111,6 +111,10 @@ def check_plan() -> list[CheckSpec]:
             [py, str(SKILL_SCRIPT / "test_generation_transactions.py")],
         ),
         CheckSpec(
+            "ralplan-planning-evidence",
+            [py, str(SKILL_SCRIPT / "test_planning_evidence_check.py"), "--json"],
+        ),
+        CheckSpec(
             "profile-generation-matrix",
             [py, str(SKILL_SCRIPT / "test_profile_generation_matrix.py")],
             timeout=300,
@@ -159,7 +163,7 @@ def check_plan() -> list[CheckSpec]:
             ],
             kind="external",
             status_mode="external-json",
-            timeout=900,
+            timeout=2600,
         ),
         CheckSpec(
             "codex-handoff-model-grader",
@@ -172,7 +176,7 @@ def check_plan() -> list[CheckSpec]:
             ],
             kind="external",
             status_mode="external-json",
-            timeout=420,
+            timeout=1400,
         ),
     ]
 

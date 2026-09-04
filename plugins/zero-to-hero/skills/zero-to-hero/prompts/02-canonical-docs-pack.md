@@ -36,7 +36,9 @@ Use the `zero-to-hero` skill and follow this contract exactly.
 - FINAL_HANDOFF.md
 - README.md
 - docs/
+- scripts/zero_to_hero_handoff_check.py
 - docs/00-meta/generated-files.manifest.yaml
+- Machine-enforced generated-harness exception to global path rules: scripts/zero_to_hero_handoff_check.py
 
 ## Forbidden writes
 
@@ -69,10 +71,11 @@ Use the `zero-to-hero` skill and follow this contract exactly.
 
 ## Expected outputs
 
-- Target-specific AGENTS.md and self-contained PLANS.md contract
+- Target-specific AGENTS.md, self-contained PLANS.md contract, and concrete active ExecPlan
 - Canonical source-of-truth and decision maps
 - Profile-required substantive documentation
 - Canonical generated-file provenance manifest
+- Dependency-free generated handoff-readiness validator
 
 ## Evidence and checks
 

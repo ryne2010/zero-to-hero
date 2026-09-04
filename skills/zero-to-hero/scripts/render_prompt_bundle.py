@@ -69,6 +69,9 @@ def render(
             render_prompt(
                 contract,
                 global_forbidden_write_paths=graph["global_forbidden_write_paths"],
+                global_forbidden_write_exceptions=graph[
+                    "global_forbidden_write_exceptions"
+                ],
             ).rstrip()
         )
         lines.append("")

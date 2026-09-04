@@ -3,10 +3,13 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 import time
 from pathlib import Path
 
-from zero_to_hero_contract import ContractError, graph_prompts, load_graph
+sys.dont_write_bytecode = True
+
+from zero_to_hero_contract import ContractError, graph_prompts, load_graph  # noqa: E402
 
 try:
     import yaml  # type: ignore
@@ -24,7 +27,8 @@ REQUIRED = [
     'references/operating-recipes.md','references/proof-first-implementation.md',
     'references/final-stability-notes.md',
     'schemas/contract-graph.schema.json','schemas/output-profile.schema.json',
-    'schemas/decision-ledger.schema.yaml','schemas/generated-files-manifest.schema.yaml',
+    'schemas/planning-evidence.schema.json','schemas/decision-ledger.schema.yaml',
+    'schemas/generated-files-manifest.schema.yaml',
     'schemas/recovery-task-graph.schema.yaml',
     'evals/cases.json','evals/handoff-quality-rubric.md',
     'evals/handoff-quality-rubric.schema.json',
@@ -36,10 +40,11 @@ REQUIRED = [
     'scripts/zero_to_hero_contract.py','scripts/sync_contract_views.py',
     'scripts/schema_validate.py','scripts/run_skill_evals.py',
     'scripts/omx_adapter.py','scripts/test_omx_integration.py',
+    'scripts/planning_evidence_check.py','scripts/test_planning_evidence_check.py',
     'scripts/text_to_cad_probe.py','scripts/test_text_to_cad_probe.py',
     'scripts/test_generation_transactions.py','scripts/test_profile_generation_matrix.py',
     'references/omx-compatibility.md','references/text-to-cad-compatibility.md',
-    'templates/PLANS.md',
+    'templates/PLANS.md','templates/scripts/zero_to_hero_handoff_check.py',
 ]
 DEEP_REQUIRED = [
     'references/output-profiles/api-service.yaml','references/output-profiles/pcb-electronics.yaml',

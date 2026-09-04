@@ -28,6 +28,7 @@ Read this before implementation planning. Do not read the entire docs tree unles
 - Robotics: `docs/robotics/requirements.md` and
   `docs/robotics/geometry-policy.md`
 - Implementation sequencing: `docs/implementation/IMPLEMENTATION_CONTEXT.md`
+- Living execution plan: `docs/implementation/EXECPLAN.md`
 
 ## Implementation boundaries
 

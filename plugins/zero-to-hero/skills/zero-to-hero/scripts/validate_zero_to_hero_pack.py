@@ -7,7 +7,10 @@ import subprocess
 import re
 import sys
 from pathlib import Path
-from zero_to_hero_contract import ContractError, graph_prompts, load_graph
+
+sys.dont_write_bytecode = True
+
+from zero_to_hero_contract import ContractError, graph_prompts, load_graph  # noqa: E402
 try:
     import yaml
 except Exception:
@@ -39,15 +42,18 @@ required = [
     'references/phase-gates.yaml','references/risk-tiering.md','references/source-research-policy.md',
     'references/target-repo-preflight.md','references/repo-safety-preflight.md','references/toolchain-preflight.md','references/external-context-sources.md','references/phase-prompt-contract.md','references/acceptance-evidence.md','references/final-handoff-quality-bar.md','references/artifact-lifecycle.md','references/instruction-trust-scan.md','references/prompt-sequence-contract.md','references/target-repo-audit-report.md','references/template-application-profiles.md','references/prompt-bundle.md','references/distribution.md','references/check-operability.md',
     'schemas/contract-graph.schema.json','schemas/output-profile.schema.json',
-    'schemas/decision-ledger.schema.yaml','schemas/generated-files-manifest.schema.yaml','schemas/recovery-task-graph.schema.yaml',
+    'schemas/planning-evidence.schema.json','schemas/decision-ledger.schema.yaml',
+    'schemas/generated-files-manifest.schema.yaml','schemas/recovery-task-graph.schema.yaml',
     'evals/cases.json','evals/handoff-quality-rubric.md',
     'evals/handoff-quality-rubric.schema.json',
     'scripts/apply_zero_to_hero_templates.py','scripts/capability_detect.py','scripts/zero_to_hero_start.py',
     'scripts/canonical_cleanup_check.py','scripts/toolchain_preflight.py','scripts/external_context_inventory.py','scripts/instruction_trust_scan.py','scripts/prompt_sequence_check.py','scripts/render_prompt_bundle.py','scripts/build_skill_zip.py','scripts/run_fixture_tests.py',
     'scripts/zero_to_hero_check.py','scripts/zero_to_hero_doctor.py','scripts/prune_skill_artifacts.py','scripts/target_repo_audit.py','scripts/repo_safety_check.py','scripts/phase_gate_check.py',
     'scripts/schema_validate.py','scripts/run_skill_evals.py','scripts/omx_adapter.py','scripts/test_omx_integration.py',
+    'scripts/planning_evidence_check.py','scripts/test_planning_evidence_check.py',
     'scripts/text_to_cad_probe.py','scripts/test_text_to_cad_probe.py','scripts/test_generation_transactions.py',
     'scripts/test_profile_generation_matrix.py','fixtures/README.md',
+    'templates/scripts/zero_to_hero_handoff_check.py',
 ]
 for r in required:
     require(r)
@@ -103,6 +109,7 @@ for expected_template in [
     'templates/FINAL_HANDOFF.md',
     'templates/docs/implementation/IMPLEMENTATION_BRIEF.md',
     'templates/docs/implementation/PLANNING_EVIDENCE.md',
+    'templates/scripts/zero_to_hero_handoff_check.py',
 ]:
     if not (skill / expected_template).exists():
         errors.append(f'missing canonical template: {expected_template}')
@@ -134,6 +141,14 @@ for py in (skill / 'scripts').glob('*.py'):
         ast.parse(py.read_text(encoding='utf-8'))
     except SyntaxError as exc:
         errors.append(f'python syntax failed {rel(py)}: {exc}')
+generated_handoff_template = skill / 'templates/scripts/zero_to_hero_handoff_check.py'
+if generated_handoff_template.is_file():
+    try:
+        ast.parse(generated_handoff_template.read_text(encoding='utf-8'))
+    except SyntaxError as exc:
+        errors.append(
+            f'python syntax failed {rel(generated_handoff_template)}: {exc}'
+        )
 
 
 openai_meta = skill / 'agents/openai.yaml'

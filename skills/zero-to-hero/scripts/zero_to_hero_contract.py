@@ -85,7 +85,63 @@ def load_graph(skill: Path) -> dict[str, Any]:
         missing = [member for member in members if member not in prompt_ids]
         if missing:
             raise ContractError(f"prompt group {group!r} references unknown ids: {missing}")
+    validate_global_write_exceptions(graph)
     return graph
+
+
+def validate_global_write_exceptions(graph: dict[str, Any]) -> None:
+    """Validate narrowly scoped exceptions to global generated-write rules."""
+
+    global_rules = [
+        str(item) for item in graph.get("global_forbidden_write_paths", [])
+    ]
+    base_paths = {
+        str(item.get("path"))
+        for item in graph.get("base_artifacts", [])
+        if isinstance(item, dict)
+    }
+    exceptions = [
+        str(item) for item in graph.get("global_forbidden_write_exceptions", [])
+    ]
+    audited_exceptions = {"scripts/zero_to_hero_handoff_check.py"}
+    if set(exceptions) != audited_exceptions:
+        raise ContractError(
+            "global forbidden-write exceptions are restricted to the audited "
+            "generated handoff validator"
+        )
+    if len(exceptions) != len(set(exceptions)):
+        raise ContractError("duplicate global forbidden-write exception")
+    for exception in exceptions:
+        if (
+            not exception
+            or Path(exception).is_absolute()
+            or ".." in Path(exception).parts
+            or any(character.isspace() for character in exception)
+            or any(marker in exception for marker in ("*", "?", "["))
+        ):
+            raise ContractError(
+                f"unsafe global forbidden-write exception: {exception!r}"
+            )
+        if exception not in base_paths:
+            raise ContractError(
+                "global forbidden-write exception is not a required base artifact: "
+                f"{exception}"
+            )
+        if not any(_path_rule_matches(exception, rule) for rule in global_rules):
+            raise ContractError(
+                "global forbidden-write exception does not match a global rule: "
+                f"{exception}"
+            )
+        exact_phase_rules = [
+            str(rule).rstrip("/")
+            for phase in graph.get("phases", [])
+            for rule in phase.get("allowed_writes", [])
+        ]
+        if exception not in exact_phase_rules:
+            raise ContractError(
+                "global forbidden-write exception has no exact phase write rule: "
+                f"{exception}"
+            )
 
 
 def graph_prompts(graph: dict[str, Any]) -> list[dict[str, Any]]:
@@ -323,7 +379,15 @@ def artifact_forbidden_by_graph(
 ) -> list[str]:
     """Return canonical global or phase-local forbidden rules matching a path."""
 
-    rules = [str(rule) for rule in graph.get("global_forbidden_write_paths", [])]
+    exceptions = {
+        str(rule)
+        for rule in graph.get("global_forbidden_write_exceptions", [])
+    }
+    rules = []
+    if path not in exceptions:
+        rules.extend(
+            str(rule) for rule in graph.get("global_forbidden_write_paths", [])
+        )
     if phase is not None:
         rules.extend(str(rule) for rule in phase.get("forbidden_writes", []))
     return sorted({rule for rule in rules if _path_rule_matches(path, rule)})
@@ -469,6 +533,7 @@ def render_prompt(
     contract: dict[str, Any],
     source_rel: str = CONTRACT_REL.as_posix(),
     global_forbidden_write_paths: Iterable[str] = (),
+    global_forbidden_write_exceptions: Iterable[str] = (),
 ) -> str:
     forbidden_writes = [
         *contract["forbidden_writes"],
@@ -477,12 +542,20 @@ def render_prompt(
             for rule in global_forbidden_write_paths
         ),
     ]
+    allowed_writes = [
+        *contract["allowed_writes"],
+        *(
+            f"Machine-enforced generated-harness exception to global path rules: {rule}"
+            for rule in global_forbidden_write_exceptions
+            if rule in contract["allowed_writes"]
+        ),
+    ]
     sections = [
         ("Goal", [contract["goal"]]),
         ("Context and required reads", contract["required_reads"]),
         ("Entry criteria", contract["entry_criteria"]),
         ("Constraints", contract["constraints"]),
-        ("Allowed writes", contract["allowed_writes"]),
+        ("Allowed writes", allowed_writes),
         ("Forbidden writes", forbidden_writes),
         ("Expected outputs", contract["expected_outputs"]),
         ("Evidence and checks", contract["evidence_and_checks"]),
@@ -514,6 +587,9 @@ def rendered_prompt_files(graph: dict[str, Any]) -> dict[Path, bytes]:
         Path("prompts") / contract["prompt_file"]: render_prompt(
             contract,
             global_forbidden_write_paths=graph["global_forbidden_write_paths"],
+            global_forbidden_write_exceptions=graph[
+                "global_forbidden_write_exceptions"
+            ],
         ).encode("utf-8")
         for contract in graph_prompts(graph)
     }
@@ -525,6 +601,9 @@ def rendered_phase_views(graph: dict[str, Any]) -> dict[Path, bytes]:
         "schema_version": graph["schema_version"],
         "source": CONTRACT_REL.as_posix(),
         "global_forbidden_write_paths": graph["global_forbidden_write_paths"],
+        "global_forbidden_write_exceptions": graph[
+            "global_forbidden_write_exceptions"
+        ],
         "phases": [
             {
                 "id": phase["id"],
@@ -558,6 +637,9 @@ def rendered_phase_views(graph: dict[str, Any]) -> dict[Path, bytes]:
         "schema_version": graph["schema_version"],
         "source": CONTRACT_REL.as_posix(),
         "global_forbidden_write_paths": graph["global_forbidden_write_paths"],
+        "global_forbidden_write_exceptions": graph[
+            "global_forbidden_write_exceptions"
+        ],
         "phases": {
             phase["id"]: {
                 "allowed_writes": phase["allowed_writes"],

@@ -11,6 +11,7 @@
     "runtime_boundary",
     "canonical_manifest_path",
     "global_forbidden_write_paths",
+    "global_forbidden_write_exceptions",
     "base_artifacts",
     "implementation_lifecycle",
     "prompt_groups",
@@ -43,6 +44,15 @@
         "type": "string",
         "minLength": 1,
         "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000]+$"
+      }
+    },
+    "global_forbidden_write_exceptions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[*?\\[\\]])(?!.*\\s)[^\\u0000]+$"
       }
     },
     "base_artifacts": {
@@ -138,6 +148,7 @@
           "enum": [
             "copy",
             "agents",
+            "execplan",
             "manifest"
           ]
         }

@@ -31,6 +31,7 @@ from zero_to_hero_contract import (  # noqa: E402
     rendered_contract_views,
     selected_artifacts,
     validate_artifact_phase,
+    validate_global_write_exceptions,
 )
 
 
@@ -92,6 +93,9 @@ def validate_graph_and_profiles(skill: Path) -> tuple[list[str], dict[str, Any],
     profile_schema = json.loads(
         (skill / "schemas/output-profile.schema.json").read_text(encoding="utf-8")
     )
+    planning_evidence_schema = json.loads(
+        (skill / "schemas/planning-evidence.schema.json").read_text(encoding="utf-8")
+    )
     manifest_schema = load_json_yaml(
         skill / "schemas/generated-files-manifest.schema.yaml"
     )
@@ -100,6 +104,10 @@ def validate_graph_and_profiles(skill: Path) -> tuple[list[str], dict[str, Any],
         Draft202012Validator.check_schema(manifest_schema)
     except Exception as exc:
         errors.append(f"generated-files-manifest schema invalid: {exc}")
+    try:
+        Draft202012Validator.check_schema(planning_evidence_schema)
+    except Exception as exc:
+        errors.append(f"planning-evidence schema invalid: {exc}")
 
     for profile_id, profile in profiles.items():
         errors.extend(schema_errors(profile, profile_schema, f"profile:{profile_id}"))
@@ -216,6 +224,39 @@ def validate_graph_and_profiles(skill: Path) -> tuple[list[str], dict[str, Any],
         errors.append(
             "phase write-boundary mutation check failed: a phase-local README.md "
             "forbidden rule did not block attribution"
+        )
+
+    exception_mutations = [
+        ("wildcard", ["scripts/*.py"]),
+        ("not-a-base-artifact", ["scripts/unlisted_harness.py"]),
+        ("not-globally-forbidden", ["README.md"]),
+    ]
+    for label, exceptions in exception_mutations:
+        mutated = copy.deepcopy(graph)
+        mutated["global_forbidden_write_exceptions"] = exceptions
+        try:
+            validate_global_write_exceptions(mutated)
+        except ContractError:
+            pass
+        else:
+            errors.append(
+                "global forbidden-write exception mutation check failed: "
+                f"{label} exception was accepted"
+            )
+    missing_phase_rule = copy.deepcopy(graph)
+    exception_path = missing_phase_rule["global_forbidden_write_exceptions"][0]
+    for phase in missing_phase_rule["phases"]:
+        phase["allowed_writes"] = [
+            rule for rule in phase["allowed_writes"] if rule != exception_path
+        ]
+    try:
+        validate_global_write_exceptions(missing_phase_rule)
+    except ContractError:
+        pass
+    else:
+        errors.append(
+            "global forbidden-write exception mutation check failed: exception "
+            "without an exact phase rule was accepted"
         )
 
     manifest = json.loads((skill / "manifest.json").read_text(encoding="utf-8"))

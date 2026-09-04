@@ -20,23 +20,63 @@ AUDITED_VERSION = "0.20.3"
 AUDITED_RANGE = "==0.20.3"
 AUDITED_TAG = "v0.20.3"
 AUDITED_COMMIT = "6c970cc12da256bfc7667edd0a9183b158d4a7a7"
-AUDITED_DATE = "2026-07-22"
+AUDITED_DATE = "2026-07-23"
 RUNTIME_ARTIFACTS = (
     ".omx/ultragoal/brief.md",
     ".omx/ultragoal/goals.json",
     ".omx/ultragoal/ledger.jsonl",
 )
+STEERING_MUTATION_KINDS = (
+    "add_subgoal",
+    "split_subgoal",
+    "reorder_pending",
+    "revise_pending_wording",
+    "annotate_ledger",
+    "mark_blocked_superseded",
+)
+STEERING_SOURCES = ("cli", "finding", "user_prompt_submit")
+STEERING_EXECUTABLE_FLAGS = (
+    "--kind",
+    "--source",
+    "--evidence",
+    "--rationale",
+    "--target-goal-id",
+    "--title",
+    "--objective",
+    "--after-json",
+    "--idempotency-key",
+    "--directive-json",
+    "--json",
+)
+STEERING_ADVERTISED_ONLY_FLAGS = ("--target-goal-ids",)
+STEERING_LEDGER_EVENTS = ("steering_accepted", "steering_rejected")
 REQUIRED_HELP_TOKENS = (
     "omx ultragoal create-goals",
     "--brief-file <path>",
     "--codex-goal-mode <aggregate|per-story>",
     "omx ultragoal complete-goals",
+    "omx ultragoal steer --kind <mutation-kind>",
+    "--target-goal-id <id>",
+    (
+        "omx ultragoal steer --kind "
+        "<add_subgoal|split_subgoal|reorder_pending|revise_pending_wording|"
+        "annotate_ledger|mark_blocked_superseded>"
+    ),
+    "--after-json <json-or-path>",
+    "--idempotency-key <key>",
+    "omx ultragoal steer --directive-json <json-or-path>",
     "omx ultragoal record-review-blockers",
     "omx ultragoal checkpoint",
     "--status <complete|failed|blocked>",
     "--codex-goal-json <json-or-path>",
     "--quality-gate-json <json-or-path>",
     "omx ultragoal status",
+    "Ultragoal does not call /goal clear",
+    "multiple sequential ultragoal runs in one Codex session/thread, manually run",
+    "/goal clear in the Codex UI before creating the next aggregate goal.",
+    "Dynamic steering is explicit-only",
+    "audits accepted/rejected/deduped results in .omx/ultragoal/ledger.jsonl",
+    "rejects broad natural-language mutation requests.",
     *RUNTIME_ARTIFACTS,
 )
 VERSION_PATTERN = re.compile(r"(?m)^oh-my-codex v(?P<version>\d+\.\d+\.\d+(?:[-+][^\s]+)?)\s*$")
@@ -53,6 +93,27 @@ def audited_contract() -> dict[str, Any]:
         "audited_date": AUDITED_DATE,
         "required_help_tokens": list(REQUIRED_HELP_TOKENS),
         "runtime_owned_artifacts": list(RUNTIME_ARTIFACTS),
+        "structured_steering": {
+            "mutation_kinds": list(STEERING_MUTATION_KINDS),
+            "sources": list(STEERING_SOURCES),
+            "executable_cli_flags": list(STEERING_EXECUTABLE_FLAGS),
+            "advertised_only_cli_flags": list(STEERING_ADVERTISED_ONLY_FLAGS),
+            "ledger_events": list(STEERING_LEDGER_EVENTS),
+            "outcomes": ["accepted", "rejected", "deduped"],
+            "dedupe_contract": (
+                "An accepted idempotency-key replay returns the prior accepted audit with "
+                "deduped=true and does not append a second ledger event."
+            ),
+            "reorder_payload_field": "after.pendingGoalIds",
+        },
+        "same_thread_aggregate_cleanup": {
+            "required_ui_command": "/goal clear",
+            "when": (
+                "after a completed aggregate Ultragoal run and before create_goal for "
+                "another OMX goal in the same Codex thread/session"
+            ),
+            "omx_invokes_clear": False,
+        },
     }
 
 

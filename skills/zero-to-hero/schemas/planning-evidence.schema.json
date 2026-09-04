@@ -1,0 +1,475 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openai.local/zero-to-hero/planning-evidence.schema.json",
+  "title": "zero-to-hero machine-verifiable Ralplan planning evidence",
+  "description": "Durable OMX 0.20.3 Ralplan handoff evidence. Completed evidence requires current-session, OMX-cycle-bound, artifact-hash-bound, tracker-backed Architect then Critic approval. An initial standalone Ralplan state that omits review_cycle binds only to cycle 0; return-to-Ralplan evidence must explicitly advance its parent cycle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_status",
+    "review_cycle",
+    "planning_artifacts",
+    "role_routing",
+    "ralplan_consensus_gate"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "evidence_status": {
+      "enum": [
+        "pending",
+        "blocked",
+        "complete"
+      ]
+    },
+    "review_cycle": {
+      "$ref": "#/$defs/review_cycle"
+    },
+    "planning_artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "draft_owner",
+        "prd_path",
+        "prd_sha256",
+        "test_spec_path",
+        "test_spec_sha256"
+      ],
+      "properties": {
+        "draft_owner": {
+          "enum": [
+            "pending",
+            "main",
+            "planner"
+          ]
+        },
+        "prd_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prd_sha256": {
+          "type": "string",
+          "minLength": 1
+        },
+        "test_spec_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "test_spec_sha256": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "role_routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "surface",
+        "documented_leader_proof",
+        "blocked_reason"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "available",
+            "unavailable"
+          ]
+        },
+        "surface": {
+          "enum": [
+            "pending",
+            "native_agent_type",
+            "role_routing_unavailable"
+          ]
+        },
+        "documented_leader_proof": {
+          "type": "boolean"
+        },
+        "blocked_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      }
+    },
+    "ralplan_consensus_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "sequence",
+        "planning_artifacts_are_not_consensus",
+        "required_review_roles",
+        "ralplan_architect_review",
+        "ralplan_critic_review",
+        "complete",
+        "blocked_reason"
+      ],
+      "properties": {
+        "required": {
+          "const": true
+        },
+        "sequence": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": "architect-review"
+            },
+            {
+              "const": "critic-review"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "planning_artifacts_are_not_consensus": {
+          "const": true
+        },
+        "required_review_roles": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": "architect"
+            },
+            {
+              "const": "critic"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "ralplan_architect_review": {
+          "$ref": "#/$defs/architect_review"
+        },
+        "ralplan_critic_review": {
+          "$ref": "#/$defs/critic_review"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "blocked_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "artifact_path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+$"
+    },
+    "runtime_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^(?!<)[A-Za-z0-9._:-]+$"
+    },
+    "session_identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "review_cycle": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "OMX candidate review cycle. Use 0 only for the initial non-return cycle when the standalone Ralplan seed omits review_cycle; a return-to-Ralplan candidate must be greater than its recorded parent cycle."
+    },
+    "rfc3339_timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)$"
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_role",
+        "provenance_kind",
+        "verdict",
+        "review_cycle",
+        "completed_at",
+        "session_id",
+        "thread_id",
+        "tracker_path"
+      ],
+      "properties": {
+        "agent_role": {
+          "enum": [
+            "architect",
+            "critic"
+          ]
+        },
+        "provenance_kind": {
+          "enum": [
+            "pending",
+            "native_subagent"
+          ]
+        },
+        "verdict": {
+          "enum": [
+            "pending",
+            "approve",
+            "iterate",
+            "reject",
+            "blocked"
+          ]
+        },
+        "review_cycle": {
+          "$ref": "#/$defs/review_cycle"
+        },
+        "completed_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "thread_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tracker_path": {
+          "const": ".omx/state/subagent-tracking.json"
+        }
+      }
+    },
+    "architect_review": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/review"
+        },
+        {
+          "properties": {
+            "agent_role": {
+              "const": "architect"
+            }
+          }
+        }
+      ]
+    },
+    "critic_review": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/review"
+        },
+        {
+          "properties": {
+            "agent_role": {
+              "const": "critic"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evidence_status": {
+            "const": "complete"
+          }
+        },
+        "required": [
+          "evidence_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "planning_artifacts": {
+            "properties": {
+              "draft_owner": {
+                "enum": [
+                  "main",
+                  "planner"
+                ]
+              },
+              "prd_path": {
+                "$ref": "#/$defs/artifact_path"
+              },
+              "prd_sha256": {
+                "$ref": "#/$defs/sha256"
+              },
+              "test_spec_path": {
+                "$ref": "#/$defs/artifact_path"
+              },
+              "test_spec_sha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          },
+          "role_routing": {
+            "properties": {
+              "status": {
+                "const": "available"
+              },
+              "surface": {
+                "const": "native_agent_type"
+              },
+              "documented_leader_proof": {
+                "const": true
+              },
+              "blocked_reason": {
+                "type": "null"
+              }
+            }
+          },
+          "ralplan_consensus_gate": {
+            "properties": {
+              "ralplan_architect_review": {
+                "properties": {
+                  "provenance_kind": {
+                    "const": "native_subagent"
+                  },
+                  "verdict": {
+                    "const": "approve"
+                  },
+                  "completed_at": {
+                    "$ref": "#/$defs/rfc3339_timestamp"
+                  },
+                  "session_id": {
+                    "$ref": "#/$defs/session_identifier"
+                  },
+                  "thread_id": {
+                    "$ref": "#/$defs/runtime_identifier"
+                  }
+                }
+              },
+              "ralplan_critic_review": {
+                "properties": {
+                  "provenance_kind": {
+                    "const": "native_subagent"
+                  },
+                  "verdict": {
+                    "const": "approve"
+                  },
+                  "completed_at": {
+                    "$ref": "#/$defs/rfc3339_timestamp"
+                  },
+                  "session_id": {
+                    "$ref": "#/$defs/session_identifier"
+                  },
+                  "thread_id": {
+                    "$ref": "#/$defs/runtime_identifier"
+                  }
+                }
+              },
+              "complete": {
+                "const": true
+              },
+              "blocked_reason": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "ralplan_consensus_gate": {
+            "properties": {
+              "complete": {
+                "const": false
+              },
+              "blocked_reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role_routing": {
+            "properties": {
+              "status": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "role_routing": {
+            "properties": {
+              "surface": {
+                "const": "native_agent_type"
+              },
+              "documented_leader_proof": {
+                "const": true
+              },
+              "blocked_reason": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role_routing": {
+            "properties": {
+              "status": {
+                "const": "unavailable"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "evidence_status": {
+            "const": "blocked"
+          },
+          "role_routing": {
+            "properties": {
+              "surface": {
+                "const": "role_routing_unavailable"
+              },
+              "documented_leader_proof": {
+                "const": false
+              },
+              "blocked_reason": {
+                "const": "unsupported_documented_leader_proof"
+              }
+            }
+          },
+          "ralplan_consensus_gate": {
+            "properties": {
+              "complete": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

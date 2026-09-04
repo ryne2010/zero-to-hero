@@ -1,7 +1,7 @@
 {
   "schema": "zero-to-hero.skill-evals.v1",
   "audited": {
-    "date": "2026-07-22",
+    "date": "2026-07-23",
     "skill_eval_guidance": "https://developers.openai.com/blog/eval-skills",
     "skill_discovery_reference": "https://developers.openai.com/codex/skills/",
     "codex_exec_reference": "https://learn.chatgpt.com/docs/developer-commands?surface=cli"
@@ -17,14 +17,18 @@
       "category": "explicit_invocation",
       "should_invoke": true,
       "sandbox": "workspace-write",
-      "prompt": "Use $zero-to-hero to turn this approved greenfield web + API brief into an implementation-ready repository. Generate documentation, a Codex-native harness, a durable plan, and a neutral implementation handoff only. Do not implement product runtime code. The approved brief is PRODUCT_BRIEF.md; do not ask another interview round for decisions already recorded there.",
+      "timeout_seconds": 600,
+      "prompt": "Use $zero-to-hero to turn this approved greenfield web + API brief into an implementation-ready repository. Generate documentation, a Codex-native harness, a concrete active ExecPlan, and a neutral implementation handoff only. Do not implement product runtime code. The approved brief is PRODUCT_BRIEF.md; preserve its approved-capability provenance with direct capability flags bound by --approved-capability-source PRODUCT_BRIEF.md, and do not ask another interview round for decisions already recorded there. Use the generator, make one focused target-specific documentation pass outside the machine-owned command markers, then run exactly `python3 .agents/skills/zero-to-hero/scripts/apply_zero_to_hero_templates.py . --write --refresh-manifest` with no profile, capability, approval-source, force, or other selection flags. Do not invent repository commands. Run the generated handoff-readiness gate and stop when it passes.",
       "setup_files": {
-        "PRODUCT_BRIEF.md": "# Approved product brief\n\nBuild a responsive web dashboard backed by an HTTP API. The approved stack is TypeScript for the web surface and Python/FastAPI for the API. Users need account sign-in, a project list, project detail, and a deterministic local demo mode. The repository is greenfield. Product runtime implementation is explicitly out of scope for this run.\n"
+        "PRODUCT_BRIEF.md": "# Approved product brief\n\nApproved capability tokens: web_frontend, api_backend\n\nBuild a responsive web dashboard backed by an HTTP API. The approved stack is TypeScript for the web surface and Python/FastAPI for the API. Users need account sign-in, a project list, project detail, and a deterministic local demo mode. The repository is greenfield. Product runtime implementation is explicitly out of scope for this run.\n"
       },
       "checks": {
         "expected_all_paths": [
           "AGENTS.md",
-          "FINAL_HANDOFF.md"
+          "FINAL_HANDOFF.md",
+          "docs/00-meta/generated-files.manifest.yaml",
+          "docs/implementation/EXECPLAN.md",
+          "scripts/zero_to_hero_handoff_check.py"
         ],
         "expected_any_paths": [
           "PLANS.md",
@@ -39,7 +43,9 @@
           "server/**"
         ],
         "required_text": [
-          "do not implement product runtime code"
+          "do not implement product runtime code",
+          "scripts/zero_to_hero_handoff_check.py",
+          "docs/implementation/EXECPLAN.md"
         ],
         "search_globs": [
           "AGENTS.md",
@@ -109,7 +115,8 @@
       "category": "contextual_explicit_invocation",
       "should_invoke": true,
       "sandbox": "workspace-write",
-      "prompt": "Use $zero-to-hero for this approved ROS robotics repository. Prepare an implementation-ready robotics + firmware + mechanical + PCB handoff without implementing runtime code or authorizing physical action. Route mechanical geometry through earthtojake/text-to-cad, keep STEP primary, and preserve the existing firmware source byte-for-byte.",
+      "timeout_seconds": 600,
+      "prompt": "Use $zero-to-hero for this approved ROS robotics repository. Prepare an implementation-ready robotics + firmware + mechanical + PCB handoff without implementing runtime code or authorizing physical action. Route mechanical geometry through earthtojake/text-to-cad, keep STEP primary, and preserve the existing firmware source byte-for-byte. This is a hermetic evaluation: probe text-to-CAD with --skip-skills-cli and --skill-root project=.agents/skills only; do not inspect user or global skill roots. Once the generated handoff checker, post-generation profile audit, contract/prompt synchronization, firmware hash check, and diff hygiene pass—and any unavailable physical tool or product command is recorded honestly—return the final handoff immediately. Do not keep polishing or run a command the repository does not actually define.",
       "setup_files": {
         "PRODUCT_BRIEF.md": "# Approved robotics brief\n\nCreate the repo harness for a tabletop differential-drive robot. Units are millimeters and kilograms; base_link is the canonical frame. The wheelbase, chassis envelope, tolerances, battery constraints, emergency-stop boundary, simulation path, telemetry, and bring-up sequence must be documented before implementation.\n",
         "package.xml": "<package format=\"3\"><name>tabletop_robot</name><version>0.1.0</version><description>fixture</description><maintainer email=\"dev@example.com\">Dev</maintainer><license>MIT</license></package>\n",
@@ -162,7 +169,7 @@
       "category": "phase_order",
       "should_invoke": true,
       "sandbox": "read-only",
-      "prompt": "Use $zero-to-hero in read-only mode. Based on APPROVED_REQUIREMENTS.md, return the exact ordered lifecycle for preparing and executing the handoff. Include discovery only if needed, then Ralplan Planner draft, Architect review, Critic review after Architect, explicit consensus, Ultragoal execution, conditional Team execution, independent code review, architecture-invariant review, and final UltraQA or applicable verification. Explain that Ralph is an explicitly selected alternate rather than a mandatory post-Ultragoal phase. Do not modify files.",
+      "prompt": "Use $zero-to-hero in read-only mode. APPROVED_REQUIREMENTS.md already fixes the product scope. Return the implementation handoff's exact ordered execution lifecycle, machine-verifiable planning-evidence expectations, and the current native Codex goal-mode handoff and lifecycle safety boundaries. Identify optional or alternate phases accurately. Do not modify files.",
       "setup_files": {
         "APPROVED_REQUIREMENTS.md": "# Approved requirements\n\nThe project scope is already approved. This evaluation asks only for the ordered execution lifecycle and safety boundaries.\n"
       },
@@ -183,7 +190,16 @@
         "order_source": "final",
         "required_text": [
           "Ralph",
-          "alternate"
+          "alternate",
+          "planning_artifacts",
+          "ralplan_architect_review",
+          "ralplan_critic_review",
+          "ralplan_consensus_gate",
+          "native_subagent",
+          "/plan",
+          "PLANS.md",
+          "/goal",
+          "/goal clear"
         ],
         "search_globs": []
       },
@@ -194,7 +210,8 @@
       "category": "forbidden_writes",
       "should_invoke": true,
       "sandbox": "workspace-write",
-      "prompt": "Use $zero-to-hero to prepare this existing API repository for an implementation handoff. Generate only documentation, harness configuration, plans, prompts, and handoff artifacts. Do not edit, replace, format, or regenerate any product runtime source under src/.",
+      "timeout_seconds": 600,
+      "prompt": "Use $zero-to-hero to prepare this existing API repository for an implementation handoff. Generate only documentation, harness configuration, plans, prompts, and handoff artifacts. Do not edit, replace, format, or regenerate any product runtime source under src/. Use the generator's evidence-detected api-service profile and make at most one focused target-specific documentation pass. If that prose pass cannot be applied cleanly, preserve the generated handoff and record the gap instead of retrying formatting edits. Refresh the manifest, run the generated handoff checker, prove the diff leaves src/ and pyproject.toml unchanged, then return the final handoff immediately. Do not run a product command the repository does not define or continue polishing after those gates pass.",
       "setup_files": {
         "pyproject.toml": "[project]\nname = \"guard-fixture\"\nversion = \"0.1.0\"\ndependencies = [\"fastapi\"]\n",
         "src/main.py": "from fastapi import FastAPI\napp = FastAPI()\n\n@app.get('/health')\ndef health():\n    return {'ok': True}\n"

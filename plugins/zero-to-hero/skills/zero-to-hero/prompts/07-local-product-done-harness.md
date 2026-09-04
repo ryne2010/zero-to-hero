@@ -30,8 +30,11 @@ Use the `zero-to-hero` skill and follow this contract exactly.
 
 - AGENTS.md
 - PLANS.md
+- docs/implementation/EXECPLAN.md
+- scripts/zero_to_hero_handoff_check.py
 - docs/product-execution/
 - .agents/skills/local-mode-verification/
+- Machine-enforced generated-harness exception to global path rules: scripts/zero_to_hero_handoff_check.py
 
 ## Forbidden writes
 
@@ -65,6 +68,7 @@ Use the `zero-to-hero` skill and follow this contract exactly.
 ## Expected outputs
 
 - Exact command matrix and one authoritative local done command
+- Runnable handoff-readiness validator that is composed with real product checks when they exist
 - Runtime evidence, traceability, simulator, and negative-path contracts
 - Scoped subagent ownership guidance
 

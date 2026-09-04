@@ -26,6 +26,9 @@
     "**/*.tsx",
     "**/*.3mf"
   ],
+  "global_forbidden_write_exceptions": [
+    "scripts/zero_to_hero_handoff_check.py"
+  ],
   "phases": {
     "discovery": {
       "allowed_writes": [
@@ -71,6 +74,7 @@
         "FINAL_HANDOFF.md",
         "README.md",
         "docs/",
+        "scripts/zero_to_hero_handoff_check.py",
         "docs/00-meta/generated-files.manifest.yaml"
       ],
       "forbidden_writes": [
@@ -79,10 +83,11 @@
         ".omx runtime-owned files"
       ],
       "expected_outputs": [
-        "Target-specific AGENTS.md and self-contained PLANS.md contract",
+        "Target-specific AGENTS.md, self-contained PLANS.md contract, and concrete active ExecPlan",
         "Canonical source-of-truth and decision maps",
         "Profile-required substantive documentation",
-        "Canonical generated-file provenance manifest"
+        "Canonical generated-file provenance manifest",
+        "Dependency-free generated handoff-readiness validator"
       ]
     },
     "design_and_visual_pack": {
@@ -159,6 +164,8 @@
       "allowed_writes": [
         "AGENTS.md",
         "PLANS.md",
+        "docs/implementation/EXECPLAN.md",
+        "scripts/zero_to_hero_handoff_check.py",
         "docs/product-execution/",
         ".agents/skills/local-mode-verification/"
       ],
@@ -169,6 +176,7 @@
       ],
       "expected_outputs": [
         "Exact command matrix and one authoritative local done command",
+        "Runnable handoff-readiness validator that is composed with real product checks when they exist",
         "Runtime evidence, traceability, simulator, and negative-path contracts",
         "Scoped subagent ownership guidance"
       ]
@@ -176,6 +184,7 @@
     "implementation_handoff": {
       "allowed_writes": [
         "docs/implementation/IMPLEMENTATION_BRIEF.md",
+        "docs/implementation/EXECPLAN.md",
         "docs/implementation/PLANNING_EVIDENCE.md",
         "FINAL_HANDOFF.md",
         ".omx/ultragoal/ only through a compatible OMX CLI explicitly requested by the user"
@@ -187,8 +196,10 @@
       ],
       "expected_outputs": [
         "Neutral implementation brief with ordered stories and dependencies",
-        "Planner, Architect, Critic, and consensus evidence",
-        "Native ExecPlan or deterministic sequential fallback",
+        "Concrete active ExecPlan governed by PLANS.md",
+        "Planning artifacts plus tracker-backed native-subagent Architect, Critic, and consensus evidence when Ralplan is used",
+        "Blocking product-command bootstrap milestone whenever any required command category is unavailable",
+        "Native /goal handoff backed by the durable ExecPlan or deterministic sequential fallback",
         "Optional OMX CLI command only when compatibility probing passes"
       ]
     },

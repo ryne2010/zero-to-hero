@@ -27,7 +27,11 @@ complete partial scaffold.
 Existing target files are preserved by default. Replacement requires one exact
 selected path per `--force TARGET_PATH`; there is no global force switch. The
 manifest itself is the transaction record and is refreshed on every successful
-write.
+write. A later `--write --refresh-manifest` transaction may run in the dirty
+generated tree because it is bounded to the canonical manifest and the exact
+machine-owned command blocks in `AGENTS.md` and the active ExecPlan. It never
+uses whole-file force, preserves all bytes outside those markers, rejects a
+changed approval source, and fails if a required artifact is missing or unsafe.
 
 ## Required per-file evidence
 
@@ -37,7 +41,7 @@ Each selected artifact has one record containing:
 - every selected `profile` and approved or detected `capability`
 - `action`: `create`, `modify`, or `skip`
 - `pre_write_sha256` and `post_write_sha256`
-- an exact `regeneration_command`
+- an exact, force-free `regeneration_command`
 - `validation_evidence`, `generated_status`, and `ownership`
 - `external_provenance`, including source, version, license, and audit date when
   external material influenced that artifact
@@ -46,6 +50,15 @@ A created file has a null pre-write hash. The manifest's own post-write hash is
 null because embedding its digest would be recursively self-referential; its
 record must carry `manifest-self-reference` status and explicit validation
 evidence.
+
+The transaction also records a force-free `refresh_command`. Every per-file
+regeneration command is one canonical `--write --replay-manifest` command and
+must be run from the target repository root. Replay locks the complete
+manifest's exact profile selection, approval values, and selection provenance;
+it does not re-run auto-selection against the generated documentation. Direct
+tokens and capability JSON files both require one repository-contained evidence
+path and SHA-256. Any evidence change, including revocation, fails replay and
+requires a new explicit clean selection transaction.
 
 ## Review rules
 

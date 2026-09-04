@@ -1,6 +1,6 @@
 # Audited primary sources
 
-Audited on **2026-07-22**. Recheck current primary sources before changing an
+Audited on **2026-07-23**. Recheck current primary sources before changing an
 interface, compatibility claim, safety boundary, or time-sensitive practice.
 
 ## Codex
@@ -9,6 +9,12 @@ interface, compatibility claim, safety boundary, or time-sensitive practice.
   repository instructions, tools, and task execution.
 - [Codex best practices](https://learn.chatgpt.com/guides/best-practices) —
   repository context, verification, clear task boundaries, and review.
+- [Long-running work](https://learn.chatgpt.com/docs/long-running-work) —
+  native `/plan` to `/goal` handoff, durable outcomes and verification, and
+  isolated worktrees for parallel work.
+- [Codex subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)
+  — current native-subagent behavior, inspection, delegation, and parallel-write
+  cautions.
 - [Codex ExecPlans](https://developers.openai.com/cookbook/articles/codex_exec_plans)
   — self-contained living plans with progress, discoveries, decisions,
   milestones, validation, and recovery.
@@ -17,14 +23,21 @@ interface, compatibility claim, safety boundary, or time-sensitive practice.
   checks; schema-constrained rubric grading; and separate external grading.
 - [Agent Skills](https://developers.openai.com/codex/skills) — skill packaging
   and discovery.
+- [Build skills](https://learn.chatgpt.com/docs/build-skills) — current
+  `SKILL.md`, progressive-disclosure, and optional UI metadata guidance.
+- [Build plugins](https://learn.chatgpt.com/docs/build-plugins) — current
+  plugin manifest, relative-path, and marketplace contracts.
 - [AGENTS.md guidance](https://developers.openai.com/codex/guides/agents-md) —
   automatically discovered repository instructions.
 - [Sandboxing and security](https://developers.openai.com/codex/concepts/sandboxing)
   — approval and filesystem/network boundaries.
 
-No Codex CLI compatibility result was recorded as passed during this audit: the
-local `codex` installation could not load its optional Darwin ARM64 package.
-Model-backed evaluations therefore report `SKIP` until the CLI is operational.
+The local compatibility probe resolves `codex-cli 0.145.0` to its optional
+Darwin ARM64 package, verifies the native executable, `codex exec` automation
+flags, ChatGPT authentication, and a successful WebSocket handshake. The
+external behavior and handoff-grader suites remain authoritative for the final
+`PASS`, `SKIP`, or `FAIL` result; binary availability alone is not reported as
+a passed model-backed evaluation.
 
 ## OMX
 

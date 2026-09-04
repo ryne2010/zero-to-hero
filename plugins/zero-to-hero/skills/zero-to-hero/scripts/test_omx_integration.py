@@ -54,6 +54,87 @@ def _run_json(
         raise IntegrationFailure(f"{' '.join(args)} emitted invalid JSON: {exc}") from exc
 
 
+def _run_rejected_json(
+    *,
+    probe: Mapping[str, Any],
+    cwd: Path,
+    args: list[str],
+    timeout: int,
+    env_overrides: Mapping[str, str | None],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    run = omx_adapter.run_bounded(
+        [str(probe["cli_path"]), "ultragoal", *args, "--json"],
+        cwd=cwd,
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    if run["timed_out"]:
+        raise IntegrationFailure(f"{' '.join(args)} timed out after {timeout} seconds")
+    if run["returncode"] == 0:
+        raise IntegrationFailure(f"{' '.join(args)} unexpectedly succeeded")
+    try:
+        return json.loads(run["stdout"]), run
+    except json.JSONDecodeError as exc:
+        raise IntegrationFailure(
+            f"{' '.join(args)} emitted invalid rejection JSON: {exc}"
+        ) from exc
+
+
+def _read_ledger(root: Path) -> list[dict[str, Any]]:
+    return [
+        json.loads(line)
+        for line in (root / ".omx/ultragoal/ledger.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line.strip()
+    ]
+
+
+def _goal(plan: Mapping[str, Any], goal_id: str) -> dict[str, Any]:
+    for candidate in plan.get("goals", []):
+        if isinstance(candidate, dict) and candidate.get("id") == goal_id:
+            return candidate
+    raise IntegrationFailure(f"plan does not contain goal {goal_id}")
+
+
+def _clean_quality_gate() -> dict[str, Any]:
+    return {
+        "aiSlopCleaner": {
+            "status": "passed",
+            "evidence": "synthetic anti-slop cleanup passed",
+        },
+        "verification": {
+            "status": "passed",
+            "commands": ["synthetic verification"],
+            "evidence": "synthetic verification passed after cleanup",
+        },
+        "codeReview": {
+            "recommendation": "APPROVE",
+            "architectStatus": "CLEAR",
+            "evidence": "synthetic independent review approved the probe",
+            "independentReview": {
+                "codeReviewer": {
+                    "agentRole": "code-reviewer",
+                    "evidence": "synthetic code-reviewer returned APPROVE",
+                },
+                "architect": {
+                    "agentRole": "architect",
+                    "evidence": "synthetic architect returned CLEAR",
+                },
+            },
+        },
+        "architectureInvariantGate": {
+            "status": "passed",
+            "sourceArtifacts": [
+                ".omx/ultragoal/brief.md",
+                ".omx/ultragoal/goals.json",
+            ],
+            "invariants": [],
+            "evidence": "the synthetic brief declared no architecture invariants",
+        },
+    }
+
+
 def run_timeout_regression() -> list[dict[str, Any]]:
     """Prove a timeout cannot be mistaken for success or leave a POSIX child alive."""
 
@@ -163,6 +244,611 @@ def run_timeout_regression() -> list[dict[str, Any]]:
                     ),
                 }
             )
+    return checks
+
+
+def run_structured_steering_integration(
+    *,
+    probe: Mapping[str, Any],
+    parent: Path,
+    timeout: int,
+    env_overrides: Mapping[str, str | None],
+) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    root = parent / "structured-steering"
+    root.mkdir()
+
+    created, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=[
+            "create-goals",
+            "--brief",
+            "Exercise the audited structured steering contract without changing its constraints.",
+            "--goal",
+            "Alpha::Complete alpha with deterministic evidence.",
+            "--goal",
+            "Beta::Complete beta with deterministic evidence.",
+            "--goal",
+            "Gamma::Complete gamma with deterministic evidence.",
+            "--goal",
+            "Delta::Complete delta with deterministic evidence.",
+        ],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    initial_plan = created["plan"]
+    initial_goal_ids = [goal["id"] for goal in initial_plan["goals"]]
+    aggregate_objective = initial_plan["codexObjective"]
+    initial_brief = (root / ".omx/ultragoal/brief.md").read_text(encoding="utf-8")
+    _assert(
+        checks,
+        len(initial_goal_ids) == 4,
+        "steering:create-explicit-goals",
+        initial_goal_ids,
+    )
+
+    add_args = [
+        "steer",
+        "--kind",
+        "add_subgoal",
+        "--title",
+        "Epsilon",
+        "--objective",
+        "Complete epsilon with deterministic evidence.",
+        "--evidence",
+        "The compatibility probe needs an appended schedule-eligible goal.",
+        "--rationale",
+        "Appending a bounded goal preserves the aggregate objective and original constraints.",
+        "--idempotency-key",
+        "integration-add-epsilon",
+    ]
+    added, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=add_args,
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    added_ids = [
+        goal["id"] for goal in added["plan"]["goals"] if goal["id"] not in initial_goal_ids
+    ]
+    _assert(checks, added["accepted"] is True, "steering:add:accepted", added["audit"])
+    _assert(
+        checks,
+        added["audit"]["targetGoalIds"] == [],
+        "steering:add:no-target",
+        added["audit"],
+    )
+    _assert(
+        checks,
+        len(added_ids) == 1 and _goal(added["plan"], added_ids[0])["status"] == "pending",
+        "steering:add:pending-goal-appended",
+        added_ids,
+    )
+    added_goal_id = added_ids[0]
+    ledger_after_add = _read_ledger(root)
+
+    replayed, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=add_args,
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    ledger_after_replay = _read_ledger(root)
+    _assert(
+        checks,
+        replayed["accepted"] is True and replayed["deduped"] is True,
+        "steering:add:idempotent-replay-deduped",
+        replayed["audit"],
+    )
+    _assert(
+        checks,
+        len(ledger_after_replay) == len(ledger_after_add),
+        "steering:add:dedupe-reuses-ledger-audit",
+        {
+            "before": len(ledger_after_add),
+            "after": len(ledger_after_replay),
+        },
+    )
+
+    split_target = initial_goal_ids[0]
+    split, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=[
+            "steer",
+            "--kind",
+            "split_subgoal",
+            "--target-goal-id",
+            split_target,
+            "--evidence",
+            "Alpha contains two independently verifiable slices.",
+            "--rationale",
+            "Replacement children isolate verification without deleting the original goal.",
+            "--after-json",
+            json.dumps(
+                {
+                    "children": [
+                        {
+                            "title": "Alpha one",
+                            "objective": "Complete alpha one with deterministic evidence.",
+                        },
+                        {
+                            "title": "Alpha two",
+                            "objective": "Complete alpha two with deterministic evidence.",
+                        },
+                    ]
+                }
+            ),
+            "--idempotency-key",
+            "integration-split-alpha",
+        ],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    split_parent = _goal(split["plan"], split_target)
+    split_children = split_parent.get("supersededBy", [])
+    _assert(
+        checks,
+        split["accepted"] is True
+        and split_parent.get("steeringStatus") == "superseded",
+        "steering:split:parent-retained-superseded",
+        split_parent,
+    )
+    _assert(
+        checks,
+        len(split_children) == 2
+        and all(_goal(split["plan"], child)["status"] == "pending" for child in split_children),
+        "steering:split:replacement-children",
+        split_children,
+    )
+
+    revise_target = initial_goal_ids[1]
+    directive_path = root / "revise-directive.json"
+    directive_path.write_text(
+        json.dumps(
+            {
+                "kind": "revise_pending_wording",
+                "source": "finding",
+                "targetGoalId": revise_target,
+                "title": "Beta clarified",
+                "objective": "Complete clarified beta with deterministic evidence.",
+                "evidence": "The Beta wording was ambiguous during the compatibility probe.",
+                "rationale": "Clarifying wording preserves status, constraints, and verification.",
+                "idempotencyKey": "integration-revise-beta",
+            }
+        ),
+        encoding="utf-8",
+    )
+    revised, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=["steer", "--directive-json", str(directive_path)],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    revised_goal = _goal(revised["plan"], revise_target)
+    _assert(
+        checks,
+        revised["accepted"] is True and revised["audit"]["source"] == "finding",
+        "steering:revise:directive-json-accepted",
+        revised["audit"],
+    )
+    _assert(
+        checks,
+        revised_goal["title"] == "Beta clarified"
+        and revised_goal["objective"]
+        == "Complete clarified beta with deterministic evidence."
+        and revised_goal["status"] == "pending",
+        "steering:revise:wording-only",
+        revised_goal,
+    )
+
+    schedule_eligible = [
+        goal["id"]
+        for goal in revised["plan"]["goals"]
+        if goal["status"] == "pending"
+        and goal.get("steeringStatus") not in {"superseded", "blocked"}
+    ]
+    requested_order = list(reversed(schedule_eligible))
+    reordered, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=[
+            "steer",
+            "--kind",
+            "reorder_pending",
+            "--evidence",
+            "The reverse synthetic order makes the mutation observable.",
+            "--rationale",
+            "Only schedule-eligible pending goals are included in the requested order.",
+            "--after-json",
+            json.dumps({"pendingGoalIds": requested_order}),
+            "--idempotency-key",
+            "integration-reorder-pending",
+        ],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    _assert(
+        checks,
+        reordered["accepted"] is True,
+        "steering:reorder:accepted",
+        reordered["audit"],
+    )
+    _assert(
+        checks,
+        [goal["id"] for goal in reordered["plan"]["goals"][: len(requested_order)]]
+        == requested_order,
+        "steering:reorder:after-pending-goal-ids",
+        [goal["id"] for goal in reordered["plan"]["goals"]],
+    )
+
+    annotate_target = initial_goal_ids[2]
+    plan_before_annotation = json.dumps(reordered["plan"], sort_keys=True)
+    annotated, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=[
+            "steer",
+            "--kind",
+            "annotate_ledger",
+            "--source",
+            "user_prompt_submit",
+            "--target-goal-id",
+            annotate_target,
+            "--evidence",
+            "A structured prompt-submit directive was explicitly supplied.",
+            "--rationale",
+            "The evidence belongs in the ledger without changing scheduling.",
+            "--idempotency-key",
+            "integration-annotate-gamma",
+        ],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    _assert(
+        checks,
+        annotated["accepted"] is True
+        and annotated["audit"]["source"] == "user_prompt_submit",
+        "steering:annotate:accepted-source",
+        annotated["audit"],
+    )
+    _assert(
+        checks,
+        json.dumps(annotated["plan"], sort_keys=True) == plan_before_annotation,
+        "steering:annotate:no-plan-mutation",
+        annotated["audit"],
+    )
+
+    blocked_target = initial_goal_ids[3]
+    blocked_rationale = (
+        "The current Delta path is evidence-backed as blocked and has no safe replacement yet."
+    )
+    marked_blocked, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=[
+            "steer",
+            "--kind",
+            "mark_blocked_superseded",
+            "--target-goal-id",
+            blocked_target,
+            "--evidence",
+            "The synthetic Delta dependency is unavailable.",
+            "--rationale",
+            blocked_rationale,
+            "--idempotency-key",
+            "integration-block-delta",
+        ],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    blocked_goal = _goal(marked_blocked["plan"], blocked_target)
+    _assert(
+        checks,
+        blocked_goal.get("steeringStatus") == "blocked"
+        and blocked_goal.get("blockedReason") == blocked_rationale,
+        "steering:mark-blocked:without-replacement",
+        blocked_goal,
+    )
+
+    superseded, _ = _run_json(
+        probe=probe,
+        cwd=root,
+        args=[
+            "steer",
+            "--kind",
+            "mark_blocked_superseded",
+            "--target-goal-id",
+            revise_target,
+            "--evidence",
+            "A safer replacement path for clarified Beta is now available.",
+            "--rationale",
+            "The replacement keeps the original goal audit-visible and restores a safe path.",
+            "--after-json",
+            json.dumps(
+                {
+                    "children": [
+                        {
+                            "title": "Beta replacement",
+                            "objective": "Complete the safer Beta replacement with evidence.",
+                        }
+                    ]
+                }
+            ),
+            "--idempotency-key",
+            "integration-supersede-beta",
+        ],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    superseded_goal = _goal(superseded["plan"], revise_target)
+    replacement_ids = superseded_goal.get("supersededBy", [])
+    _assert(
+        checks,
+        superseded_goal.get("steeringStatus") == "superseded"
+        and len(replacement_ids) == 1
+        and _goal(superseded["plan"], replacement_ids[0])["status"] == "pending",
+        "steering:mark-blocked:superseded-with-replacement",
+        superseded_goal,
+    )
+
+    plan_before_rejection = json.dumps(superseded["plan"], sort_keys=True)
+    rejected, rejected_run = _run_rejected_json(
+        probe=probe,
+        cwd=root,
+        args=[
+            "steer",
+            "--kind",
+            "revise_pending_wording",
+            "--target-goal-id",
+            added_goal_id,
+            "--evidence",
+            "The rejection probe intentionally proposes protected state.",
+            "--rationale",
+            "This would bypass verification and weaken the quality gate.",
+            "--after-json",
+            json.dumps(
+                {
+                    "title": "Unsafe rewrite",
+                    "codexObjective": "Complete a smaller objective.",
+                    "qualityGate": {"verification": {"status": "skipped"}},
+                }
+            ),
+            "--idempotency-key",
+            "integration-reject-protected",
+        ],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    _assert(
+        checks,
+        rejected_run["returncode"] == 1 and rejected["accepted"] is False,
+        "steering:protected-mutation-rejected",
+        rejected,
+    )
+    _assert(
+        checks,
+        any("protected objective" in reason for reason in rejected["rejectedReasons"])
+        and any("must not weaken" in reason for reason in rejected["rejectedReasons"]),
+        "steering:protected-rejection-reasons",
+        rejected["rejectedReasons"],
+    )
+    _assert(
+        checks,
+        json.dumps(rejected["plan"], sort_keys=True) == plan_before_rejection,
+        "steering:rejected-plan-unchanged",
+        rejected["audit"],
+    )
+
+    ledger_before_broad_prose = _read_ledger(root)
+    plan_before_broad_prose = (root / ".omx/ultragoal/goals.json").read_text(
+        encoding="utf-8"
+    )
+    broad_prose = omx_adapter.run_bounded(
+        [
+            str(probe["cli_path"]),
+            "ultragoal",
+            "steer",
+            "please rewrite the goals however seems best",
+        ],
+        cwd=root,
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    broad_output = f"{broad_prose['stdout']}\n{broad_prose['stderr']}"
+    _assert(
+        checks,
+        broad_prose["returncode"] != 0
+        and "rejects broad natural-language mutation requests" in broad_output,
+        "steering:broad-prose-rejected",
+        broad_output,
+    )
+    _assert(
+        checks,
+        len(_read_ledger(root)) == len(ledger_before_broad_prose)
+        and (root / ".omx/ultragoal/goals.json").read_text(encoding="utf-8")
+        == plan_before_broad_prose,
+        "steering:broad-prose-no-mutation",
+        None,
+    )
+
+    plural_target = omx_adapter.run_bounded(
+        [
+            str(probe["cli_path"]),
+            "ultragoal",
+            "steer",
+            "--kind",
+            "annotate_ledger",
+            "--target-goal-ids",
+            f"{annotate_target},{added_goal_id}",
+            "--evidence",
+            "Probe the plural target synopsis.",
+            "--rationale",
+            "The adapter must not rely on an advertised-only flag.",
+            "--json",
+        ],
+        cwd=root,
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    plural_output = f"{plural_target['stdout']}\n{plural_target['stderr']}"
+    _assert(
+        checks,
+        plural_target["returncode"] != 0
+        and "rejects broad natural-language mutation requests" in plural_output,
+        "steering:plural-target-flag-advertised-only",
+        plural_output,
+    )
+    _assert(
+        checks,
+        len(_read_ledger(root)) == len(ledger_before_broad_prose),
+        "steering:plural-target-rejection-no-ledger-mutation",
+        len(_read_ledger(root)),
+    )
+
+    final_plan = json.loads(
+        (root / ".omx/ultragoal/goals.json").read_text(encoding="utf-8")
+    )
+    final_ledger = _read_ledger(root)
+    accepted_entries = [
+        entry for entry in final_ledger if entry.get("event") == "steering_accepted"
+    ]
+    rejected_entries = [
+        entry for entry in final_ledger if entry.get("event") == "steering_rejected"
+    ]
+    _assert(
+        checks,
+        {entry.get("mutationKind") for entry in accepted_entries}
+        == set(omx_adapter.STEERING_MUTATION_KINDS),
+        "steering:all-six-mutation-kinds-audited",
+        [entry.get("mutationKind") for entry in accepted_entries],
+    )
+    _assert(
+        checks,
+        len(rejected_entries) == 1
+        and rejected_entries[0].get("steering", {})
+        .get("invariant", {})
+        .get("accepted")
+        is False,
+        "steering:accepted-and-rejected-ledger-audits",
+        {
+            "accepted": len(accepted_entries),
+            "rejected": len(rejected_entries),
+        },
+    )
+    _assert(
+        checks,
+        final_plan["codexObjective"] == aggregate_objective
+        and final_plan.get("aggregateCompletion") is None
+        and (root / ".omx/ultragoal/brief.md").read_text(encoding="utf-8")
+        == initial_brief,
+        "steering:protected-aggregate-state-immutable",
+        {
+            "codexObjective": final_plan.get("codexObjective"),
+            "aggregateCompletion": final_plan.get("aggregateCompletion"),
+        },
+    )
+    _assert(
+        checks,
+        set(initial_goal_ids).issubset(
+            {goal["id"] for goal in final_plan["goals"]}
+        )
+        and all(goal["status"] != "complete" for goal in final_plan["goals"]),
+        "steering:no-hard-delete-or-auto-complete",
+        [goal["id"] for goal in final_plan["goals"]],
+    )
+
+    cleanup_root = parent / "same-thread-cleanup"
+    cleanup_root.mkdir()
+    cleanup_task_objective = "Finish one synthetic item with verification."
+    cleanup_created, _ = _run_json(
+        probe=probe,
+        cwd=cleanup_root,
+        args=[
+            "create-goals",
+            "--brief",
+            cleanup_task_objective,
+            "--goal",
+            "Single::Complete the single synthetic item with verification.",
+        ],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    cleanup_goal_id = cleanup_created["plan"]["goals"][0]["id"]
+    _run_json(
+        probe=probe,
+        cwd=cleanup_root,
+        args=["complete-goals"],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    cleanup_run = omx_adapter.run_bounded(
+        [
+            str(probe["cli_path"]),
+            "ultragoal",
+            "checkpoint",
+            "--goal-id",
+            cleanup_goal_id,
+            "--status",
+            "complete",
+            "--evidence",
+            (
+                "Completed implementation for "
+                f".omx/ultragoal/goals.json {cleanup_goal_id}; synthetic validation "
+                "and independent review passed."
+            ),
+            "--codex-goal-json",
+            json.dumps(
+                {
+                    "goal": {
+                        "objective": cleanup_task_objective,
+                        "status": "complete",
+                    }
+                }
+            ),
+            "--quality-gate-json",
+            json.dumps(_clean_quality_gate()),
+        ],
+        cwd=cleanup_root,
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    cleanup_output = f"{cleanup_run['stdout']}\n{cleanup_run['stderr']}"
+    _assert(
+        checks,
+        cleanup_run["returncode"] == 0
+        and (
+            "run /goal clear in the Codex UI before calling create_goal for the next "
+            "OMX goal"
+        )
+        in cleanup_output,
+        "goal-clear:terminal-notice-after-completed-aggregate",
+        cleanup_output,
+    )
+    _assert(
+        checks,
+        "do not call /goal clear or hidden thread/goal/clear routes" in cleanup_output,
+        "goal-clear:omx-does-not-invoke-hidden-clear",
+        cleanup_output,
+    )
+    cleanup_status, _ = _run_json(
+        probe=probe,
+        cwd=cleanup_root,
+        args=["status"],
+        timeout=timeout,
+        env_overrides=env_overrides,
+    )
+    _assert(
+        checks,
+        cleanup_status["summary"]["aggregateComplete"] is True,
+        "goal-clear:notice-follows-terminal-completion",
+        cleanup_status["summary"],
+    )
+
     return checks
 
 
@@ -318,13 +1004,7 @@ def run_integration(probe: Mapping[str, Any], timeout: int) -> dict[str, Any]:
             blocked["plan"].get("activeGoalId"),
         )
 
-        ledger_lines = [
-            json.loads(line)
-            for line in (root / ".omx/ultragoal/ledger.jsonl")
-            .read_text(encoding="utf-8")
-            .splitlines()
-            if line.strip()
-        ]
+        ledger_lines = _read_ledger(root)
         ledger_events = [entry.get("event") for entry in ledger_lines]
         expected_events = [
             "plan_created",
@@ -378,6 +1058,15 @@ def run_integration(probe: Mapping[str, Any], timeout: int) -> dict[str, Any]:
             not (worker_root / ".omx/ultragoal/goals.json").exists(),
             "worker-guard:no-runtime-artifacts",
             str(worker_root),
+        )
+
+        checks.extend(
+            run_structured_steering_integration(
+                probe=probe,
+                parent=root,
+                timeout=timeout,
+                env_overrides=leader_env,
+            )
         )
 
     return {

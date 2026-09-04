@@ -33,14 +33,27 @@ python scripts/apply_zero_to_hero_templates.py /path/to/repo \
 Existing targets are preserved. Use `--force <exact-generated-path>` only for a
 reviewed, scoped replacement.
 
-6. Run the post-generation audit:
+6. Specialize generated documentation outside the machine-owned command
+markers, then refresh the command inventory and manifest hashes:
+
+```bash
+python3 scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --write --refresh-manifest
+```
+
+7. After committing an unchanged handoff, reproduce it only with the
+force-free `--write --replay-manifest` command recorded in the manifest. Run
+that command from the target repository root. Changed approval evidence
+requires a new explicit clean selection transaction.
+
+8. Run the post-generation audit:
 
 ```bash
 python scripts/target_repo_audit.py /path/to/repo \
   --profile mobile-app --profile api-service
 ```
 
-7. Continue with the lifecycle and prompt order generated from
+9. Continue with the lifecycle and prompt order generated from
 `references/contract-graph.yaml`. The implementation handoff remains neutral
 unless an operational optional adapter is explicitly selected.
 

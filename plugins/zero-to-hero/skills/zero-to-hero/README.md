@@ -53,6 +53,23 @@ python scripts/apply_zero_to_hero_templates.py /path/to/repo \
   --approved-capabilities-file /path/to/approved-capabilities.json
 ```
 
+For capabilities already approved in a repository brief, bind direct tokens to
+that exact evidence file. The brief must contain exactly one matching
+machine-readable line, for example:
+
+```text
+Approved capability tokens: web_frontend, api_backend
+```
+
+Then run:
+
+```bash
+python3 scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --approved-capability web_frontend \
+  --approved-capability api_backend \
+  --approved-capability-source PRODUCT_BRIEF.md
+```
+
 Compose profiles by repeating `--profile`:
 
 ```bash
@@ -77,6 +94,29 @@ python scripts/apply_zero_to_hero_templates.py /path/to/repo \
 
 The only generated manifest is
 `docs/00-meta/generated-files.manifest.yaml`.
+
+After specializing generated documentation or after repository commands change,
+run the bounded refresh recorded in that manifest:
+
+```bash
+python3 scripts/apply_zero_to_hero_templates.py /path/to/repo \
+  --write --refresh-manifest
+```
+
+This preserves target-authored bytes outside exact machine-owned command
+markers and does not require a clean tree or whole-file force.
+
+To reproduce an unchanged committed handoff, run the manifest's recorded
+command from the target repository root. Its lifecycle flag is:
+
+```bash
+python3 path/to/apply_zero_to_hero_templates.py . \
+  --write --replay-manifest
+```
+
+Replay preserves the manifest's exact profile/provenance selection and refuses
+changed approval evidence. Use a new explicit clean selection transaction for
+approval changes.
 
 ## Optional adapters
 

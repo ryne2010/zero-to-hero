@@ -77,6 +77,20 @@ class ProfileGenerationMatrixTests(unittest.TestCase):
                         (repo / generator.CANONICAL_MANIFEST).read_text(encoding="utf-8")
                     )
                     generator.validate_manifest(on_disk)
+                    handoff_check = subprocess.run(
+                        [
+                            sys.executable,
+                            str(repo / generator.HANDOFF_CHECK),
+                            str(repo),
+                        ],
+                        capture_output=True,
+                        text=True,
+                    )
+                    self.assertEqual(
+                        handoff_check.returncode,
+                        0,
+                        handoff_check.stderr or handoff_check.stdout,
+                    )
                     report = audit.audit_target(
                         repo=repo,
                         skill=SKILL,

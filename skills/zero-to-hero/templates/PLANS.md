@@ -5,10 +5,36 @@ outlive one agent session, or needs evidence from several validation layers. The
 plan is a living execution record, not a proposal that becomes stale after work
 starts.
 
+## Native Codex Goal Mode
+
+This contract is audited for native Codex CLI 0.145.0. When the outcome or
+execution scope is unclear, enter `/plan` and refine:
+
+- one observable outcome;
+- constraints, non-goals, authority, and external-effect boundaries; and
+- verification evidence plus the stop condition.
+
+Record the accepted result in the repository's active ExecPlan at
+`docs/implementation/EXECPLAN.md`, then enter `/goal`. Goal Mode provides
+thread-level continuity; it does not replace this durable repository record,
+create product authority, or relax any permission boundary. Keep that ExecPlan
+current as work progresses and after interruption.
+
+Give each parallel Codex thread its own Git worktree and disjoint file
+ownership. Never let parallel threads share write access to the same mutable
+working tree or generated/runtime state.
+
 ## Required plan contract
 
 Every plan must be self-contained. A new contributor should be able to continue
 from the plan and the repository alone.
+
+`PLANS.md` is this governing contract. `docs/implementation/EXECPLAN.md` is the
+living target-specific record. After editing the active plan, rerun the
+zero-to-hero generator with `--write --refresh-manifest`. That bounded
+transaction preserves target-authored content outside the exact machine-owned
+command markers, refreshes the command blocks from current repository evidence,
+and updates the canonical manifest hash without whole-file force.
 
 Include:
 

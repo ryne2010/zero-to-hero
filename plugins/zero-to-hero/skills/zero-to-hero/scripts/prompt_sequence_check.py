@@ -54,6 +54,9 @@ def main() -> int:
         expected = render_prompt(
             contract,
             global_forbidden_write_paths=graph["global_forbidden_write_paths"],
+            global_forbidden_write_exceptions=graph[
+                "global_forbidden_write_exceptions"
+            ],
         )
         if actual != expected:
             errors.append(

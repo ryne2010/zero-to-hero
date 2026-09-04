@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "contract_id": "zero-to-hero",
-  "audited_at": "2026-07-22",
+  "audited_at": "2026-07-23",
   "runtime_boundary": "Generate documentation, plans, harness specifications, configuration guidance, prompts, and handoff artifacts only. Never implement, modify, or execute the target product's runtime code.",
   "canonical_manifest_path": "docs/00-meta/generated-files.manifest.yaml",
   "global_forbidden_write_paths": [
@@ -29,6 +29,9 @@
     "**/*.tsx",
     "**/*.3mf"
   ],
+  "global_forbidden_write_exceptions": [
+    "scripts/zero_to_hero_handoff_check.py"
+  ],
   "base_artifacts": [
     {
       "path": ".gitignore",
@@ -53,6 +56,12 @@
       "source": "templates/PLANS.md",
       "required": true,
       "render": "copy"
+    },
+    {
+      "path": "docs/implementation/EXECPLAN.md",
+      "source": "dynamic:execplan",
+      "required": true,
+      "render": "execplan"
     },
     {
       "path": "CODEX.md",
@@ -131,6 +140,12 @@
       "source": "templates/docs/product-execution/README.md",
       "required": true,
       "render": "copy"
+    },
+    {
+      "path": "scripts/zero_to_hero_handoff_check.py",
+      "source": "templates/scripts/zero_to_hero_handoff_check.py",
+      "required": true,
+      "render": "copy"
     }
   ],
   "implementation_lifecycle": {
@@ -140,13 +155,13 @@
       "Architect review",
       "Critic review after Architect",
       "Explicit consensus gate",
-      "Ultragoal execution when compatible, otherwise native Codex ExecPlan or deterministic sequential execution",
+      "Native Codex Goal Mode backed by the durable ExecPlan, with Ultragoal execution when compatible or deterministic sequential execution otherwise",
       "Conditional Team or parallel execution only when the environment supports it and write ownership is disjoint",
       "Independent code review and architecture-invariant review",
       "UltraQA or the applicable final product verification"
     ],
     "ralph_policy": "Ralph is an explicitly selected alternate single-owner execution loop. It is never a mandatory post-Ultragoal review phase.",
-    "omx_policy": "OMX owns its runtime files. Generate a neutral brief first and let a compatible, interface-probed OMX CLI create or mutate Ultragoal state.",
+    "omx_policy": "OMX owns its runtime files. Generate a neutral brief first; let a compatible, interface-probed OMX CLI create or explicitly steer Ultragoal state; and use /goal clear only after a terminal aggregate run and before a second aggregate run in the same Codex thread.",
     "team_policy": "The leader alone owns Ultragoal state. Team workers return evidence and must not edit, checkpoint, or replace the leader's ledger."
   },
   "prompt_groups": {
@@ -331,6 +346,7 @@
         "FINAL_HANDOFF.md",
         "README.md",
         "docs/",
+        "scripts/zero_to_hero_handoff_check.py",
         "docs/00-meta/generated-files.manifest.yaml"
       ],
       "forbidden_writes": [
@@ -339,10 +355,11 @@
         ".omx runtime-owned files"
       ],
       "expected_outputs": [
-        "Target-specific AGENTS.md and self-contained PLANS.md contract",
+        "Target-specific AGENTS.md, self-contained PLANS.md contract, and concrete active ExecPlan",
         "Canonical source-of-truth and decision maps",
         "Profile-required substantive documentation",
-        "Canonical generated-file provenance manifest"
+        "Canonical generated-file provenance manifest",
+        "Dependency-free generated handoff-readiness validator"
       ],
       "evidence_and_checks": [
         "Manifest validates against its schema",
@@ -611,6 +628,8 @@
       "allowed_writes": [
         "AGENTS.md",
         "PLANS.md",
+        "docs/implementation/EXECPLAN.md",
+        "scripts/zero_to_hero_handoff_check.py",
         "docs/product-execution/",
         ".agents/skills/local-mode-verification/"
       ],
@@ -621,6 +640,7 @@
       ],
       "expected_outputs": [
         "Exact command matrix and one authoritative local done command",
+        "Runnable handoff-readiness validator that is composed with real product checks when they exist",
         "Runtime evidence, traceability, simulator, and negative-path contracts",
         "Scoped subagent ownership guidance"
       ],
@@ -648,6 +668,7 @@
       "goal": "Create a neutral, traceable implementation brief and approved planning evidence that native Codex can execute with or without OMX.",
       "required_reads": [
         "docs/implementation/IMPLEMENTATION_BRIEF.md",
+        "docs/implementation/EXECPLAN.md",
         "docs/implementation/PLANNING_EVIDENCE.md",
         "PLANS.md",
         "references/codex-omx-handoff.md",
@@ -659,12 +680,18 @@
       ],
       "constraints": [
         "Use Planner then Architect then Critic, followed by an explicit consensus gate",
+        "When native role routing is used, require tracker-backed native_subagent Architect and Critic provenance from distinct sequential completed threads",
+        "When the outcome or scope is unclear, use native Codex /plan, preserve the accepted result in the active ExecPlan, then use /goal",
         "Treat OMX as optional and interface-probed",
+        "Use only explicit structured omx ultragoal steer mutations and preserve accepted, rejected, or deduped ledger evidence",
+        "After a terminal aggregate Ultragoal run, use /goal clear only before a second aggregate run in the same Codex thread",
         "Leader alone owns Ultragoal state; Team workers return evidence only",
-        "Ralph is an explicitly selected alternate execution loop"
+        "Ralph is an explicitly selected alternate execution loop",
+        "When any product command category is unavailable, make the first milestone after consensus a blocking command bootstrap for real install, run/development, build, test, lint, format, type-check, integration, end-to-end, and authoritative ordered-gate commands before profile implementation"
       ],
       "allowed_writes": [
         "docs/implementation/IMPLEMENTATION_BRIEF.md",
+        "docs/implementation/EXECPLAN.md",
         "docs/implementation/PLANNING_EVIDENCE.md",
         "FINAL_HANDOFF.md",
         ".omx/ultragoal/ only through a compatible OMX CLI explicitly requested by the user"
@@ -676,22 +703,28 @@
       ],
       "expected_outputs": [
         "Neutral implementation brief with ordered stories and dependencies",
-        "Planner, Architect, Critic, and consensus evidence",
-        "Native ExecPlan or deterministic sequential fallback",
+        "Concrete active ExecPlan governed by PLANS.md",
+        "Planning artifacts plus tracker-backed native-subagent Architect, Critic, and consensus evidence when Ralplan is used",
+        "Blocking product-command bootstrap milestone whenever any required command category is unavailable",
+        "Native /goal handoff backed by the durable ExecPlan or deterministic sequential fallback",
         "Optional OMX CLI command only when compatibility probing passes"
       ],
       "evidence_and_checks": [
-        "OMX probe records version and required interface tokens when requested",
+        "Planning evidence records planning_artifacts, ralplan_architect_review, ralplan_critic_review, and ralplan_consensus_gate with Architect-before-Critic approval provenance",
+        "OMX probe records version, /goal clear lifecycle guidance, and the complete structured steering interface when requested",
         "Unsupported or missing OMX yields a neutral fallback",
+        "Every unavailable product command is labeled unavailable, no replacement command is invented, and the active ExecPlan blocks profile implementation on a real ordered product gate",
         "The brief is executable without conversation history"
       ],
       "stop_conditions": [
         "Consensus is not explicit",
+        "OMX Ralplan role routing lacks documented leader proof or tracker-backed native subagent evidence",
         "OMX is requested but its version or interface is unsupported",
+        "Product implementation would start before unavailable command categories and their authoritative ordered gate are bootstrapped",
         "A worker attempts to mutate leader-owned state"
       ],
       "done_when": [
-        "The handoff is implementation-ready under native Codex",
+        "The handoff is implementation-ready under native Codex /goal with a current durable ExecPlan",
         "Any OMX state was created only by the supported CLI"
       ],
       "runtime_boundary": "Do not implement or modify product runtime code. Produce the neutral brief, planning evidence, and optional CLI-created handoff only."

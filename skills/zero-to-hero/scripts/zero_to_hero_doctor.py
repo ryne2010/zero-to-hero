@@ -25,6 +25,8 @@ DEEP_REQUIRED = [
     'references/generated-file-manifest.md', 'references/rollback-policy.md',
     'references/repo-safety-preflight.md', 'references/instruction-trust-scan.md',
     'schemas/generated-files-manifest.schema.yaml', 'schemas/recovery-task-graph.schema.yaml',
+    'schemas/planning-evidence.schema.json', 'scripts/planning_evidence_check.py',
+    'scripts/test_planning_evidence_check.py',
     'fixtures/react-vite-scaffold/package.json', 'fixtures/api-fastapi/pyproject.toml',
     'fixtures/hardware-kicad/project.kicad_pro', 'fixtures/prompt-injection-risk/README.md',
 ]

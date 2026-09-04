@@ -22,9 +22,12 @@ optional adapter.
 
 - `AGENTS.md` records actual layout, exact repository commands, and one local
   done command.
-- `PLANS.md` defines restartable long-running execution.
+- `PLANS.md` defines restartable long-running execution, and
+  `docs/implementation/EXECPLAN.md` is the living target-specific plan.
 - `docs/implementation/IMPLEMENTATION_BRIEF.md` is execution-neutral.
 - `docs/implementation/PLANNING_EVIDENCE.md` records ordered review and
   consensus.
 - `docs/00-meta/generated-files.manifest.yaml` proves the scaffold transaction.
+- `scripts/zero_to_hero_handoff_check.py` validates the current handoff
+  baseline; it does not substitute for product behavior checks.
 - Profile-specific contracts supply applicable acceptance and negative evidence.

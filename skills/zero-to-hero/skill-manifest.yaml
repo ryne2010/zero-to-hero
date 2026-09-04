@@ -29,6 +29,7 @@ checks:
   aggregate: scripts/zero_to_hero_check.py
   target_repo_preflight: scripts/target_repo_audit.py
   phase_gates: scripts/phase_gate_check.py
+  planning_evidence: scripts/planning_evidence_check.py
 
 quality_scripts:
   instruction_trust_scan: scripts/instruction_trust_scan.py

@@ -8,7 +8,7 @@
 - tag commit: [`fdbb4b4fb62d95ae298cfe9a46fdc7092bdaf423`](https://github.com/earthtojake/text-to-cad/commit/fdbb4b4fb62d95ae298cfe9a46fdc7092bdaf423);
 - release source commit: `ac2659a1e7256b030a87dd4d45a37dcdccce6b45`;
 - published: `2026-07-10T19:58:16Z`;
-- audited: `2026-07-22`;
+- audited: `2026-07-23`;
 - release evidence: [text-to-CAD 0.3.9](https://github.com/earthtojake/text-to-cad/releases/tag/0.3.9);
 - runtime baseline: Python `>=3.12`.
 
