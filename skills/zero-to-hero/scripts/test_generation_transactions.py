@@ -30,6 +30,15 @@ from zero_to_hero_contract import (  # noqa: E402
 SKILL = Path(__file__).resolve().parents[1]
 
 
+def _split_command(command: str) -> list[str]:
+    """Parse a generated lifecycle command with host shell semantics."""
+
+    return [
+        token.strip('"')
+        for token in shlex.split(command, posix=os.name != "nt")
+    ]
+
+
 def _git(repo: Path, *args: str) -> None:
     result = subprocess.run(
         ["git", "-C", str(repo), *args],
@@ -460,7 +469,12 @@ class GenerationTransactionTests(unittest.TestCase):
         )
         self.assertEqual(
             generic["authoritative_done_commands"],
-            ["python3 scripts/zero_to_hero_handoff_check.py ."],
+            [
+                generator._resolved_python_command(
+                    "scripts/zero_to_hero_handoff_check.py",
+                    ".",
+                )
+            ],
         )
         self.assertNotIn("npm run check", generic["authoritative_done_command"])
         self.assertNotIn("npm run format", generic["authoritative_done_command"])
@@ -1071,13 +1085,14 @@ class GenerationTransactionTests(unittest.TestCase):
         self.assertNotIn("--profile", command)
         self.assertNotIn("--approved-capability", command)
         self.assertIn("--replay-manifest", command)
-        self.assertIn(shlex.split(command)[0], {"python3", "python", "py"})
+        command_parts = _split_command(command)
+        self.assertIn(command_parts[0], {"python3", "python", "py"})
         self.assertNotIn(str(self.repo), command)
         self.assertNotIn(sys.executable, command)
         _git(self.repo, "add", "-A")
         _git(self.repo, "commit", "-q", "-m", "generated handoff")
         replay = subprocess.run(
-            shlex.split(command),
+            command_parts,
             capture_output=True,
             text=True,
             cwd=self.repo,
@@ -1099,7 +1114,7 @@ class GenerationTransactionTests(unittest.TestCase):
         _git(self.repo, "add", "PRODUCT_BRIEF.md")
         _git(self.repo, "commit", "-q", "-m", "revoke API approval")
         revoked = subprocess.run(
-            shlex.split(command),
+            command_parts,
             capture_output=True,
             text=True,
             cwd=self.repo,
