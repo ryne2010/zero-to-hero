@@ -36,6 +36,7 @@ from zero_to_hero_contract import (  # noqa: E402
 )
 
 CANONICAL_MANIFEST = Path("docs/00-meta/generated-files.manifest.yaml")
+CANONICAL_MANIFEST_REL = CANONICAL_MANIFEST.as_posix()
 MANIFEST_SCHEMA_VERSION = 1
 TEXT_SUFFIXES = {
     "",
@@ -1353,7 +1354,7 @@ def validate_manifest(
             raise GenerationError(
                 f"preserved manifest record must have equal pre/post hashes: {path}"
             )
-        if path == str(CANONICAL_MANIFEST):
+        if path == CANONICAL_MANIFEST_REL:
             if record["post_write_sha256"] is not None:
                 raise GenerationError(
                     "canonical manifest self-reference hash must remain null"
@@ -1365,7 +1366,7 @@ def validate_manifest(
         (
             record
             for record in records
-            if record["target_path"] == str(CANONICAL_MANIFEST)
+            if record["target_path"] == CANONICAL_MANIFEST_REL
         ),
         None,
     )
@@ -1447,7 +1448,7 @@ def validate_manifest(
             )
     expected_generated = "planned" if status in {"preview", "in_progress"} else "written"
     for record in records:
-        if record["target_path"] == str(CANONICAL_MANIFEST):
+        if record["target_path"] == CANONICAL_MANIFEST_REL:
             continue
         if record["action"] != "skip" and record["generated_status"] != expected_generated:
             raise GenerationError(
@@ -1647,7 +1648,7 @@ def build_generation_plan(
 
     if manifest_item is None:
         raise GenerationError("contract graph has no canonical dynamic manifest artifact")
-    manifest_target = _contained_path(repo, str(CANONICAL_MANIFEST))
+    manifest_target = _contained_path(repo, CANONICAL_MANIFEST_REL)
     if manifest_target.exists() and (
         manifest_target.is_dir() or manifest_target.is_symlink()
     ):
@@ -1660,7 +1661,7 @@ def build_generation_plan(
         profile_definitions=profile_definitions,
     )
     manifest_record = _manifest_record(
-        target_path=str(CANONICAL_MANIFEST),
+        target_path=CANONICAL_MANIFEST_REL,
         source="dynamic:manifest",
         phase_id=manifest_item["phase_id"],
         profiles=manifest_profiles,
@@ -1695,7 +1696,7 @@ def build_generation_plan(
         },
         "transaction": {
             "mode": "dry-run" if dry_run else "staged-atomic-with-rollback",
-            "canonical_manifest": str(CANONICAL_MANIFEST),
+            "canonical_manifest": CANONICAL_MANIFEST_REL,
             "preserve_existing_by_default": True,
             "force_paths": sorted(forces),
             "rollback_on_commit_error": True,
@@ -1732,7 +1733,7 @@ def build_generation_plan(
     manifest_data = (json.dumps(manifest, indent=2, sort_keys=False) + "\n").encode("utf-8")
     planned.append(
         {
-            "target_path": str(CANONICAL_MANIFEST),
+            "target_path": CANONICAL_MANIFEST_REL,
             "source": "dynamic:manifest",
             "action": manifest_record["action"],
             "data": manifest_data,
@@ -1781,7 +1782,7 @@ def _validate_staged_plan(
                 raise GenerationError(
                     f"staged AGENTS.md is not target-specific: {agents_reason}"
                 )
-        if rel != str(CANONICAL_MANIFEST):
+        if rel != CANONICAL_MANIFEST_REL:
             digest = _sha256_path(result)
             if digest != record["post_write_sha256"]:
                 raise GenerationError(f"staged required artifact hash mismatch: {rel}")
@@ -1848,7 +1849,7 @@ def _in_progress_manifest_data(
     pending["status"] = "in_progress"
     for record in pending["files"]:
         if (
-            record["target_path"] != str(CANONICAL_MANIFEST)
+            record["target_path"] != CANONICAL_MANIFEST_REL
             and record["action"] != "skip"
         ):
             record["generated_status"] = "planned"
@@ -1866,7 +1867,7 @@ def _commit_transaction(
     manifest_items = [
         item
         for item in changes
-        if item["target_path"] == str(CANONICAL_MANIFEST)
+        if item["target_path"] == CANONICAL_MANIFEST_REL
     ]
     if len(manifest_items) != 1:
         raise GenerationError(
@@ -1876,7 +1877,7 @@ def _commit_transaction(
     content_changes = [
         item
         for item in changes
-        if item["target_path"] != str(CANONICAL_MANIFEST)
+        if item["target_path"] != CANONICAL_MANIFEST_REL
     ]
     snapshots: dict[str, tuple[bytes | None, int | None]] = {}
     created_dirs: set[Path] = set()
@@ -1898,8 +1899,8 @@ def _commit_transaction(
             cursor = cursor.parent
 
     try:
-        manifest_target = _contained_path(repo, str(CANONICAL_MANIFEST))
-        _, prior_manifest_mode = snapshots[str(CANONICAL_MANIFEST)]
+        manifest_target = _contained_path(repo, CANONICAL_MANIFEST_REL)
+        _, prior_manifest_mode = snapshots[CANONICAL_MANIFEST_REL]
         _write_atomic(
             manifest_target,
             _in_progress_manifest_data(skill, plan["manifest"]),
@@ -1919,7 +1920,7 @@ def _commit_transaction(
         }
         for item in plan["planned_files"]:
             rel = item["target_path"]
-            if rel == str(CANONICAL_MANIFEST):
+            if rel == CANONICAL_MANIFEST_REL:
                 continue
             target = _contained_path(repo, rel)
             if not target.is_file() or target.is_symlink():
@@ -2084,7 +2085,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--manifest",
-        default=str(CANONICAL_MANIFEST),
+        default=CANONICAL_MANIFEST_REL,
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
