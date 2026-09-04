@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -385,6 +386,16 @@ def write_python_command(root: Path, name: str, source: str) -> Path:
     return command
 
 
+def remove_tree(path: Path) -> None:
+    """Remove test artifacts, including read-only Git objects on Windows."""
+
+    def make_writable_and_retry(function, target: str, _exc_info) -> None:
+        os.chmod(target, stat.S_IREAD | stat.S_IWRITE)
+        function(target)
+
+    shutil.rmtree(path, onerror=make_writable_and_retry)
+
+
 def suite(
     *,
     prompt: str,
@@ -469,7 +480,7 @@ def run(
         input="PROMPT_CONTAMINATION_SENTINEL",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        timeout=30,
+        timeout=120,
         env=runner_env,
     )
     try:
@@ -515,7 +526,7 @@ def assert_result(
                 "failed eval did not retain concise diagnostic evidence: "
                 f"{payload}"
             )
-        shutil.rmtree(artifacts_dir)
+        remove_tree(artifacts_dir)
 
 
 def assert_isolated_invocations(

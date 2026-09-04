@@ -13,6 +13,7 @@ import re
 import shlex
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -105,6 +106,20 @@ class CommandResult:
     timed_out: bool
     seconds: float
     spawn_error: str | None = None
+
+
+def remove_tree(path: Path, *, ignore_errors: bool = False) -> None:
+    """Remove a tree, retrying read-only paths created by Git on Windows."""
+
+    def make_writable_and_retry(function, target: str, _exc_info) -> None:
+        os.chmod(target, stat.S_IREAD | stat.S_IWRITE)
+        function(target)
+
+    try:
+        shutil.rmtree(path, onerror=make_writable_and_retry)
+    except OSError:
+        if not ignore_errors:
+            raise
 
 
 def resolve_skill(path_arg: str | None) -> Path:
@@ -1587,7 +1602,7 @@ def main() -> int:
         return emit(summary, args.require_codex)
     finally:
         if auto_artifacts and suite_status != FAIL:
-            shutil.rmtree(artifacts_root, ignore_errors=True)
+            remove_tree(artifacts_root, ignore_errors=True)
 
 
 if __name__ == "__main__":
