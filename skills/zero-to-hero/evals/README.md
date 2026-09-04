@@ -39,7 +39,8 @@ python scripts/run_skill_evals.py . --no-model-grader
 ```
 
 The default run uses isolated temporary repositories with a clean committed baseline on a
-non-protected `codex/eval` branch, bounded subprocess timeouts, closed stdin,
+non-protected `codex/eval` branch, bounded subprocess timeouts, prompt-only stdin that is
+disconnected from the runner's caller input,
 `--ephemeral`, `--ignore-user-config`, `--ignore-rules`, and validated
 `--disable apps --disable plugins --disable hooks` feature isolation. It maps each case's
 declared sandbox to a strict custom permission profile (`:read-only` or `:workspace`) and

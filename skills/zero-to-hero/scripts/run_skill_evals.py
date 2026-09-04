@@ -127,6 +127,7 @@ def run_bounded(
     cwd: Path,
     timeout: int,
     env: dict[str, str],
+    input_text: str | None = None,
 ) -> CommandResult:
     start = time.monotonic()
     kwargs: dict[str, Any] = {}
@@ -139,7 +140,7 @@ def run_bounded(
             command,
             cwd=cwd,
             env=env,
-            stdin=subprocess.DEVNULL,
+            stdin=subprocess.PIPE if input_text is not None else subprocess.DEVNULL,
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -155,7 +156,7 @@ def run_bounded(
             spawn_error=str(exc),
         )
     try:
-        stdout, stderr = process.communicate(timeout=timeout)
+        stdout, stderr = process.communicate(input=input_text, timeout=timeout)
         return CommandResult(
             process.returncode,
             stdout,
@@ -1075,13 +1076,14 @@ def run_model_grader(
         command.extend(["--output-schema", str(schema.resolve()), "-o", str(output)])
         if grader_model:
             command.extend(["--model", grader_model])
-        command.append(prompt)
+        command.append("-")
         result = run_codex_isolated(
             command,
             cwd=grader_workspace,
             sandbox="read-only",
             timeout=timeout,
             caller_env=env,
+            prompt=prompt,
         )
         if result.spawn_error:
             return {
@@ -1160,13 +1162,15 @@ def run_case(
         case["sandbox"],
         model_catalog=model_catalog,
     )
-    command.append(behavior_prompt(case))
+    prompt = behavior_prompt(case)
+    command.append("-")
     result = run_codex_isolated(
         command,
         cwd=workspace,
         sandbox=case["sandbox"],
         timeout=timeout,
         caller_env=env,
+        prompt=prompt,
     )
     trace_path.write_text(result.stdout, encoding="utf-8")
     base = {
@@ -1300,6 +1304,7 @@ def run_codex_isolated(
     sandbox: str,
     timeout: int,
     caller_env: dict[str, str],
+    prompt: str,
 ) -> CommandResult:
     """Run one model-backed invocation with isolated state and denied auth reads."""
 
@@ -1319,6 +1324,7 @@ def run_codex_isolated(
             cwd=cwd,
             timeout=timeout,
             env=isolated_env,
+            input_text=prompt,
         )
 
 

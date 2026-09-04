@@ -25,6 +25,7 @@ import sys
 from pathlib import Path
 
 args = sys.argv[1:]
+input_text = sys.stdin.read()
 if args == ["--version"]:
     print("codex-fake 1.0")
     raise SystemExit(0)
@@ -70,8 +71,11 @@ if args and args[0] == "sandbox":
     raise SystemExit(0)  # PERMISSION_PROFILE_PROBE_OK
 if not args or args[0] != "exec":
     raise SystemExit(2)
-if sys.stdin.read():
+if "PROMPT_CONTAMINATION_SENTINEL" in input_text:
     print("piped caller input reached codex exec", file=sys.stderr)
+    raise SystemExit(6)
+if args[-1] != "-":
+    print("eval prompt was not routed through stdin", file=sys.stderr)
     raise SystemExit(6)
 configs = [
     args[index + 1]
@@ -201,7 +205,7 @@ for auth_path in (caller_home / "auth.json", codex_home / "auth.json"):
         raise SystemExit(26)
 invocation_kind = "grader" if "--output-schema" in args else "behavior"
 workspace = Path(args[args.index("--cd") + 1]).resolve()
-prompt = args[-1]
+prompt = input_text
 target = workspace
 if invocation_kind == "grader":
     marker = "JSON-encoded here: "
