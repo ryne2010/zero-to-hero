@@ -467,7 +467,7 @@ def _bullet_lines(items: Iterable[str]) -> list[str]:
 
 def render_prompt(
     contract: dict[str, Any],
-    source_rel: str = str(CONTRACT_REL),
+    source_rel: str = CONTRACT_REL.as_posix(),
     global_forbidden_write_paths: Iterable[str] = (),
 ) -> str:
     forbidden_writes = [
@@ -523,7 +523,7 @@ def rendered_phase_views(graph: dict[str, Any]) -> dict[Path, bytes]:
     phases = graph["phases"]
     state = {
         "schema_version": graph["schema_version"],
-        "source": str(CONTRACT_REL),
+        "source": CONTRACT_REL.as_posix(),
         "global_forbidden_write_paths": graph["global_forbidden_write_paths"],
         "phases": [
             {
@@ -543,7 +543,7 @@ def rendered_phase_views(graph: dict[str, Any]) -> dict[Path, bytes]:
     }
     gates = {
         "schema_version": graph["schema_version"],
-        "source": str(CONTRACT_REL),
+        "source": CONTRACT_REL.as_posix(),
         "gates": {
             phase["id"]: {
                 "entry": phase["entry_criteria"],
@@ -556,7 +556,7 @@ def rendered_phase_views(graph: dict[str, Any]) -> dict[Path, bytes]:
     }
     artifacts = {
         "schema_version": graph["schema_version"],
-        "source": str(CONTRACT_REL),
+        "source": CONTRACT_REL.as_posix(),
         "global_forbidden_write_paths": graph["global_forbidden_write_paths"],
         "phases": {
             phase["id"]: {
