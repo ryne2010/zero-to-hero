@@ -449,6 +449,8 @@ def run(
     if unset_codex_home:
         runner_env.pop("CODEX_HOME", None)
         runner_env["HOME"] = str(caller_codex_home.parent)
+        if os.name == "nt":
+            runner_env["USERPROFILE"] = str(caller_codex_home.parent)
     else:
         runner_env["CODEX_HOME"] = str(caller_codex_home)
     result = subprocess.run(
