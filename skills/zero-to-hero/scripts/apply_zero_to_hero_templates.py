@@ -2047,10 +2047,17 @@ raise SystemExit(1 if errors else 0)
 @functools.lru_cache(maxsize=1)
 def _external_schema_validator_launcher(
 ) -> tuple[tuple[str, ...], tuple[tuple[str, str], ...]] | None:
-    candidates = (
+    default_candidates = (
         (("py", "-3"), ("python3",), ("python",))
         if os.name == "nt"
         else (("python3",), ("python",))
+    )
+    candidates: list[tuple[str, ...]] = []
+    configured_python = os.environ.get("ZERO_TO_HERO_PYTHON", "").strip()
+    if configured_python:
+        candidates.append((configured_python,))
+    candidates.extend(
+        candidate for candidate in default_candidates if candidate not in candidates
     )
     for candidate in candidates:
         if shutil.which(candidate[0]) is None:
@@ -2111,7 +2118,8 @@ def _external_manifest_schema_errors(
     if resolved is None:
         raise GenerationError(
             "jsonschema is required for generated-manifest validation; install it "
-            "for python3 or provide it in a discoverable pyenv interpreter"
+            "for the selected maintenance Python, set ZERO_TO_HERO_PYTHON to a "
+            "compatible interpreter, or provide one through pyenv"
         )
     launcher, environment_values = resolved
     environment = os.environ.copy()

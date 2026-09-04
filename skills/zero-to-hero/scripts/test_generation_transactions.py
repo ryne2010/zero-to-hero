@@ -1091,11 +1091,14 @@ class GenerationTransactionTests(unittest.TestCase):
         self.assertNotIn(sys.executable, command)
         _git(self.repo, "add", "-A")
         _git(self.repo, "commit", "-q", "-m", "generated handoff")
+        replay_env = os.environ.copy()
+        replay_env["ZERO_TO_HERO_PYTHON"] = sys.executable
         replay = subprocess.run(
             command_parts,
             capture_output=True,
             text=True,
             cwd=self.repo,
+            env=replay_env,
         )
         self.assertEqual(replay.returncode, 0, replay.stderr or replay.stdout)
         replayed = json.loads(replay.stdout)
@@ -1118,6 +1121,7 @@ class GenerationTransactionTests(unittest.TestCase):
             capture_output=True,
             text=True,
             cwd=self.repo,
+            env=replay_env,
         )
         self.assertNotEqual(revoked.returncode, 0)
         self.assertIn(
